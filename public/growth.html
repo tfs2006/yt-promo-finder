@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Channel Growth Tracker - YouTube Promo Finder</title>
+  <meta name="description" content="Track YouTube channel growth, statistics, and upload patterns over time." />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .fade-in { animation: fadein 0.4s ease-out; }
+    @keyframes fadein { 
+      from { opacity: 0; transform: translateY(8px); } 
+      to { opacity: 1; transform: translateY(0); } 
+    }
+    .spin { animation: spin 1s linear infinite; }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+    .gradient-text { 
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 50%, #1d4ed8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .glass-effect {
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(12px);
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-100 min-h-screen">
+  <div class="max-w-6xl mx-auto px-4 py-12 md:py-16">
+    <header class="mb-10">
+      <a href="/" class="inline-flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors mb-6">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+        </svg>
+        Back to Home
+      </a>
+      <div class="inline-flex items-center gap-2 mb-4 px-4 py-2 rounded-full glass-effect border border-blue-500/20">
+        <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+        </svg>
+        <span class="text-sm font-medium text-blue-400">Growth Analytics</span>
+      </div>
+      <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
+        Channel <span class="gradient-text">Growth Tracker</span>
+      </h1>
+      <p class="text-slate-300 mt-4 text-lg md:text-xl max-w-3xl">
+        Analyze channel statistics, upload patterns, and growth trends.
+        See how often creators post and discover their content schedule.
+      </p>
+    </header>
+
+    <section class="glass-effect border border-slate-700/50 rounded-3xl p-6 md:p-8 shadow-2xl">
+      <form id="form" class="flex flex-col gap-3 md:flex-row md:items-center">
+        <div class="flex-1 relative">
+          <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+          </svg>
+          <input 
+            id="url" 
+            type="text" 
+            placeholder="https://www.youtube.com/@YourFavoriteCreator" 
+            class="w-full rounded-xl bg-slate-900/80 border border-slate-700 pl-12 pr-4 py-3.5 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" 
+            required 
+            aria-label="YouTube channel URL"
+          />
+        </div>
+        <button 
+          id="submitBtn" 
+          class="rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-400 hover:to-blue-500 text-white font-semibold px-8 py-3.5 transition-all shadow-lg hover:shadow-blue-500/25 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 min-w-[140px]"
+          type="submit"
+        >
+          <span id="btnText">Analyze</span>
+          <svg id="btnIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+          </svg>
+          <svg id="btnSpinner" class="w-5 h-5 spin hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+        </button>
+      </form>
+    </section>
+
+    <section id="status" class="mt-6 hidden"></section>
+    <section id="results" class="mt-6 space-y-4"></section>
+
+    <footer class="mt-16 pt-8 border-t border-slate-800/50">
+      <div class="pt-6 border-t border-slate-800/30">
+        <div class="flex flex-col md:flex-row items-center justify-between gap-4 text-sm">
+          <div class="text-slate-400">
+            <p class="text-center md:text-left">
+              <span class="text-blue-400 font-medium">Built for curiosity, powered by procrastination</span> 🎬
+              <br class="md:hidden" />
+              <span class="hidden md:inline">•</span>
+              Crafted with <span class="text-red-500">♥</span> by <a href="https://davidjwoodbury.com" target="_blank" rel="noopener" class="text-blue-400 hover:text-blue-300 font-medium transition-colors">David J Woodbury</a>
+            </p>
+          </div>
+          <div class="flex flex-col md:flex-row items-center gap-4 text-xs text-slate-500">
+            <span id="copyright">© <span id="year"></span> David J Woodbury. All rights reserved.</span>
+          </div>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    const form = document.getElementById('form');
+    const urlInput = document.getElementById('url');
+    const statusEl = document.getElementById('status');
+    const resultsEl = document.getElementById('results');
+    const submitBtn = document.getElementById('submitBtn');
+    const btnText = document.getElementById('btnText');
+    const btnIcon = document.getElementById('btnIcon');
+    const btnSpinner = document.getElementById('btnSpinner');
+
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    function setStatus(html, tone="info") {
+      statusEl.classList.remove('hidden');
+      const baseClasses = "mt-6 rounded-2xl border p-5 fade-in";
+      if (tone === "error") {
+        statusEl.className = baseClasses + " glass-effect border-rose-500/50 text-rose-200";
+      } else {
+        statusEl.className = baseClasses + " glass-effect border-slate-700/50 text-slate-200";
+      }
+      statusEl.innerHTML = html;
+    }
+    
+    function clearStatus() { 
+      statusEl.classList.add('hidden'); 
+      statusEl.innerHTML = ""; 
+    }
+
+    function setLoading(loading) {
+      submitBtn.disabled = loading;
+      if (loading) {
+        btnText.textContent = 'Analyzing...';
+        btnIcon.classList.add('hidden');
+        btnSpinner.classList.remove('hidden');
+      } else {
+        btnText.textContent = 'Analyze';
+        btnIcon.classList.remove('hidden');
+        btnSpinner.classList.add('hidden');
+      }
+    }
+
+    function formatNumber(num) {
+      if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+      if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+      return num.toString();
+    }
+
+    function formatDate(iso) {
+      return new Date(iso).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const u = urlInput.value.trim();
+      if (!u) return;
+      
+      resultsEl.innerHTML = "";
+      setLoading(true);
+      setStatus(`
+        <div class="flex items-center gap-3">
+          <svg class="w-5 h-5 spin text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <span class="font-medium">Analyzing channel growth and upload patterns...</span>
+        </div>
+      `);
+      
+      const r = await fetch(`/api/growth?url=${encodeURIComponent(u)}`);
+      setLoading(false);
+      
+      if (!r.ok) {
+        const msg = await r.json().catch(() => ({error: 'Unexpected error'}));
+        setStatus(`
+          <div class="flex items-start gap-3">
+            <svg class="w-6 h-6 text-rose-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <div>
+              <div class="font-semibold text-lg">Error</div>
+              <div class="text-sm mt-1 text-rose-300">${msg.error || 'Unexpected server error.'}</div>
+            </div>
+          </div>
+        `, "error");
+        return;
+      }
+      
+      const data = await r.json();
+      clearStatus();
+
+      // Channel Stats Card
+      const statsCard = document.createElement('div');
+      statsCard.className = "glass-effect border border-blue-500/30 rounded-2xl p-6 fade-in";
+      statsCard.innerHTML = `
+        <h2 class="text-2xl font-bold text-white mb-4 flex items-center gap-2">
+          <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+          </svg>
+          Channel Statistics
+        </h2>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div class="bg-slate-900/60 border border-slate-800 rounded-xl p-4">
+            <div class="text-slate-400 text-sm mb-1">Subscribers</div>
+            <div class="text-2xl font-bold text-blue-400">${formatNumber(data.stats.subscriberCount)}</div>
+          </div>
+          <div class="bg-slate-900/60 border border-slate-800 rounded-xl p-4">
+            <div class="text-slate-400 text-sm mb-1">Total Videos</div>
+            <div class="text-2xl font-bold text-blue-400">${formatNumber(data.stats.videoCount)}</div>
+          </div>
+          <div class="bg-slate-900/60 border border-slate-800 rounded-xl p-4">
+            <div class="text-slate-400 text-sm mb-1">Total Views</div>
+            <div class="text-2xl font-bold text-blue-400">${formatNumber(data.stats.viewCount)}</div>
+          </div>
+          <div class="bg-slate-900/60 border border-slate-800 rounded-xl p-4">
+            <div class="text-slate-400 text-sm mb-1">Avg Views/Video</div>
+            <div class="text-2xl font-bold text-blue-400">${formatNumber(Math.round(data.stats.viewCount / data.stats.videoCount))}</div>
+          </div>
+        </div>
+        <div class="mt-4 text-sm text-slate-400">
+          <span class="font-medium">Channel Created:</span> ${formatDate(data.stats.publishedAt)}
+        </div>
+      `;
+      resultsEl.appendChild(statsCard);
+
+      // Upload Pattern Card
+      const patternCard = document.createElement('div');
+      patternCard.className = "glass-effect border border-slate-700/50 rounded-2xl p-6 fade-in";
+      patternCard.innerHTML = `
+        <h2 class="text-2xl font-bold text-white mb-4 flex items-center gap-2">
+          <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+          </svg>
+          Upload Patterns (Last 50 Videos)
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="bg-slate-900/60 border border-slate-800 rounded-xl p-4">
+            <div class="text-slate-400 text-sm mb-1">Average Frequency</div>
+            <div class="text-xl font-bold text-white">${data.uploadPattern.averageFrequency}</div>
+          </div>
+          <div class="bg-slate-900/60 border border-slate-800 rounded-xl p-4">
+            <div class="text-slate-400 text-sm mb-1">Most Common Day</div>
+            <div class="text-xl font-bold text-white">${data.uploadPattern.mostCommonDay}</div>
+          </div>
+          <div class="bg-slate-900/60 border border-slate-800 rounded-xl p-4">
+            <div class="text-slate-400 text-sm mb-1">Latest Upload</div>
+            <div class="text-xl font-bold text-white">${data.uploadPattern.latestUpload}</div>
+          </div>
+        </div>
+        <div class="mt-4">
+          <div class="text-sm text-slate-400 mb-2">Upload Distribution by Day:</div>
+          <div class="grid grid-cols-7 gap-2">
+            ${['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day, i) => {
+              const count = data.uploadPattern.dayDistribution[i] || 0;
+              const maxCount = Math.max(...Object.values(data.uploadPattern.dayDistribution));
+              const height = maxCount > 0 ? (count / maxCount) * 100 : 0;
+              return `
+                <div class="text-center">
+                  <div class="bg-slate-800 rounded-lg overflow-hidden h-24 flex items-end justify-center mb-1">
+                    <div class="bg-blue-500 w-full transition-all" style="height: ${height}%"></div>
+                  </div>
+                  <div class="text-xs text-slate-400">${day}</div>
+                  <div class="text-xs font-semibold text-white">${count}</div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `;
+      resultsEl.appendChild(patternCard);
+
+      // Recent Videos
+      if (data.recentVideos && data.recentVideos.length) {
+        const videosCard = document.createElement('div');
+        videosCard.className = "glass-effect border border-slate-700/50 rounded-2xl p-6 fade-in";
+        videosCard.innerHTML = `
+          <h2 class="text-2xl font-bold text-white mb-4 flex items-center gap-2">
+            <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            Recent Uploads
+          </h2>
+          <div class="space-y-3">
+            ${data.recentVideos.slice(0, 10).map(v => `
+              <div class="bg-slate-900/40 border border-slate-800 rounded-lg p-3 hover:border-blue-500/30 transition-all">
+                <div class="flex items-center justify-between gap-3">
+                  <a href="https://www.youtube.com/watch?v=${v.videoId}" target="_blank" rel="noopener" class="text-white hover:text-blue-400 font-medium transition-colors flex-1">${v.title}</a>
+                  <span class="text-sm text-slate-400 whitespace-nowrap">${formatDate(v.publishedAt)}</span>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+        resultsEl.appendChild(videosCard);
+      }
+    });
+  </script>
+</body>
+</html>

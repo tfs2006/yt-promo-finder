@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Collaboration Finder - YouTube Promo Finder</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .fade-in { animation: fadein 0.4s ease-out; }
+    @keyframes fadein { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .spin { animation: spin 1s linear infinite; }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    .gradient-text { background: linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .glass-effect { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(12px); }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-100 min-h-screen">
+  <div class="max-w-6xl mx-auto px-4 py-12">
+    <header class="mb-10">
+      <a href="/" class="inline-flex items-center gap-2 text-amber-400 hover:text-amber-300 transition-colors mb-6">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+        </svg>
+        Back to Home
+      </a>
+      <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
+        <span class="gradient-text">Collaboration</span> Finder
+      </h1>
+      <p class="text-slate-300 mt-4 text-lg">Discover channel networks and collaboration patterns by analyzing video descriptions.</p>
+    </header>
+    <section class="glass-effect border border-slate-700/50 rounded-3xl p-6 md:p-8 shadow-2xl">
+      <form id="form">
+        <div class="flex gap-3">
+          <input id="url" type="text" placeholder="https://www.youtube.com/@YourFavoriteCreator" class="flex-1 rounded-xl bg-slate-900/80 border border-slate-700 px-4 py-3.5 outline-none focus:ring-2 focus:ring-amber-500" required />
+          <button id="submitBtn" class="rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-white font-semibold px-8 py-3.5 transition-all" type="submit">
+            <span id="btnText">Find</span>
+            <svg id="btnSpinner" class="w-5 h-5 spin hidden inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+          </button>
+        </div>
+      </form>
+    </section>
+    <section id="status" class="mt-6 hidden"></section>
+    <section id="results" class="mt-6 space-y-4"></section>
+  </div>
+  <script>
+    const form = document.getElementById('form');
+    const urlInput = document.getElementById('url');
+    const statusEl = document.getElementById('status');
+    const resultsEl = document.getElementById('results');
+    const submitBtn = document.getElementById('submitBtn');
+    const btnText = document.getElementById('btnText');
+    const btnSpinner = document.getElementById('btnSpinner');
+
+    function setStatus(html, tone="info") {
+      statusEl.classList.remove('hidden');
+      statusEl.className = "mt-6 rounded-2xl border p-5 fade-in glass-effect " + (tone === "error" ? "border-rose-500/50 text-rose-200" : "border-slate-700/50 text-slate-200");
+      statusEl.innerHTML = html;
+    }
+    
+    function clearStatus() { statusEl.classList.add('hidden'); statusEl.innerHTML = ""; }
+
+    function setLoading(loading) {
+      submitBtn.disabled = loading;
+      btnText.textContent = loading ? 'Analyzing...' : 'Find';
+      btnSpinner.classList.toggle('hidden', !loading);
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const u = urlInput.value.trim();
+      if (!u) return;
+      
+      resultsEl.innerHTML = "";
+      setLoading(true);
+      setStatus('<div class="flex items-center gap-3"><svg class="w-5 h-5 spin text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><span>Analyzing channel mentions...</span></div>');
+      
+      const r = await fetch(`/api/collab?url=${encodeURIComponent(u)}`);
+      setLoading(false);
+      
+      if (!r.ok) {
+        const msg = await r.json().catch(() => ({error: 'Unexpected error'}));
+        setStatus(`<div><div class="font-semibold text-lg">Error</div><div class="text-sm mt-1">${msg.error || 'Unexpected error.'}</div></div>`, "error");
+        return;
+      }
+      
+      const data = await r.json();
+      clearStatus();
+
+      if (!data.collaborations.length) {
+        setStatus('<div><div class="font-semibold text-lg">No collaborations found</div><div class="text-sm mt-1">No channel mentions detected in recent videos.</div></div>', "info");
+        return;
+      }
+
+      const hdr = document.createElement('div');
+      hdr.className = "glass-effect border border-amber-500/30 rounded-2xl p-5 mb-6 fade-in";
+      hdr.innerHTML = `<div class="text-slate-200">Analyzed <span class="font-semibold text-amber-400">${data.videosAnalyzed}</span> videos • Found <span class="font-semibold text-amber-400">${data.collaborations.length}</span> collaborations</div>`;
+      resultsEl.appendChild(hdr);
+
+      for (const c of data.collaborations) {
+        const card = document.createElement('div');
+        card.className = "glass-effect border border-slate-700/50 rounded-2xl p-5 fade-in hover:border-amber-500/30 transition-all";
+        card.innerHTML = `
+          <div class="flex items-start gap-4">
+            <img src="${c.thumbnail || ''}" class="w-12 h-12 rounded-full" alt="${c.title}" />
+            <div class="flex-1">
+              <h3 class="text-xl font-bold text-white">${c.title}</h3>
+              <p class="text-sm text-slate-400 mt-1">Mentioned ${c.mentionCount} time${c.mentionCount !== 1 ? 's' : ''}</p>
+              <a href="https://www.youtube.com/channel/${c.channelId}" target="_blank" class="inline-flex items-center gap-1 text-amber-400 hover:text-amber-300 text-sm mt-2">
+                View Channel
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+              </a>
+            </div>
+          </div>
+        `;
+        resultsEl.appendChild(card);
+      }
+    });
+  </script>
+</body>
+</html>
