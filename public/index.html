@@ -95,15 +95,35 @@
     <section id="results" class="mt-6 space-y-4"></section>
 
     <footer class="mt-16 pt-8 border-t border-slate-800/50">
-      <div class="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-slate-400">
+      <div class="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-slate-400 mb-6">
         <div class="flex items-start gap-2">
           <svg class="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
           </svg>
           <p>Results are based on video descriptions and may not capture all promotions shown on-screen or mentioned in audio.</p>
         </div>
-        <div class="text-slate-500">
-          Made with <span class="text-red-500">♥</span>
+      </div>
+      
+      <div class="pt-6 border-t border-slate-800/30">
+        <div class="flex flex-col md:flex-row items-center justify-between gap-4 text-sm">
+          <div class="text-slate-400">
+            <p class="text-center md:text-left">
+              <span class="text-emerald-400 font-medium">Built for curiosity, powered by procrastination</span> 🎬
+              <br class="md:hidden" />
+              <span class="hidden md:inline">•</span>
+              Crafted with <span class="text-red-500">♥</span> by <a href="https://github.com/tfs2006" target="_blank" rel="noopener" class="text-emerald-400 hover:text-emerald-300 font-medium transition-colors">David J Woodbury</a>
+            </p>
+          </div>
+          <div class="flex flex-col md:flex-row items-center gap-4 text-xs text-slate-500">
+            <span id="copyright">© <span id="year"></span> David J Woodbury. All rights reserved.</span>
+            <div class="flex gap-3">
+              <a href="/privacy" class="hover:text-emerald-400 transition-colors">Privacy Policy</a>
+              <span>•</span>
+              <a href="/terms" class="hover:text-emerald-400 transition-colors">Terms of Service</a>
+              <span>•</span>
+              <a href="/disclaimer" class="hover:text-emerald-400 transition-colors">Disclaimer</a>
+            </div>
+          </div>
         </div>
       </div>
     </footer>
@@ -187,6 +207,9 @@
     }
     
     const videoUrl = id => `https://www.youtube.com/watch?v=${id}`;
+
+    // Set current year in footer
+    document.getElementById('year').textContent = new Date().getFullYear();
 
     function setLoading(loading) {
       submitBtn.disabled = loading;

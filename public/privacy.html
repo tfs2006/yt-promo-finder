@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Privacy Policy - YouTube Promo Finder</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%); min-height: 100vh; }
+  </style>
+</head>
+<body class="text-slate-100">
+  <div class="max-w-4xl mx-auto px-4 py-12">
+    <div class="mb-8">
+      <a href="/" class="inline-flex items-center gap-2 text-emerald-400 hover:text-emerald-300 transition-colors mb-4">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+        </svg>
+        Back to Home
+      </a>
+      <h1 class="text-4xl md:text-5xl font-bold">Privacy Policy</h1>
+      <p class="text-slate-400 mt-2">Last updated: <span id="date"></span></p>
+    </div>
+
+    <div class="prose prose-invert prose-emerald max-w-none">
+      <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 md:p-8 space-y-6">
+        
+        <section>
+          <h2 class="text-2xl font-bold text-white mb-3">1. Information We Collect</h2>
+          <p class="text-slate-300 leading-relaxed">
+            YouTube Promo Finder is designed with privacy in mind. We do not collect, store, or track personal information about our users.
+          </p>
+          <ul class="list-disc list-inside text-slate-300 space-y-2 mt-3">
+            <li><strong>No Account Required:</strong> You can use our service without creating an account or providing personal information.</li>
+            <li><strong>No Cookies:</strong> We do not use cookies to track your behavior.</li>
+            <li><strong>YouTube Data:</strong> We only query publicly available YouTube data through the YouTube Data API v3.</li>
+            <li><strong>Server Logs:</strong> Standard server logs may temporarily record IP addresses for technical troubleshooting.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2 class="text-2xl font-bold text-white mb-3">2. How We Use Information</h2>
+          <p class="text-slate-300 leading-relaxed">
+            When you enter a YouTube channel URL:
+          </p>
+          <ul class="list-disc list-inside text-slate-300 space-y-2 mt-3">
+            <li>We query the YouTube Data API v3 to retrieve publicly available video information</li>
+            <li>We temporarily cache results to improve performance and reduce API calls</li>
+            <li>We analyze video descriptions to identify product links and promotions</li>
+            <li>No personal data is stored permanently</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2 class="text-2xl font-bold text-white mb-3">3. Third-Party Services</h2>
+          <p class="text-slate-300 leading-relaxed">
+            We use the following third-party services:
+          </p>
+          <ul class="list-disc list-inside text-slate-300 space-y-2 mt-3">
+            <li><strong>YouTube Data API v3:</strong> To retrieve channel and video information. Subject to <a href="https://www.youtube.com/t/terms" target="_blank" rel="noopener" class="text-emerald-400 hover:text-emerald-300">YouTube's Terms of Service</a> and <a href="https://policies.google.com/privacy" target="_blank" rel="noopener" class="text-emerald-400 hover:text-emerald-300">Google Privacy Policy</a>.</li>
+            <li><strong>Vercel:</strong> For hosting. Subject to <a href="https://vercel.com/legal/privacy-policy" target="_blank" rel="noopener" class="text-emerald-400 hover:text-emerald-300">Vercel's Privacy Policy</a>.</li>
+            <li><strong>Tailwind CSS CDN:</strong> For styling.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2 class="text-2xl font-bold text-white mb-3">4. Data Retention</h2>
+          <p class="text-slate-300 leading-relaxed">
+            Cached search results are stored in memory for up to 15 minutes and are automatically deleted. We do not maintain long-term databases of user queries or results.
+          </p>
+        </section>
+
+        <section>
+          <h2 class="text-2xl font-bold text-white mb-3">5. Your Rights</h2>
+          <p class="text-slate-300 leading-relaxed">
+            Since we don't collect personal information, there's no data to access, correct, or delete. Your searches are ephemeral and not tied to your identity.
+          </p>
+        </section>
+
+        <section>
+          <h2 class="text-2xl font-bold text-white mb-3">6. Children's Privacy</h2>
+          <p class="text-slate-300 leading-relaxed">
+            Our service does not knowingly collect information from children under 13. If you are under 13, please use this service with parental supervision.
+          </p>
+        </section>
+
+        <section>
+          <h2 class="text-2xl font-bold text-white mb-3">7. Changes to This Policy</h2>
+          <p class="text-slate-300 leading-relaxed">
+            We may update this Privacy Policy from time to time. Changes will be reflected by the "Last updated" date at the top of this page.
+          </p>
+        </section>
+
+        <section>
+          <h2 class="text-2xl font-bold text-white mb-3">8. Contact</h2>
+          <p class="text-slate-300 leading-relaxed">
+            For questions about this Privacy Policy, please contact us through <a href="https://github.com/tfs2006/yt-promo-finder" target="_blank" rel="noopener" class="text-emerald-400 hover:text-emerald-300">GitHub</a>.
+          </p>
+        </section>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('date').textContent = new Date().toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    });
+  </script>
+</body>
+</html>
