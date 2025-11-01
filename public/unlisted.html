@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Unlisted Video Finder - YouTube Promo Finder</title>
+  <meta name="description" content="Discover unlisted YouTube videos from any channel by searching through their public playlists." />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .fade-in { animation: fadein 0.4s ease-out; }
+    @keyframes fadein { 
+      from { opacity: 0; transform: translateY(8px); } 
+      to { opacity: 1; transform: translateY(0); } 
+    }
+    .slide-in { animation: slidein 0.5s ease-out; }
+    @keyframes slidein {
+      from { opacity: 0; transform: translateX(-10px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    .spin { animation: spin 1s linear infinite; }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+    .gradient-text { 
+      background: linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .glass-effect {
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(12px);
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-100 min-h-screen">
+  <div class="max-w-6xl mx-auto px-4 py-12 md:py-16">
+    <header class="mb-10">
+      <a href="/" class="inline-flex items-center gap-2 text-emerald-400 hover:text-emerald-300 transition-colors mb-6">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+        </svg>
+        Back to Promo Finder
+      </a>
+      <div class="inline-flex items-center gap-2 mb-4 px-4 py-2 rounded-full glass-effect border border-purple-500/20">
+        <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+        </svg>
+        <span class="text-sm font-medium text-purple-400">Discover Hidden Content</span>
+      </div>
+      <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
+        <span class="gradient-text">Unlisted Video</span> Finder
+      </h1>
+      <p class="text-slate-300 mt-4 text-lg md:text-xl max-w-3xl">
+        Discover unlisted YouTube videos from any channel by searching through their public playlists.
+        Find hidden gems that aren't shown in regular uploads!
+      </p>
+    </header>
+
+    <section class="glass-effect border border-slate-700/50 rounded-3xl p-6 md:p-8 shadow-2xl">
+      <form id="form" class="flex flex-col gap-3 md:flex-row md:items-center">
+        <div class="flex-1 relative">
+          <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+          </svg>
+          <input 
+            id="url" 
+            type="text" 
+            placeholder="https://www.youtube.com/@YourFavoriteCreator" 
+            class="w-full rounded-xl bg-slate-900/80 border border-slate-700 pl-12 pr-4 py-3.5 outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all" 
+            required 
+            aria-label="YouTube channel URL"
+          />
+        </div>
+        <button 
+          id="submitBtn" 
+          class="rounded-xl bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-400 hover:to-purple-500 text-white font-semibold px-8 py-3.5 transition-all shadow-lg hover:shadow-purple-500/25 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 min-w-[140px]"
+          type="submit"
+        >
+          <span id="btnText">Search</span>
+          <svg id="btnIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
+          <svg id="btnSpinner" class="w-5 h-5 spin hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+        </button>
+      </form>
+      <div class="mt-4 flex flex-wrap items-center gap-2 text-xs text-slate-400">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <span>Only shows unlisted videos that are in public playlists (respects privacy)</span>
+      </div>
+    </section>
+
+    <section id="status" class="mt-6 hidden"></section>
+    <section id="results" class="mt-6 space-y-4"></section>
+
+    <footer class="mt-16 pt-8 border-t border-slate-800/50">
+      <div class="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-slate-400 mb-6">
+        <div class="flex items-start gap-2">
+          <svg class="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <p>This tool only finds unlisted videos that are included in public playlists. Private videos and unlisted videos not in playlists cannot be discovered.</p>
+        </div>
+      </div>
+      
+      <div class="pt-6 border-t border-slate-800/30">
+        <div class="flex flex-col md:flex-row items-center justify-between gap-4 text-sm">
+          <div class="text-slate-400">
+            <p class="text-center md:text-left">
+              <span class="text-purple-400 font-medium">Built for curiosity, powered by procrastination</span> 🎬
+              <br class="md:hidden" />
+              <span class="hidden md:inline">•</span>
+              Crafted with <span class="text-red-500">♥</span> by <a href="https://davidjwoodbury.com" target="_blank" rel="noopener" class="text-purple-400 hover:text-purple-300 font-medium transition-colors">David J Woodbury</a>
+            </p>
+          </div>
+          <div class="flex flex-col md:flex-row items-center gap-4 text-xs text-slate-500">
+            <span id="copyright">© <span id="year"></span> David J Woodbury. All rights reserved.</span>
+            <div class="flex gap-3">
+              <a href="/privacy" class="hover:text-purple-400 transition-colors">Privacy Policy</a>
+              <span>•</span>
+              <a href="/terms" class="hover:text-purple-400 transition-colors">Terms of Service</a>
+              <span>•</span>
+              <a href="/disclaimer" class="hover:text-purple-400 transition-colors">Disclaimer</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <template id="videoCard">
+    <div class="fade-in glass-effect border border-slate-700/50 rounded-2xl p-5 md:p-6 hover:border-purple-500/30 transition-all hover:shadow-lg hover:shadow-purple-500/5">
+      <div class="flex gap-4">
+        <div class="flex-shrink-0">
+          <img class="w-40 h-24 object-cover rounded-lg" alt="Video thumbnail" />
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-start justify-between gap-3">
+            <div class="flex-1">
+              <h3 class="text-lg font-bold text-white mb-2 line-clamp-2"></h3>
+              <div class="flex flex-wrap items-center gap-3 text-sm text-slate-400 mb-2">
+                <span class="flex items-center gap-1">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                  </svg>
+                  <span class="published-date"></span>
+                </span>
+                <span class="unlisted-badge flex items-center gap-1 px-2 py-1 bg-purple-500/10 border border-purple-500/20 text-purple-400 rounded-lg text-xs font-semibold">
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                  </svg>
+                  Unlisted
+                </span>
+              </div>
+              <p class="text-sm text-slate-400 playlist-info mb-3"></p>
+              <a class="inline-flex items-center gap-2 text-purple-400 hover:text-purple-300 text-sm font-medium transition-colors" target="_blank" rel="noopener">
+                Watch on YouTube
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                </svg>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <script>
+    const form = document.getElementById('form');
+    const urlInput = document.getElementById('url');
+    const statusEl = document.getElementById('status');
+    const resultsEl = document.getElementById('results');
+    const tpl = document.getElementById('videoCard');
+    const submitBtn = document.getElementById('submitBtn');
+    const btnText = document.getElementById('btnText');
+    const btnIcon = document.getElementById('btnIcon');
+    const btnSpinner = document.getElementById('btnSpinner');
+
+    // Set current year in footer
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    function setStatus(html, tone="info") {
+      statusEl.classList.remove('hidden');
+      const baseClasses = "mt-6 rounded-2xl border p-5 fade-in";
+      if (tone === "error") {
+        statusEl.className = baseClasses + " glass-effect border-rose-500/50 text-rose-200";
+      } else if (tone === "success") {
+        statusEl.className = baseClasses + " glass-effect border-purple-500/50 text-purple-200";
+      } else {
+        statusEl.className = baseClasses + " glass-effect border-slate-700/50 text-slate-200";
+      }
+      statusEl.innerHTML = html;
+    }
+    
+    function clearStatus() { 
+      statusEl.classList.add('hidden'); 
+      statusEl.innerHTML = ""; 
+    }
+    
+    function formatDate(iso) { 
+      return new Date(iso).toLocaleDateString(undefined, { 
+        year: 'numeric', 
+        month: 'short', 
+        day: 'numeric' 
+      }); 
+    }
+    
+    const videoUrl = id => `https://www.youtube.com/watch?v=${id}`;
+
+    function setLoading(loading) {
+      submitBtn.disabled = loading;
+      if (loading) {
+        btnText.textContent = 'Searching...';
+        btnIcon.classList.add('hidden');
+        btnSpinner.classList.remove('hidden');
+      } else {
+        btnText.textContent = 'Search';
+        btnIcon.classList.remove('hidden');
+        btnSpinner.classList.add('hidden');
+      }
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const u = urlInput.value.trim();
+      if (!u) return;
+      
+      resultsEl.innerHTML = "";
+      setLoading(true);
+      setStatus(`
+        <div class="flex items-center gap-3">
+          <svg class="w-5 h-5 spin text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <span class="font-medium">Searching through public playlists for unlisted videos...</span>
+        </div>
+      `);
+      
+      const r = await fetch(`/api/unlisted?url=${encodeURIComponent(u)}`);
+      setLoading(false);
+      
+      if (!r.ok) {
+        const msg = await r.json().catch(() => ({error: 'Unexpected error'}));
+        setStatus(`
+          <div class="flex items-start gap-3">
+            <svg class="w-6 h-6 text-rose-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <div>
+              <div class="font-semibold text-lg">Error</div>
+              <div class="text-sm mt-1 text-rose-300">${msg.error || 'Unexpected server error. Please try again.'}</div>
+            </div>
+          </div>
+        `, "error");
+        return;
+      }
+      
+      const data = await r.json();
+      clearStatus();
+
+      const hdr = document.createElement('div');
+      hdr.className = "glass-effect border border-purple-500/30 rounded-2xl p-5 mb-6 fade-in";
+      hdr.innerHTML = `
+        <div class="flex items-center gap-3 flex-wrap">
+          <svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <div class="text-slate-200">
+            Searched <span class="font-semibold text-purple-400 text-lg">${data.playlistCount}</span> ${data.playlistCount === 1 ? 'playlist' : 'playlists'}
+            <span class="mx-2 text-slate-600">•</span>
+            Found <span class="font-semibold text-purple-400 text-lg">${data.unlistedVideos.length}</span> unlisted ${data.unlistedVideos.length === 1 ? 'video' : 'videos'}
+          </div>
+        </div>
+      `;
+      resultsEl.appendChild(hdr);
+
+      if (!data.unlistedVideos.length) {
+        setStatus(`
+          <div class="flex items-start gap-3">
+            <svg class="w-6 h-6 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <div>
+              <div class="font-semibold text-lg">No unlisted videos found</div>
+              <div class="text-sm mt-1">This channel either has no unlisted videos in public playlists, or all videos are public/private.</div>
+            </div>
+          </div>
+        `, "info");
+        return;
+      }
+
+      for (const v of data.unlistedVideos) {
+        const node = tpl.content.firstElementChild.cloneNode(true);
+        const title = node.querySelector("h3");
+        const thumbnail = node.querySelector("img");
+        const publishedDate = node.querySelector(".published-date");
+        const playlistInfo = node.querySelector(".playlist-info");
+        const link = node.querySelector("a");
+
+        title.textContent = v.title;
+        thumbnail.src = v.thumbnail || 'https://i.ytimg.com/img/no_thumbnail.jpg';
+        thumbnail.alt = v.title;
+        publishedDate.textContent = formatDate(v.publishedAt);
+        playlistInfo.innerHTML = `Found in playlist: <span class="text-purple-400 font-medium">${v.playlistTitle}</span>`;
+        link.href = videoUrl(v.videoId);
+        
+        resultsEl.appendChild(node);
+      }
+    });
+  </script>
+</body>
+</html>
