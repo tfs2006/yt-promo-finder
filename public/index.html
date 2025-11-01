@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>YouTube Promo Finder - Discover Product Promotions</title>
+  <meta name="description" content="Analyze YouTube channels to discover product promotions and affiliate links from the last year of uploads." />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .fade-in { animation: fadein 0.4s ease-out; }
+    @keyframes fadein { 
+      from { opacity: 0; transform: translateY(8px); } 
+      to { opacity: 1; transform: translateY(0); } 
+    }
+    .slide-in { animation: slidein 0.5s ease-out; }
+    @keyframes slidein {
+      from { opacity: 0; transform: translateX(-10px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    .spin { animation: spin 1s linear infinite; }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+    .gradient-text { 
+      background: linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .glass-effect {
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(12px);
+    }
+    details[open] summary ~ * { animation: slidein 0.3s ease-out; }
+    .copy-btn { transition: all 0.2s ease; }
+    .copy-btn:active { transform: scale(0.95); }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-100 min-h-screen">
+  <div class="max-w-6xl mx-auto px-4 py-12 md:py-16">
+    <header class="mb-10 text-center md:text-left">
+      <div class="inline-flex items-center gap-2 mb-4 px-4 py-2 rounded-full glass-effect border border-emerald-500/20">
+        <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+        </svg>
+        <span class="text-sm font-medium text-emerald-400">Channel Analysis Tool</span>
+      </div>
+      <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
+        YouTube Channel <span class="gradient-text">Promotion Finder</span>
+      </h1>
+      <p class="text-slate-300 mt-4 text-lg md:text-xl max-w-3xl">
+        Discover product promotions and affiliate links from any YouTube channel. 
+        Analyze the last year of uploads to uncover partnerships and recommendations.
+      </p>
+    </header>
+
+    <section class="glass-effect border border-slate-700/50 rounded-3xl p-6 md:p-8 shadow-2xl">
+      <form id="form" class="flex flex-col gap-3 md:flex-row md:items-center">
+        <div class="flex-1 relative">
+          <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+          </svg>
+          <input 
+            id="url" 
+            type="text" 
+            placeholder="https://www.youtube.com/@YourFavoriteCreator" 
+            class="w-full rounded-xl bg-slate-900/80 border border-slate-700 pl-12 pr-4 py-3.5 outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all" 
+            required 
+            aria-label="YouTube channel URL"
+          />
+        </div>
+        <button 
+          id="submitBtn" 
+          class="rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-white font-semibold px-8 py-3.5 transition-all shadow-lg hover:shadow-emerald-500/25 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 min-w-[140px]"
+          type="submit"
+        >
+          <span id="btnText">Analyze</span>
+          <svg id="btnIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+          </svg>
+          <svg id="btnSpinner" class="w-5 h-5 spin hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+        </button>
+      </form>
+      <div class="mt-4 flex flex-wrap items-center gap-2 text-xs text-slate-400">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <span>Supports URLs, handles like <span class="mono text-emerald-400">@MKBHD</span>, or channel IDs like <span class="mono text-emerald-400">UC-XXXX</span></span>
+      </div>
+    </section>
+
+    <section id="status" class="mt-6 hidden"></section>
+    <section id="results" class="mt-6 space-y-4"></section>
+
+    <footer class="mt-16 pt-8 border-t border-slate-800/50">
+      <div class="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-slate-400">
+        <div class="flex items-start gap-2">
+          <svg class="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <p>Results are based on video descriptions and may not capture all promotions shown on-screen or mentioned in audio.</p>
+        </div>
+        <div class="text-slate-500">
+          Made with <span class="text-red-500">♥</span>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <template id="promoRow">
+    <div class="fade-in glass-effect border border-slate-700/50 rounded-2xl p-5 md:p-6 hover:border-emerald-500/30 transition-all hover:shadow-lg hover:shadow-emerald-500/5">
+      <div class="flex items-start justify-between gap-4 flex-wrap md:flex-nowrap">
+        <div class="flex-1 min-w-0">
+          <div class="flex items-start gap-3">
+            <div class="flex-shrink-0 w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+              <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+              </svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <h3 class="text-xl font-bold text-white mb-2"></h3>
+              <div class="flex items-center gap-2 flex-wrap">
+                <a class="text-emerald-400 hover:text-emerald-300 mono text-sm break-all transition-colors" target="_blank" rel="noopener"></a>
+                <button class="copy-btn p-1.5 hover:bg-slate-800 rounded-lg transition-colors" title="Copy URL" aria-label="Copy URL">
+                  <svg class="w-4 h-4 text-slate-400 hover:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                  </svg>
+                </button>
+              </div>
+              <p class="text-xs text-slate-400 mt-2 font-medium"></p>
+            </div>
+          </div>
+        </div>
+        <span class="text-xs bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-lg px-3 py-1.5 font-semibold whitespace-nowrap"></span>
+      </div>
+      <div class="mt-4">
+        <details class="group">
+          <summary class="cursor-pointer text-sm text-slate-300 hover:text-white transition-colors flex items-center gap-2 select-none py-2">
+            <svg class="w-4 h-4 transition-transform group-open:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            </svg>
+            <span class="font-medium">View videos featuring this promotion</span>
+          </summary>
+          <ul class="mt-3 space-y-2 pl-6"></ul>
+        </details>
+      </div>
+    </div>
+  </template>
+
+  <script>
+    const form = document.getElementById('form');
+    const urlInput = document.getElementById('url');
+    const statusEl = document.getElementById('status');
+    const resultsEl = document.getElementById('results');
+    const tpl = document.getElementById('promoRow');
+    const submitBtn = document.getElementById('submitBtn');
+    const btnText = document.getElementById('btnText');
+    const btnIcon = document.getElementById('btnIcon');
+    const btnSpinner = document.getElementById('btnSpinner');
+
+    function setStatus(html, tone="info") {
+      statusEl.classList.remove('hidden');
+      const baseClasses = "mt-6 rounded-2xl border p-5 fade-in";
+      if (tone === "error") {
+        statusEl.className = baseClasses + " glass-effect border-rose-500/50 text-rose-200";
+      } else if (tone === "success") {
+        statusEl.className = baseClasses + " glass-effect border-emerald-500/50 text-emerald-200";
+      } else {
+        statusEl.className = baseClasses + " glass-effect border-slate-700/50 text-slate-200";
+      }
+      statusEl.innerHTML = html;
+    }
+    
+    function clearStatus() { 
+      statusEl.classList.add('hidden'); 
+      statusEl.innerHTML = ""; 
+    }
+    
+    function formatDate(iso) { 
+      return new Date(iso).toLocaleDateString(undefined, { 
+        year: 'numeric', 
+        month: 'short', 
+        day: 'numeric' 
+      }); 
+    }
+    
+    const videoUrl = id => `https://www.youtube.com/watch?v=${id}`;
+
+    function setLoading(loading) {
+      submitBtn.disabled = loading;
+      if (loading) {
+        btnText.textContent = 'Analyzing...';
+        btnIcon.classList.add('hidden');
+        btnSpinner.classList.remove('hidden');
+      } else {
+        btnText.textContent = 'Analyze';
+        btnIcon.classList.remove('hidden');
+        btnSpinner.classList.add('hidden');
+      }
+    }
+
+    async function copyToClipboard(text, btn) {
+      try {
+        await navigator.clipboard.writeText(text);
+        const originalHTML = btn.innerHTML;
+        btn.innerHTML = `<svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+        </svg>`;
+        setTimeout(() => { btn.innerHTML = originalHTML; }, 2000);
+      } catch (err) {
+        console.error('Failed to copy:', err);
+      }
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const u = urlInput.value.trim();
+      if (!u) return;
+      
+      resultsEl.innerHTML = "";
+      setLoading(true);
+      setStatus(`
+        <div class="flex items-center gap-3">
+          <svg class="w-5 h-5 spin text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <span class="font-medium">Analyzing the last 12 months of uploads… this may take a few seconds.</span>
+        </div>
+      `);
+      
+      const r = await fetch(`/api/analyze?url=${encodeURIComponent(u)}`);
+      setLoading(false);
+      
+      if (!r.ok) {
+        const msg = await r.json().catch(() => ({error: 'Unexpected error'}));
+        setStatus(`
+          <div class="flex items-start gap-3">
+            <svg class="w-6 h-6 text-rose-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <div>
+              <div class="font-semibold text-lg">Error</div>
+              <div class="text-sm mt-1 text-rose-300">${msg.error || 'Unexpected server error. Please try again.'}</div>
+            </div>
+          </div>
+        `, "error");
+        return;
+      }
+      
+      const data = await r.json();
+      clearStatus();
+
+      const hdr = document.createElement('div');
+      hdr.className = "glass-effect border border-emerald-500/30 rounded-2xl p-5 mb-6 fade-in";
+      hdr.innerHTML = `
+        <div class="flex items-center gap-3 flex-wrap">
+          <svg class="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <div class="text-slate-200">
+            <span class="font-semibold text-emerald-400 text-lg">${data.videoCount}</span> videos analyzed since 
+            <span class="mono font-medium">${new Date(data.sinceISO).toLocaleDateString()}</span>
+            <span class="mx-2 text-slate-600">•</span>
+            <span class="font-semibold text-emerald-400 text-lg">${data.promotions.length}</span> unique ${data.promotions.length === 1 ? 'promotion' : 'promotions'} found
+          </div>
+        </div>
+      `;
+      resultsEl.appendChild(hdr);
+
+      if (!data.promotions.length) {
+        setStatus(`
+          <div class="flex items-start gap-3">
+            <svg class="w-6 h-6 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <div>
+              <div class="font-semibold text-lg">No promotions detected</div>
+              <div class="text-sm mt-1">This channel may not include product links in video descriptions, or they may be too recent. Try another channel.</div>
+            </div>
+          </div>
+        `, "info");
+        return;
+      }
+
+      for (const p of data.promotions) {
+        const node = tpl.content.firstElementChild.cloneNode(true);
+        const title = node.querySelector("h3");
+        const link = node.querySelector("a");
+        const copyBtn = node.querySelector(".copy-btn");
+        const meta = node.querySelector("p");
+        const badge = node.querySelector("span");
+        const list = node.querySelector("ul");
+
+        title.textContent = p.productName ? `${p.productName}` : p.domain;
+        link.textContent = p.url.length > 60 ? p.url.substring(0, 57) + '...' : p.url;
+        link.href = p.url;
+        meta.textContent = p.productName ? `🔗 ${p.domain}` : `🔗 ${p.domain}`;
+        badge.textContent = `${p.occurrences} ${p.occurrences === 1 ? "mention" : "mentions"}`;
+        
+        copyBtn.addEventListener('click', () => copyToClipboard(p.url, copyBtn));
+
+        p.videos.sort((a,b) => new Date(b.publishedAt) - new Date(a.publishedAt));
+        for (const v of p.videos) {
+          const li = document.createElement('li');
+          li.className = "text-sm flex items-start gap-2 slide-in";
+          li.innerHTML = `
+            <svg class="w-4 h-4 text-slate-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <div class="flex-1">
+              <a class="text-emerald-400 hover:text-emerald-300 transition-colors font-medium" href="${videoUrl(v.videoId)}" target="_blank" rel="noopener">${v.title}</a>
+              <div class="text-xs text-slate-500 mt-1">${formatDate(v.publishedAt)}</div>
+            </div>
+          `;
+          list.appendChild(li);
+        }
+        resultsEl.appendChild(node);
+      }
+    });
+  </script>
+</body>
+</html>
