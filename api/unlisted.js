@@ -1,7 +1,4 @@
-import * as dotenv from "dotenv";
-dotenv.config();
-
-const API_KEY = process.env.YOUTUBE_API_KEY;
+import { consumeQuota, fetchJson, API_KEY } from "../utils.js";
 
 // Simple in-memory cache (15 min)
 const cache = new Map();
@@ -12,15 +9,6 @@ function getCache(key) {
   if (!entry) return null;
   if (Date.now() > entry.expires) { cache.delete(key); return null; }
   return entry.data;
-}
-
-async function fetchJson(url) {
-  const res = await fetch(url);
-  if (!res.ok) {
-    const txt = await res.text();
-    throw new Error(`HTTP ${res.status} for ${url}\n${txt}`);
-  }
-  return res.json();
 }
 
 function parseChannelIdFromUrl(rawUrl) {
@@ -45,11 +33,13 @@ function parseChannelIdFromUrl(rawUrl) {
 async function resolveChannelId(spec) {
   if (spec.type === "channelId") return spec.value;
   if (spec.type === "username") {
+    consumeQuota(1);
     const url = `https://www.googleapis.com/youtube/v3/channels?part=id&forUsername=${encodeURIComponent(spec.value)}&key=${API_KEY}`;
     const data = await fetchJson(url);
     if (data.items?.length) return data.items[0].id;
   }
   const q = spec.value.replace(/^@/, "");
+  consumeQuota(100);
   const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=channel&maxResults=1&q=${encodeURIComponent(q)}&key=${API_KEY}`;
   const data = await fetchJson(url);
   if (data.items?.length) {
@@ -63,6 +53,7 @@ async function getChannelPlaylists(channelId) {
   let pageToken = "";
   
   while (true) {
+    consumeQuota(1);
     const url = `https://www.googleapis.com/youtube/v3/playlists?part=snippet,contentDetails&channelId=${channelId}&maxResults=50&key=${API_KEY}${pageToken ? `&pageToken=${pageToken}` : ""}`;
     const data = await fetchJson(url);
     
@@ -87,6 +78,7 @@ async function getPlaylistVideos(playlistId) {
   let pageToken = "";
   
   while (true) {
+    consumeQuota(1);
     const url = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet,status&playlistId=${playlistId}&maxResults=50&key=${API_KEY}${pageToken ? `&pageToken=${pageToken}` : ""}`;
     const data = await fetchJson(url);
     

@@ -1,7 +1,4 @@
-import * as dotenv from "dotenv";
-dotenv.config();
-
-const API_KEY = process.env.YOUTUBE_API_KEY;
+import { consumeQuota, fetchJson, API_KEY } from "../utils.js";
 
 // Simple in-memory cache (15 min)
 const cache = new Map();
@@ -12,15 +9,6 @@ function getCache(key) {
   if (!entry) return null;
   if (Date.now() > entry.expires) { cache.delete(key); return null; }
   return entry.data;
-}
-
-async function fetchJson(url) {
-  const res = await fetch(url);
-  if (!res.ok) {
-    const txt = await res.text();
-    throw new Error(`HTTP ${res.status} for ${url}\n${txt}`);
-  }
-  return res.json();
 }
 
 function parseChannelIdFromUrl(rawUrl) {
@@ -45,11 +33,13 @@ function parseChannelIdFromUrl(rawUrl) {
 async function resolveChannelId(spec) {
   if (spec.type === "channelId") return spec.value;
   if (spec.type === "username") {
+    consumeQuota(1);
     const url = `https://www.googleapis.com/youtube/v3/channels?part=id&forUsername=${encodeURIComponent(spec.value)}&key=${API_KEY}`;
     const data = await fetchJson(url);
     if (data.items?.length) return data.items[0].id;
   }
   const q = spec.value.replace(/^@/, "");
+  consumeQuota(100);
   const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=channel&maxResults=1&q=${encodeURIComponent(q)}&key=${API_KEY}`;
   const data = await fetchJson(url);
   if (data.items?.length) {
@@ -59,6 +49,7 @@ async function resolveChannelId(spec) {
 }
 
 async function getUploadsPlaylistId(channelId) {
+  consumeQuota(1);
   const url = `https://www.googleapis.com/youtube/v3/channels?part=contentDetails&id=${channelId}&key=${API_KEY}`;
   const data = await fetchJson(url);
   const uploads = data.items?.[0]?.contentDetails?.relatedPlaylists?.uploads;
@@ -72,6 +63,7 @@ async function getRecentVideoDescriptions(playlistId, maxResults = 50) {
   let fetched = 0;
   
   while (fetched < maxResults) {
+    consumeQuota(1);
     const url = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet,contentDetails&maxResults=50&playlistId=${playlistId}&key=${API_KEY}${pageToken ? `&pageToken=${pageToken}` : ""}`;
     const data = await fetchJson(url);
     
@@ -128,6 +120,7 @@ async function resolveChannelInfo(mention) {
   try {
     // If it's a channel ID
     if (/^UC[\w-]+$/.test(mention)) {
+      consumeQuota(1);
       const url = `https://www.googleapis.com/youtube/v3/channels?part=snippet,statistics&id=${mention}&key=${API_KEY}`;
       const data = await fetchJson(url);
       if (data.items?.length) {
@@ -144,6 +137,7 @@ async function resolveChannelInfo(mention) {
     
     // If it's a handle or custom name
     const cleanMention = mention.replace(/^@/, "");
+    consumeQuota(100);
     const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=channel&maxResults=1&q=${encodeURIComponent(cleanMention)}&key=${API_KEY}`;
     const data = await fetchJson(url);
     
@@ -152,6 +146,7 @@ async function resolveChannelInfo(mention) {
       const channelId = item.snippet?.channelId || item.id?.channelId;
       
       // Get full channel info
+      consumeQuota(1);
       const channelUrl = `https://www.googleapis.com/youtube/v3/channels?part=snippet,statistics&id=${channelId}&key=${API_KEY}`;
       const channelData = await fetchJson(channelUrl);
       

@@ -2,12 +2,15 @@ import express from "express";
 import * as dotenv from "dotenv";
 import fs from "fs";
 import path from "path";
+import { consumeQuota, fetchJson, API_KEY } from "./utils.js";
+import collabHandler from "./api/collab.js";
+import growthHandler from "./api/growth.js";
+import unlistedHandler from "./api/unlisted.js";
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const API_KEY = process.env.YOUTUBE_API_KEY;
 
 if (!API_KEY) {
   console.warn("[WARN] No YOUTUBE_API_KEY found in environment. Set it in your .env file.");
@@ -15,51 +18,10 @@ if (!API_KEY) {
 
 app.use(express.static("public", { extensions: ["html"] }));
 
-// Quota Management
-const QUOTA_FILE = process.env.VERCEL 
-  ? path.join("/tmp", "quota.json") 
-  : path.join(process.cwd(), "quota.json");
-const DAILY_LIMIT = 10000;
-
-function getQuotaUsage() {
-  try {
-    if (fs.existsSync(QUOTA_FILE)) {
-      const data = JSON.parse(fs.readFileSync(QUOTA_FILE, "utf8"));
-      const today = new Date().toISOString().split("T")[0];
-      if (data.date === today) {
-        return data.used;
-      }
-    }
-  } catch (e) {
-    console.error("Error reading quota file:", e);
-  }
-  return 0;
-}
-
-function consumeQuota(cost) {
-  const today = new Date().toISOString().split("T")[0];
-  let currentUsed = 0;
-  try {
-    if (fs.existsSync(QUOTA_FILE)) {
-      const data = JSON.parse(fs.readFileSync(QUOTA_FILE, "utf8"));
-      if (data.date === today) {
-        currentUsed = data.used;
-      }
-    }
-  } catch (e) {}
-
-  if (currentUsed + cost > DAILY_LIMIT) {
-    throw new Error(`Daily YouTube API quota exceeded. Used: ${currentUsed}, Cost: ${cost}, Limit: ${DAILY_LIMIT}`);
-  }
-
-  const newUsed = currentUsed + cost;
-  try {
-    fs.writeFileSync(QUOTA_FILE, JSON.stringify({ date: today, used: newUsed }));
-  } catch (e) {
-    console.error("Error writing quota file:", e);
-  }
-  return newUsed;
-}
+// Register API routes
+app.get("/api/collab", collabHandler);
+app.get("/api/growth", growthHandler);
+app.get("/api/unlisted", unlistedHandler);
 
 // Simple in-memory cache (15 min)
 const cache = new Map();
@@ -70,16 +32,6 @@ function getCache(key) {
   if (!entry) return null;
   if (Date.now() > entry.expires) { cache.delete(key); return null; }
   return entry.data;
-}
-
-// Helper: fetch JSON
-async function fetchJson(url) {
-  const res = await fetch(url);
-  if (!res.ok) {
-    const txt = await res.text();
-    throw new Error(`HTTP ${res.status} for ${url}\n${txt}`);
-  }
-  return res.json();
 }
 
 // Parse many channel URL formats
