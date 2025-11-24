@@ -16,7 +16,9 @@ if (!API_KEY) {
 app.use(express.static("public", { extensions: ["html"] }));
 
 // Quota Management
-const QUOTA_FILE = path.join(process.cwd(), "quota.json");
+const QUOTA_FILE = process.env.VERCEL 
+  ? path.join("/tmp", "quota.json") 
+  : path.join(process.cwd(), "quota.json");
 const DAILY_LIMIT = 10000;
 
 function getQuotaUsage() {
@@ -275,6 +277,10 @@ app.get("/api/analyze", async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
-});
+if (process.env.NODE_ENV !== "production") {
+  app.listen(PORT, () => {
+    console.log(`Server running at http://localhost:${PORT}`);
+  });
+}
+
+export default app;
