@@ -1,5 +1,7 @@
 import express from "express";
 import * as dotenv from "dotenv";
+import fs from "fs";
+import path from "path";
 
 dotenv.config();
 
@@ -12,6 +14,50 @@ if (!API_KEY) {
 }
 
 app.use(express.static("public", { extensions: ["html"] }));
+
+// Quota Management
+const QUOTA_FILE = path.join(process.cwd(), "quota.json");
+const DAILY_LIMIT = 10000;
+
+function getQuotaUsage() {
+  try {
+    if (fs.existsSync(QUOTA_FILE)) {
+      const data = JSON.parse(fs.readFileSync(QUOTA_FILE, "utf8"));
+      const today = new Date().toISOString().split("T")[0];
+      if (data.date === today) {
+        return data.used;
+      }
+    }
+  } catch (e) {
+    console.error("Error reading quota file:", e);
+  }
+  return 0;
+}
+
+function consumeQuota(cost) {
+  const today = new Date().toISOString().split("T")[0];
+  let currentUsed = 0;
+  try {
+    if (fs.existsSync(QUOTA_FILE)) {
+      const data = JSON.parse(fs.readFileSync(QUOTA_FILE, "utf8"));
+      if (data.date === today) {
+        currentUsed = data.used;
+      }
+    }
+  } catch (e) {}
+
+  if (currentUsed + cost > DAILY_LIMIT) {
+    throw new Error(`Daily YouTube API quota exceeded. Used: ${currentUsed}, Cost: ${cost}, Limit: ${DAILY_LIMIT}`);
+  }
+
+  const newUsed = currentUsed + cost;
+  try {
+    fs.writeFileSync(QUOTA_FILE, JSON.stringify({ date: today, used: newUsed }));
+  } catch (e) {
+    console.error("Error writing quota file:", e);
+  }
+  return newUsed;
+}
 
 // Simple in-memory cache (15 min)
 const cache = new Map();
@@ -57,12 +103,14 @@ function parseChannelIdFromUrl(rawUrl) {
 async function resolveChannelId(spec) {
   if (spec.type === "channelId") return spec.value;
   if (spec.type === "username") {
+    consumeQuota(1);
     const url = `https://www.googleapis.com/youtube/v3/channels?part=id&forUsername=${encodeURIComponent(spec.value)}&key=${API_KEY}`;
     const data = await fetchJson(url);
     if (data.items?.length) return data.items[0].id;
   }
   // handle/custom/unknown → search for a channel
   const q = spec.value.replace(/^@/, "");
+  consumeQuota(100);
   const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=channel&maxResults=1&q=${encodeURIComponent(q)}&key=${API_KEY}`;
   const data = await fetchJson(url);
   if (data.items?.length) {
@@ -72,6 +120,7 @@ async function resolveChannelId(spec) {
 }
 
 async function getUploadsPlaylistId(channelId) {
+  consumeQuota(1);
   const url = `https://www.googleapis.com/youtube/v3/channels?part=contentDetails&id=${channelId}&key=${API_KEY}`;
   const data = await fetchJson(url);
   const uploads = data.items?.[0]?.contentDetails?.relatedPlaylists?.uploads;
@@ -83,6 +132,7 @@ async function* iterateUploads(playlistId, sinceISO) {
   let pageToken = "";
   const since = new Date(sinceISO);
   while (true) {
+    consumeQuota(1);
     const url = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet,contentDetails&maxResults=50&playlistId=${playlistId}&key=${API_KEY}${pageToken ? `&pageToken=${pageToken}` : ""}`;
     const data = await fetchJson(url);
     const items = data.items || [];
@@ -106,6 +156,7 @@ async function getVideoDetails(videoIds) {
   const details = [];
   for (let i = 0; i < videoIds.length; i += 50) {
     const chunk = videoIds.slice(i, i + 50);
+    consumeQuota(1);
     const url = `https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails&id=${chunk.join(",")}&key=${API_KEY}`;
     const data = await fetchJson(url);
     for (const it of data.items || []) {
