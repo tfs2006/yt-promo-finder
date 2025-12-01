@@ -12,8 +12,20 @@
   ],
   "routes": [
     {
-      "src": "/api/(.*)",
-      "dest": "/api/$1"
+      "src": "/api/analyze",
+      "dest": "/api/analyze.js"
+    },
+    {
+      "src": "/api/collab",
+      "dest": "/api/collab.js"
+    },
+    {
+      "src": "/api/growth",
+      "dest": "/api/growth.js"
+    },
+    {
+      "src": "/api/unlisted",
+      "dest": "/api/unlisted.js"
     },
     {
       "src": "/unlisted",
