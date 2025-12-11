@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Domain Search - YouTube Promo Finder</title>
+  <meta name="description" content="Find YouTube videos that mention a specific domain or website in their descriptions. Discover which creators are promoting any brand or product." />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .fade-in { animation: fadein 0.4s ease-out; }
+    @keyframes fadein { 
+      from { opacity: 0; transform: translateY(8px); } 
+      to { opacity: 1; transform: translateY(0); } 
+    }
+    .spin { animation: spin 1s linear infinite; }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+    .gradient-text { 
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .glass-effect {
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(12px);
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-100 min-h-screen">
+  <div class="max-w-6xl mx-auto px-4 py-12 md:py-16">
+    <header class="mb-10">
+      <a href="/" class="inline-flex items-center gap-2 text-amber-400 hover:text-amber-300 transition-colors mb-6">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+        </svg>
+        Back to Home
+      </a>
+      <div class="inline-flex items-center gap-2 mb-4 px-4 py-2 rounded-full glass-effect border border-amber-500/20">
+        <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path>
+        </svg>
+        <span class="text-sm font-medium text-amber-400">Find Sponsorships by Brand</span>
+      </div>
+      <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
+        <span class="gradient-text">Domain</span> Search
+      </h1>
+      <p class="text-slate-300 mt-4 text-lg md:text-xl max-w-3xl">
+        Find YouTube videos that mention a specific website or brand in their descriptions.
+        Discover which creators are promoting any product or service.
+      </p>
+    </header>
+
+    <section class="glass-effect border border-slate-700/50 rounded-3xl p-6 md:p-8 shadow-2xl">
+      <form id="form" class="flex flex-col gap-3 md:flex-row md:items-center">
+        <div class="flex-1 relative">
+          <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path>
+          </svg>
+          <input 
+            id="domain" 
+            type="text" 
+            placeholder="amazon.com, gfuel.com, squarespace.com..." 
+            class="w-full rounded-xl bg-slate-900/80 border border-slate-700 pl-12 pr-4 py-3.5 outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all" 
+            required 
+            aria-label="Domain to search"
+          />
+        </div>
+        <button 
+          id="submitBtn" 
+          class="rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-white font-semibold px-8 py-3.5 transition-all shadow-lg hover:shadow-amber-500/25 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 min-w-[140px]"
+          type="submit"
+        >
+          <span id="btnText">Search</span>
+          <svg id="btnIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
+          <svg id="btnSpinner" class="w-5 h-5 spin hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+        </button>
+      </form>
+      <div class="mt-4 flex flex-wrap items-center gap-2 text-xs text-slate-400">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <span>Enter a domain like <span class="mono text-amber-400">gfuel.com</span> or <span class="mono text-amber-400">squarespace.com</span> to find videos promoting that brand</span>
+      </div>
+    </section>
+
+    <section id="status" class="mt-6 hidden"></section>
+    <section id="results" class="mt-6 space-y-4"></section>
+
+    <footer class="mt-16 pt-8 border-t border-slate-800/50">
+      <div class="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-slate-400 mb-6">
+        <div class="flex items-start gap-2">
+          <svg class="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <p>Results are based on video descriptions and may not capture all sponsorships. Some brands may use multiple domains or tracking links.</p>
+        </div>
+      </div>
+      
+      <div class="pt-6 border-t border-slate-800/30">
+        <div class="flex flex-col md:flex-row items-center justify-between gap-4 text-sm">
+          <div class="text-slate-400">
+            <p class="text-center md:text-left">
+              <span class="text-amber-400 font-medium">Built for curiosity, powered by procrastination</span> 🎬
+              <br class="md:hidden" />
+              <span class="hidden md:inline">•</span>
+              Crafted with <span class="text-red-500">♥</span> by <a href="https://davidjwoodbury.com" target="_blank" rel="noopener" class="text-amber-400 hover:text-amber-300 font-medium transition-colors">David J Woodbury</a>
+            </p>
+          </div>
+          <div class="flex flex-col md:flex-row items-center gap-4 text-xs text-slate-500">
+            <span id="copyright">© <span id="year"></span> David J Woodbury. All rights reserved.</span>
+            <div class="flex gap-3">
+              <a href="/privacy" class="hover:text-amber-400 transition-colors">Privacy Policy</a>
+              <span>•</span>
+              <a href="/terms" class="hover:text-amber-400 transition-colors">Terms of Service</a>
+              <span>•</span>
+              <a href="/disclaimer" class="hover:text-amber-400 transition-colors">Disclaimer</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <template id="videoCard">
+    <div class="fade-in glass-effect border border-slate-700/50 rounded-2xl p-4 md:p-5 hover:border-amber-500/30 transition-all hover:shadow-lg hover:shadow-amber-500/5">
+      <div class="flex gap-4">
+        <div class="flex-shrink-0">
+          <a class="video-link" target="_blank" rel="noopener">
+            <img class="w-40 h-24 object-cover rounded-lg hover:opacity-80 transition-opacity" alt="Video thumbnail" />
+          </a>
+        </div>
+        <div class="flex-1 min-w-0">
+          <a class="video-link" target="_blank" rel="noopener">
+            <h3 class="text-lg font-bold text-white mb-1 line-clamp-2 hover:text-amber-400 transition-colors"></h3>
+          </a>
+          <a class="channel-link text-sm text-amber-400 hover:text-amber-300 transition-colors font-medium" target="_blank" rel="noopener"></a>
+          <div class="flex flex-wrap items-center gap-3 text-sm text-slate-400 mt-2">
+            <span class="flex items-center gap-1">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+              </svg>
+              <span class="view-count"></span>
+            </span>
+            <span class="flex items-center gap-1">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+              </svg>
+              <span class="published-date"></span>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <script>
+    const form = document.getElementById('form');
+    const domainInput = document.getElementById('domain');
+    const statusEl = document.getElementById('status');
+    const resultsEl = document.getElementById('results');
+    const tpl = document.getElementById('videoCard');
+    const submitBtn = document.getElementById('submitBtn');
+    const btnText = document.getElementById('btnText');
+    const btnIcon = document.getElementById('btnIcon');
+    const btnSpinner = document.getElementById('btnSpinner');
+
+    // Set current year in footer
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    function setStatus(html, tone="info") {
+      statusEl.classList.remove('hidden');
+      const baseClasses = "mt-6 rounded-2xl border p-5 fade-in";
+      if (tone === "error") {
+        statusEl.className = baseClasses + " glass-effect border-rose-500/50 text-rose-200";
+      } else if (tone === "success") {
+        statusEl.className = baseClasses + " glass-effect border-amber-500/50 text-amber-200";
+      } else {
+        statusEl.className = baseClasses + " glass-effect border-slate-700/50 text-slate-200";
+      }
+      statusEl.innerHTML = html;
+    }
+    
+    function clearStatus() { 
+      statusEl.classList.add('hidden'); 
+      statusEl.innerHTML = ""; 
+    }
+    
+    function formatDate(iso) { 
+      return new Date(iso).toLocaleDateString(undefined, { 
+        year: 'numeric', 
+        month: 'short', 
+        day: 'numeric' 
+      }); 
+    }
+
+    function formatNumber(num) {
+      if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+      if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+      return num.toString();
+    }
+    
+    const videoUrl = id => `https://www.youtube.com/watch?v=${id}`;
+    const channelUrl = id => `https://www.youtube.com/channel/${id}`;
+
+    function setLoading(loading) {
+      submitBtn.disabled = loading;
+      if (loading) {
+        btnText.textContent = 'Searching...';
+        btnIcon.classList.add('hidden');
+        btnSpinner.classList.remove('hidden');
+      } else {
+        btnText.textContent = 'Search';
+        btnIcon.classList.remove('hidden');
+        btnSpinner.classList.add('hidden');
+      }
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const d = domainInput.value.trim();
+      if (!d) return;
+      
+      resultsEl.innerHTML = "";
+      setLoading(true);
+      setStatus(`
+        <div class="flex items-center gap-3">
+          <svg class="w-5 h-5 spin text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <span class="font-medium">Searching YouTube for videos mentioning this domain...</span>
+        </div>
+      `);
+      
+      const r = await fetch(`/api/domain?domain=${encodeURIComponent(d)}`);
+      setLoading(false);
+      
+      if (!r.ok) {
+        const msg = await r.json().catch(() => ({error: 'Unexpected error'}));
+        setStatus(`
+          <div class="flex items-start gap-3">
+            <svg class="w-6 h-6 text-rose-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <div>
+              <div class="font-semibold text-lg">Error</div>
+              <div class="text-sm mt-1 text-rose-300">${msg.error || 'Unexpected server error. Please try again.'}</div>
+            </div>
+          </div>
+        `, "error");
+        return;
+      }
+      
+      const data = await r.json();
+      clearStatus();
+
+      const hdr = document.createElement('div');
+      hdr.className = "glass-effect border border-amber-500/30 rounded-2xl p-5 mb-6 fade-in";
+      hdr.innerHTML = `
+        <div class="flex items-center gap-3 flex-wrap">
+          <svg class="w-6 h-6 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <div class="text-slate-200">
+            Found <span class="font-semibold text-amber-400 text-lg">${data.videoCount}</span> ${data.videoCount === 1 ? 'video' : 'videos'} mentioning
+            <span class="mono font-medium text-amber-400">${data.domain}</span>
+            ${data.totalFound > data.videoCount ? `<span class="text-slate-400 text-sm">(showing top ${data.videoCount} by views)</span>` : ''}
+          </div>
+        </div>
+      `;
+      resultsEl.appendChild(hdr);
+
+      if (!data.videos.length) {
+        setStatus(`
+          <div class="flex items-start gap-3">
+            <svg class="w-6 h-6 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <div>
+              <div class="font-semibold text-lg">No videos found</div>
+              <div class="text-sm mt-1">No videos were found with this domain in their descriptions. Try a different domain or check the spelling.</div>
+            </div>
+          </div>
+        `, "info");
+        return;
+      }
+
+      for (const v of data.videos) {
+        const node = tpl.content.firstElementChild.cloneNode(true);
+        const title = node.querySelector("h3");
+        const thumbnail = node.querySelector("img");
+        const videoLinks = node.querySelectorAll(".video-link");
+        const channelLink = node.querySelector(".channel-link");
+        const viewCount = node.querySelector(".view-count");
+        const publishedDate = node.querySelector(".published-date");
+
+        title.textContent = v.title;
+        thumbnail.src = v.thumbnail || 'https://i.ytimg.com/img/no_thumbnail.jpg';
+        thumbnail.alt = v.title;
+        videoLinks.forEach(link => link.href = videoUrl(v.videoId));
+        channelLink.textContent = v.channelTitle;
+        channelLink.href = channelUrl(v.channelId);
+        viewCount.textContent = formatNumber(v.viewCount) + ' views';
+        publishedDate.textContent = formatDate(v.publishedAt);
+        
+        resultsEl.appendChild(node);
+      }
+    });
+  </script>
+</body>
+</html>

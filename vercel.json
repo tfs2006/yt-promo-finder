@@ -28,6 +28,14 @@
       "dest": "/api/unlisted.js"
     },
     {
+      "src": "/api/domain",
+      "dest": "/api/domain.js"
+    },
+    {
+      "src": "/domain",
+      "dest": "/public/domain.html"
+    },
+    {
       "src": "/unlisted",
       "dest": "/public/unlisted.html"
     },
