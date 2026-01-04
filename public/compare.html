@@ -1,0 +1,480 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sponsor Comparison - YouTube Promo Finder</title>
+  <meta name="description" content="Compare sponsors between two YouTube channels. Find shared partnerships, unique sponsors, and overlap percentage." />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .fade-in { animation: fadein 0.4s ease-out; }
+    @keyframes fadein { 
+      from { opacity: 0; transform: translateY(8px); } 
+      to { opacity: 1; transform: translateY(0); } 
+    }
+    .spin { animation: spin 1s linear infinite; }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+    .gradient-text { 
+      background: linear-gradient(135deg, #ec4899 0%, #d946ef 50%, #a855f7 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .glass-effect {
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(12px);
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-100 min-h-screen">
+  <div class="max-w-6xl mx-auto px-4 py-12 md:py-16">
+    <header class="mb-10">
+      <a href="/" class="inline-flex items-center gap-2 text-pink-400 hover:text-pink-300 transition-colors mb-6">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+        </svg>
+        Back to Home
+      </a>
+      <div class="inline-flex items-center gap-2 mb-4 px-4 py-2 rounded-full glass-effect border border-pink-500/20">
+        <svg class="w-5 h-5 text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+        </svg>
+        <span class="text-sm font-medium text-pink-400">Side-by-Side Analysis</span>
+      </div>
+      <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
+        <span class="gradient-text">Sponsor</span> Comparison
+      </h1>
+      <p class="text-slate-300 mt-4 text-lg md:text-xl max-w-3xl">
+        Compare two YouTube channels to discover shared sponsors, unique partnerships, and sponsorship overlap.
+        Perfect for brands seeking influencers or creators benchmarking competitors.
+      </p>
+    </header>
+
+    <section class="glass-effect border border-slate-700/50 rounded-3xl p-6 md:p-8 shadow-2xl">
+      <!-- Quota Status Banner -->
+      <div id="quotaBanner" class="hidden mb-4 rounded-xl p-4 border">
+        <div class="flex items-center gap-3">
+          <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <div class="flex-1">
+            <span id="quotaMessage" class="text-sm font-medium"></span>
+            <div class="mt-2 h-2 bg-slate-800 rounded-full overflow-hidden">
+              <div id="quotaBar" class="h-full transition-all duration-500"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <form id="form" class="space-y-4">
+        <div class="grid md:grid-cols-2 gap-4">
+          <div class="relative">
+            <label class="block text-sm font-medium text-slate-400 mb-2">Channel 1</label>
+            <div class="relative">
+              <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+              </svg>
+              <input 
+                id="channel1" 
+                type="text" 
+                placeholder="https://youtube.com/@MKBHD" 
+                class="w-full rounded-xl bg-slate-900/80 border border-slate-700 pl-12 pr-4 py-3.5 outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500 transition-all" 
+                required 
+                aria-label="First YouTube channel"
+              />
+            </div>
+          </div>
+          <div class="relative">
+            <label class="block text-sm font-medium text-slate-400 mb-2">Channel 2</label>
+            <div class="relative">
+              <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+              </svg>
+              <input 
+                id="channel2" 
+                type="text" 
+                placeholder="https://youtube.com/@LinusTechTips" 
+                class="w-full rounded-xl bg-slate-900/80 border border-slate-700 pl-12 pr-4 py-3.5 outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500 transition-all" 
+                required 
+                aria-label="Second YouTube channel"
+              />
+            </div>
+          </div>
+        </div>
+        <div class="flex justify-center">
+          <button 
+            id="submitBtn" 
+            class="rounded-xl bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-400 hover:to-purple-500 text-white font-semibold px-10 py-3.5 transition-all shadow-lg hover:shadow-pink-500/25 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 min-w-[180px]"
+            type="submit"
+          >
+            <span id="btnText">Compare</span>
+            <svg id="btnIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
+            </svg>
+            <svg id="btnSpinner" class="w-5 h-5 spin hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+          </button>
+        </div>
+      </form>
+      <div class="mt-4 flex flex-wrap items-center justify-center gap-2 text-xs text-slate-400">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <span>Enter any YouTube channel URL, handle, or channel ID</span>
+      </div>
+    </section>
+
+    <section id="status" class="mt-6 hidden"></section>
+    <section id="results" class="mt-6 space-y-6"></section>
+
+    <footer class="mt-16 pt-8 border-t border-slate-800/50">
+      <div class="pt-6 border-t border-slate-800/30">
+        <div class="flex flex-col md:flex-row items-center justify-between gap-4 text-sm">
+          <div class="text-slate-400">
+            <p class="text-center md:text-left">
+              <span class="text-pink-400 font-medium">Built for curiosity, powered by procrastination</span> 🎬
+              <br class="md:hidden" />
+              <span class="hidden md:inline">•</span>
+              Crafted with <span class="text-red-500">♥</span> by <a href="https://davidjwoodbury.com" target="_blank" rel="noopener" class="text-pink-400 hover:text-pink-300 font-medium transition-colors">David J Woodbury</a>
+            </p>
+          </div>
+          <div class="flex flex-col md:flex-row items-center gap-4 text-xs text-slate-500">
+            <span id="copyright">© <span id="year"></span> David J Woodbury. All rights reserved.</span>
+            <div class="flex gap-3">
+              <a href="/privacy" class="hover:text-pink-400 transition-colors">Privacy Policy</a>
+              <span>•</span>
+              <a href="/terms" class="hover:text-pink-400 transition-colors">Terms of Service</a>
+              <span>•</span>
+              <a href="/disclaimer" class="hover:text-pink-400 transition-colors">Disclaimer</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    const form = document.getElementById('form');
+    const channel1Input = document.getElementById('channel1');
+    const channel2Input = document.getElementById('channel2');
+    const statusEl = document.getElementById('status');
+    const resultsEl = document.getElementById('results');
+    const submitBtn = document.getElementById('submitBtn');
+    const btnText = document.getElementById('btnText');
+    const btnIcon = document.getElementById('btnIcon');
+    const btnSpinner = document.getElementById('btnSpinner');
+    
+    // Quota elements
+    const quotaBanner = document.getElementById('quotaBanner');
+    const quotaMessage = document.getElementById('quotaMessage');
+    const quotaBar = document.getElementById('quotaBar');
+
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    function setStatus(html, tone="info") {
+      statusEl.classList.remove('hidden');
+      const baseClasses = "mt-6 rounded-2xl border p-5 fade-in";
+      if (tone === "error") {
+        statusEl.className = baseClasses + " glass-effect border-rose-500/50 text-rose-200";
+      } else {
+        statusEl.className = baseClasses + " glass-effect border-slate-700/50 text-slate-200";
+      }
+      statusEl.innerHTML = html;
+    }
+    
+    function clearStatus() { 
+      statusEl.classList.add('hidden'); 
+      statusEl.innerHTML = ""; 
+    }
+
+    function setLoading(loading) {
+      submitBtn.disabled = loading;
+      if (loading) {
+        btnText.textContent = 'Comparing...';
+        btnIcon.classList.add('hidden');
+        btnSpinner.classList.remove('hidden');
+      } else {
+        btnText.textContent = 'Compare';
+        btnIcon.classList.remove('hidden');
+        btnSpinner.classList.add('hidden');
+      }
+    }
+
+    function updateQuotaBanner(status) {
+      if (!status) { quotaBanner.classList.add('hidden'); return; }
+      quotaBanner.classList.remove('hidden');
+      const percent = status.percentUsed;
+      quotaBar.style.width = `${percent}%`;
+      if (status.isExhausted) {
+        quotaBanner.className = 'mb-4 rounded-xl p-4 border bg-rose-500/10 border-rose-500/50';
+        quotaBar.className = 'h-full transition-all duration-500 bg-rose-500';
+        quotaMessage.textContent = '⚠️ Daily API limit reached. Please try again tomorrow.';
+        quotaMessage.className = 'text-sm font-medium text-rose-300';
+        submitBtn.disabled = true;
+      } else if (status.isLow) {
+        quotaBanner.className = 'mb-4 rounded-xl p-4 border bg-amber-500/10 border-amber-500/50';
+        quotaBar.className = 'h-full transition-all duration-500 bg-amber-500';
+        quotaMessage.textContent = `⚠️ API quota running low (${status.usableRemaining.toLocaleString()} units left).`;
+        quotaMessage.className = 'text-sm font-medium text-amber-300';
+      } else {
+        quotaBanner.classList.add('hidden');
+      }
+    }
+    
+    async function checkQuotaStatus() {
+      try {
+        const r = await fetch('/api/quota');
+        if (r.ok) { const status = await r.json(); updateQuotaBanner(status); return status; }
+      } catch (err) { console.error('Failed to check quota:', err); }
+      return null;
+    }
+    
+    checkQuotaStatus();
+
+    const videoUrl = id => `https://www.youtube.com/watch?v=${id}`;
+    const channelUrl = id => `https://www.youtube.com/channel/${id}`;
+
+    function renderResults(data) {
+      resultsEl.innerHTML = '';
+      
+      // Channel Cards
+      const channelsHtml = `
+        <div class="grid md:grid-cols-2 gap-4">
+          <div class="glass-effect border border-pink-500/30 rounded-2xl p-5 fade-in">
+            <div class="flex items-center gap-4">
+              <img src="${data.channel1.thumbnail}" class="w-16 h-16 rounded-full" alt="${data.channel1.name}" />
+              <div class="flex-1">
+                <h3 class="text-xl font-bold text-white">${data.channel1.name}</h3>
+                <a href="${channelUrl(data.channel1.id)}" target="_blank" class="text-sm text-pink-400 hover:text-pink-300">View Channel →</a>
+              </div>
+            </div>
+            <div class="mt-4 grid grid-cols-2 gap-3 text-center">
+              <div class="bg-slate-800/50 rounded-xl p-3">
+                <div class="text-2xl font-bold text-pink-400">${data.channel1.videoCount}</div>
+                <div class="text-xs text-slate-400">Videos Analyzed</div>
+              </div>
+              <div class="bg-slate-800/50 rounded-xl p-3">
+                <div class="text-2xl font-bold text-pink-400">${data.channel1.sponsorCount}</div>
+                <div class="text-xs text-slate-400">Sponsors Found</div>
+              </div>
+            </div>
+          </div>
+          <div class="glass-effect border border-purple-500/30 rounded-2xl p-5 fade-in">
+            <div class="flex items-center gap-4">
+              <img src="${data.channel2.thumbnail}" class="w-16 h-16 rounded-full" alt="${data.channel2.name}" />
+              <div class="flex-1">
+                <h3 class="text-xl font-bold text-white">${data.channel2.name}</h3>
+                <a href="${channelUrl(data.channel2.id)}" target="_blank" class="text-sm text-purple-400 hover:text-purple-300">View Channel →</a>
+              </div>
+            </div>
+            <div class="mt-4 grid grid-cols-2 gap-3 text-center">
+              <div class="bg-slate-800/50 rounded-xl p-3">
+                <div class="text-2xl font-bold text-purple-400">${data.channel2.videoCount}</div>
+                <div class="text-xs text-slate-400">Videos Analyzed</div>
+              </div>
+              <div class="bg-slate-800/50 rounded-xl p-3">
+                <div class="text-2xl font-bold text-purple-400">${data.channel2.sponsorCount}</div>
+                <div class="text-xs text-slate-400">Sponsors Found</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+      resultsEl.innerHTML += channelsHtml;
+
+      // Overlap Stats
+      const overlapHtml = `
+        <div class="glass-effect border border-slate-700/50 rounded-2xl p-6 fade-in">
+          <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+            <svg class="w-6 h-6 text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+            </svg>
+            Comparison Summary
+          </h3>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="text-center p-4 bg-gradient-to-br from-pink-500/10 to-purple-500/10 rounded-xl border border-pink-500/20">
+              <div class="text-3xl font-bold gradient-text">${data.comparison.overlapPercentage}%</div>
+              <div class="text-sm text-slate-400 mt-1">Sponsor Overlap</div>
+            </div>
+            <div class="text-center p-4 bg-slate-800/50 rounded-xl">
+              <div class="text-3xl font-bold text-emerald-400">${data.comparison.sharedCount}</div>
+              <div class="text-sm text-slate-400 mt-1">Shared Sponsors</div>
+            </div>
+            <div class="text-center p-4 bg-slate-800/50 rounded-xl">
+              <div class="text-3xl font-bold text-pink-400">${data.comparison.uniqueToChannel1Count}</div>
+              <div class="text-sm text-slate-400 mt-1">Unique to ${data.channel1.name.substring(0, 15)}</div>
+            </div>
+            <div class="text-center p-4 bg-slate-800/50 rounded-xl">
+              <div class="text-3xl font-bold text-purple-400">${data.comparison.uniqueToChannel2Count}</div>
+              <div class="text-sm text-slate-400 mt-1">Unique to ${data.channel2.name.substring(0, 15)}</div>
+            </div>
+          </div>
+        </div>
+      `;
+      resultsEl.innerHTML += overlapHtml;
+
+      // Shared Sponsors
+      if (data.comparison.sharedSponsors.length > 0) {
+        let sharedHtml = `
+          <div class="glass-effect border border-emerald-500/30 rounded-2xl p-6 fade-in">
+            <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+              <svg class="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+              </svg>
+              Shared Sponsors (${data.comparison.sharedCount})
+            </h3>
+            <div class="space-y-3">
+        `;
+        for (const s of data.comparison.sharedSponsors) {
+          sharedHtml += `
+            <div class="flex items-center justify-between p-3 bg-slate-800/50 rounded-xl">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+                  <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                  </svg>
+                </div>
+                <div>
+                  <div class="font-semibold text-white">${s.channel1.productName || s.domain}</div>
+                  <a href="${s.channel1.url}" target="_blank" class="text-xs text-emerald-400 hover:text-emerald-300 mono">${s.domain}</a>
+                </div>
+              </div>
+              <div class="flex items-center gap-4 text-sm">
+                <span class="px-2 py-1 bg-pink-500/10 border border-pink-500/20 rounded-lg text-pink-400">${s.channel1.occurrences}×</span>
+                <span class="px-2 py-1 bg-purple-500/10 border border-purple-500/20 rounded-lg text-purple-400">${s.channel2.occurrences}×</span>
+              </div>
+            </div>
+          `;
+        }
+        sharedHtml += '</div></div>';
+        resultsEl.innerHTML += sharedHtml;
+      }
+
+      // Unique to Channel 1
+      if (data.comparison.uniqueToChannel1.length > 0) {
+        let unique1Html = `
+          <div class="glass-effect border border-pink-500/30 rounded-2xl p-6 fade-in">
+            <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+              <svg class="w-6 h-6 text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
+              </svg>
+              Unique to ${data.channel1.name} (${data.comparison.uniqueToChannel1Count})
+            </h3>
+            <div class="flex flex-wrap gap-2">
+        `;
+        for (const s of data.comparison.uniqueToChannel1) {
+          unique1Html += `
+            <a href="${s.url}" target="_blank" class="inline-flex items-center gap-2 px-3 py-2 bg-pink-500/10 border border-pink-500/20 rounded-lg hover:border-pink-500/40 transition-colors">
+              <span class="text-white font-medium">${s.productName || s.domain}</span>
+              <span class="text-xs text-pink-400">${s.occurrences}×</span>
+            </a>
+          `;
+        }
+        unique1Html += '</div></div>';
+        resultsEl.innerHTML += unique1Html;
+      }
+
+      // Unique to Channel 2
+      if (data.comparison.uniqueToChannel2.length > 0) {
+        let unique2Html = `
+          <div class="glass-effect border border-purple-500/30 rounded-2xl p-6 fade-in">
+            <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+              <svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path>
+              </svg>
+              Unique to ${data.channel2.name} (${data.comparison.uniqueToChannel2Count})
+            </h3>
+            <div class="flex flex-wrap gap-2">
+        `;
+        for (const s of data.comparison.uniqueToChannel2) {
+          unique2Html += `
+            <a href="${s.url}" target="_blank" class="inline-flex items-center gap-2 px-3 py-2 bg-purple-500/10 border border-purple-500/20 rounded-lg hover:border-purple-500/40 transition-colors">
+              <span class="text-white font-medium">${s.productName || s.domain}</span>
+              <span class="text-xs text-purple-400">${s.occurrences}×</span>
+            </a>
+          `;
+        }
+        unique2Html += '</div></div>';
+        resultsEl.innerHTML += unique2Html;
+      }
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const c1 = channel1Input.value.trim();
+      const c2 = channel2Input.value.trim();
+      if (!c1 || !c2) return;
+      
+      const quotaStatus = await checkQuotaStatus();
+      if (quotaStatus?.isExhausted) {
+        setStatus(`
+          <div class="flex items-start gap-3">
+            <svg class="w-6 h-6 text-rose-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+            </svg>
+            <div>
+              <div class="font-semibold text-lg">Daily API Limit Reached</div>
+              <div class="text-sm mt-1 text-rose-300">Please try again tomorrow when the quota resets at midnight PT.</div>
+            </div>
+          </div>
+        `, "error");
+        return;
+      }
+      
+      resultsEl.innerHTML = "";
+      setLoading(true);
+      setStatus(`
+        <div class="flex items-center gap-3">
+          <svg class="w-5 h-5 spin text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <span class="font-medium">Analyzing both channels and comparing sponsors... this may take a moment.</span>
+        </div>
+      `);
+      
+      const r = await fetch(`/api/compare?channel1=${encodeURIComponent(c1)}&channel2=${encodeURIComponent(c2)}`);
+      setLoading(false);
+      checkQuotaStatus();
+      
+      if (!r.ok) {
+        const msg = await r.json().catch(() => ({error: 'Unexpected error'}));
+        if (r.status === 429 || msg.code === 'QUOTA_EXCEEDED') {
+          setStatus(`
+            <div class="flex items-start gap-3">
+              <svg class="w-6 h-6 text-rose-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+            </svg>
+            <div>
+              <div class="font-semibold text-lg">Daily API Limit Reached</div>
+              <div class="text-sm mt-1 text-rose-300">Please try again tomorrow when the quota resets at midnight PT.</div>
+            </div>
+          </div>
+          `, "error");
+          if (msg.quotaStatus) updateQuotaBanner(msg.quotaStatus);
+          return;
+        }
+        setStatus(`
+          <div class="flex items-start gap-3">
+            <svg class="w-6 h-6 text-rose-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <div>
+              <div class="font-semibold text-lg">Error</div>
+              <div class="text-sm mt-1 text-rose-300">${msg.error || 'Unexpected server error. Please try again.'}</div>
+            </div>
+          </div>
+        `, "error");
+        return;
+      }
+      
+      const data = await r.json();
+      clearStatus();
+      renderResults(data);
+    });
+  </script>
+</body>
+</html>

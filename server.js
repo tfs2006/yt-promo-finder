@@ -9,6 +9,7 @@ import unlistedHandler from "./api/unlisted.js";
 import analyzeHandler from "./api/analyze.js";
 import domainHandler from "./api/domain.js";
 import quotaHandler from "./api/quota.js";
+import compareHandler from "./api/compare.js";
 
 dotenv.config();
 
@@ -28,6 +29,7 @@ app.get("/api/growth", growthHandler);
 app.get("/api/unlisted", unlistedHandler);
 app.get("/api/domain", domainHandler);
 app.get("/api/quota", quotaHandler);
+app.get("/api/compare", compareHandler);
 
 if (process.env.NODE_ENV !== "production") {
   app.listen(PORT, () => {
