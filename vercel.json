@@ -32,6 +32,18 @@
       "dest": "/api/domain.js"
     },
     {
+      "src": "/api/compare",
+      "dest": "/api/compare.js"
+    },
+    {
+      "src": "/api/quota",
+      "dest": "/api/quota.js"
+    },
+    {
+      "src": "/compare",
+      "dest": "/public/compare.html"
+    },
+    {
       "src": "/domain",
       "dest": "/public/domain.html"
     },
