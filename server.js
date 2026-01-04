@@ -7,6 +7,8 @@ import collabHandler from "./api/collab.js";
 import growthHandler from "./api/growth.js";
 import unlistedHandler from "./api/unlisted.js";
 import analyzeHandler from "./api/analyze.js";
+import domainHandler from "./api/domain.js";
+import quotaHandler from "./api/quota.js";
 
 dotenv.config();
 
@@ -24,6 +26,8 @@ app.get("/api/analyze", analyzeHandler);
 app.get("/api/collab", collabHandler);
 app.get("/api/growth", growthHandler);
 app.get("/api/unlisted", unlistedHandler);
+app.get("/api/domain", domainHandler);
+app.get("/api/quota", quotaHandler);
 
 if (process.env.NODE_ENV !== "production") {
   app.listen(PORT, () => {

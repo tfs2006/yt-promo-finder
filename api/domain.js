@@ -1,15 +1,13 @@
-import { consumeQuota, fetchJson, API_KEY } from "../utils.js";
-
-// Simple in-memory cache (15 min)
-const cache = new Map();
-const CACHE_TTL_MS = 1000 * 60 * 15;
-function setCache(key, data) { cache.set(key, { data, expires: Date.now() + CACHE_TTL_MS }); }
-function getCache(key) {
-  const entry = cache.get(key);
-  if (!entry) return null;
-  if (Date.now() > entry.expires) { cache.delete(key); return null; }
-  return entry.data;
-}
+import { 
+  consumeQuota, 
+  fetchJson, 
+  API_KEY,
+  setCache,
+  getCache,
+  setCorsHeaders,
+  handleApiError,
+  checkQuota
+} from "../utils.js";
 
 function normalizeDomain(input) {
   let domain = input.trim().toLowerCase();
@@ -26,9 +24,7 @@ function normalizeDomain(input) {
 
 export default async function handler(req, res) {
   // Enable CORS
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  setCorsHeaders(res);
   
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
@@ -47,6 +43,16 @@ export default async function handler(req, res) {
     const domain = normalizeDomain(input);
     if (!domain || domain.length < 3) {
       return res.status(400).json({ error: "Invalid domain provided." });
+    }
+
+    // Check quota before starting (domain search uses 500+ units)
+    const quotaCheck = checkQuota(600);
+    if (!quotaCheck.allowed) {
+      return res.status(429).json({ 
+        error: quotaCheck.message,
+        code: 'QUOTA_EXCEEDED',
+        quotaStatus: quotaCheck.status
+      });
     }
 
     // Check cache
@@ -128,7 +134,6 @@ export default async function handler(req, res) {
     setCache(cacheKey, payload);
     res.json(payload);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: err.message || "Unexpected server error." });
+    return handleApiError(res, err);
   }
 }

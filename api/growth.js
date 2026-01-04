@@ -1,52 +1,15 @@
-import { consumeQuota, fetchJson, API_KEY } from "../utils.js";
-
-// Simple in-memory cache (15 min)
-const cache = new Map();
-const CACHE_TTL_MS = 1000 * 60 * 15;
-function setCache(key, data) { cache.set(key, { data, expires: Date.now() + CACHE_TTL_MS }); }
-function getCache(key) {
-  const entry = cache.get(key);
-  if (!entry) return null;
-  if (Date.now() > entry.expires) { cache.delete(key); return null; }
-  return entry.data;
-}
-
-function parseChannelIdFromUrl(rawUrl) {
-  try {
-    const url = new URL(rawUrl.trim());
-    const channelMatch = url.pathname.match(/\/channel\/(UC[\w-]+)/i);
-    if (channelMatch) return { type: "channelId", value: channelMatch[1] };
-    const userMatch = url.pathname.match(/\/user\/([\w\.-]+)/i);
-    if (userMatch) return { type: "username", value: userMatch[1] };
-    const handleMatch = url.pathname.match(/\/(@[\w\.-]+)/);
-    if (handleMatch) return { type: "handle", value: handleMatch[1] };
-    const customMatch = url.pathname.match(/\/c\/([\w\.-]+)/i);
-    if (customMatch) return { type: "custom", value: customMatch[1] };
-  } catch {
-    const trimmed = rawUrl.trim();
-    if (/^UC[\w-]+$/i.test(trimmed)) return { type: "channelId", value: trimmed };
-    if (/^@[\w\.-]+$/.test(trimmed)) return { type: "handle", value: trimmed };
-  }
-  return { type: "unknown", value: rawUrl };
-}
-
-async function resolveChannelId(spec) {
-  if (spec.type === "channelId") return spec.value;
-  if (spec.type === "username") {
-    consumeQuota(1);
-    const url = `https://www.googleapis.com/youtube/v3/channels?part=id&forUsername=${encodeURIComponent(spec.value)}&key=${API_KEY}`;
-    const data = await fetchJson(url);
-    if (data.items?.length) return data.items[0].id;
-  }
-  const q = spec.value.replace(/^@/, "");
-  consumeQuota(100);
-  const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=channel&maxResults=1&q=${encodeURIComponent(q)}&key=${API_KEY}`;
-  const data = await fetchJson(url);
-  if (data.items?.length) {
-    return data.items[0].snippet?.channelId || data.items[0].id?.channelId;
-  }
-  throw new Error("Unable to resolve channel ID from the provided URL or handle.");
-}
+import { 
+  consumeQuota, 
+  fetchJson, 
+  API_KEY,
+  setCache,
+  getCache,
+  parseChannelIdFromUrl,
+  resolveChannelId,
+  setCorsHeaders,
+  handleApiError,
+  checkQuota
+} from "../utils.js";
 
 async function getChannelStats(channelId) {
   consumeQuota(1);
@@ -144,9 +107,7 @@ function analyzeUploadPattern(videos) {
 
 export default async function handler(req, res) {
   // Enable CORS
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  setCorsHeaders(res);
   
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
@@ -158,6 +119,16 @@ export default async function handler(req, res) {
 
     if (!API_KEY) {
       return res.status(500).json({ error: "YouTube API key not configured." });
+    }
+
+    // Check quota before starting
+    const quotaCheck = checkQuota(200);
+    if (!quotaCheck.allowed) {
+      return res.status(429).json({ 
+        error: quotaCheck.message,
+        code: 'QUOTA_EXCEEDED',
+        quotaStatus: quotaCheck.status
+      });
     }
 
     const cacheKey = `growth::${input}`;
@@ -186,7 +157,6 @@ export default async function handler(req, res) {
     setCache(cacheKey, payload);
     res.json(payload);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: err.message || "Unexpected server error." });
+    return handleApiError(res, err);
   }
 }

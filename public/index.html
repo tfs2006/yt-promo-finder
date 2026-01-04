@@ -82,6 +82,25 @@
     </header>
 
     <section class="glass-effect border border-slate-700/50 rounded-3xl p-6 md:p-8 shadow-2xl">
+      <!-- Quota Status Banner -->
+      <div id="quotaBanner" class="hidden mb-4 rounded-xl p-4 border">
+        <div class="flex items-center gap-3">
+          <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <div class="flex-1">
+            <span id="quotaMessage" class="text-sm font-medium"></span>
+            <div class="mt-2 h-2 bg-slate-800 rounded-full overflow-hidden">
+              <div id="quotaBar" class="h-full transition-all duration-500"></div>
+            </div>
+            <div class="flex justify-between mt-1 text-xs opacity-75">
+              <span id="quotaUsed">0 used</span>
+              <span id="quotaRemaining">10,000 remaining</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
       <form id="form" class="flex flex-col gap-3 md:flex-row md:items-center">
         <div class="flex-1 relative">
           <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -207,6 +226,13 @@
     const btnText = document.getElementById('btnText');
     const btnIcon = document.getElementById('btnIcon');
     const btnSpinner = document.getElementById('btnSpinner');
+    
+    // Quota elements
+    const quotaBanner = document.getElementById('quotaBanner');
+    const quotaMessage = document.getElementById('quotaMessage');
+    const quotaBar = document.getElementById('quotaBar');
+    const quotaUsed = document.getElementById('quotaUsed');
+    const quotaRemaining = document.getElementById('quotaRemaining');
 
     function setStatus(html, tone="info") {
       statusEl.classList.remove('hidden');
@@ -265,10 +291,90 @@
       }
     }
 
+    // Quota management functions
+    function updateQuotaBanner(status) {
+      if (!status) {
+        quotaBanner.classList.add('hidden');
+        return;
+      }
+      
+      quotaBanner.classList.remove('hidden');
+      
+      const percent = status.percentUsed;
+      quotaBar.style.width = `${percent}%`;
+      quotaUsed.textContent = `${status.used.toLocaleString()} used`;
+      quotaRemaining.textContent = `${status.remaining.toLocaleString()} remaining`;
+      
+      if (status.isExhausted) {
+        quotaBanner.className = 'mb-4 rounded-xl p-4 border bg-rose-500/10 border-rose-500/50';
+        quotaBar.className = 'h-full transition-all duration-500 bg-rose-500';
+        quotaMessage.textContent = '⚠️ Daily API limit reached. Please try again tomorrow when the quota resets at midnight PT.';
+        quotaMessage.className = 'text-sm font-medium text-rose-300';
+        submitBtn.disabled = true;
+      } else if (status.isLow) {
+        quotaBanner.className = 'mb-4 rounded-xl p-4 border bg-amber-500/10 border-amber-500/50';
+        quotaBar.className = 'h-full transition-all duration-500 bg-amber-500';
+        quotaMessage.textContent = `⚠️ API quota running low (${status.usableRemaining.toLocaleString()} units left). Results may be limited.`;
+        quotaMessage.className = 'text-sm font-medium text-amber-300';
+      } else {
+        quotaBanner.className = 'mb-4 rounded-xl p-4 border bg-emerald-500/10 border-emerald-500/50';
+        quotaBar.className = 'h-full transition-all duration-500 bg-emerald-500';
+        quotaMessage.textContent = `API quota available: ${status.usableRemaining.toLocaleString()} units remaining today.`;
+        quotaMessage.className = 'text-sm font-medium text-emerald-300';
+      }
+    }
+    
+    async function checkQuotaStatus() {
+      try {
+        const r = await fetch('/api/quota');
+        if (r.ok) {
+          const status = await r.json();
+          updateQuotaBanner(status);
+          return status;
+        }
+      } catch (err) {
+        console.error('Failed to check quota:', err);
+      }
+      return null;
+    }
+    
+    function showQuotaExceededError(quotaStatus) {
+      setStatus(`
+        <div class="flex items-start gap-3">
+          <svg class="w-6 h-6 text-rose-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+          </svg>
+          <div>
+            <div class="font-semibold text-lg">Daily API Limit Reached</div>
+            <div class="text-sm mt-1 text-rose-300">
+              The YouTube API quota has been exhausted for today. This is a shared resource limit that resets at midnight Pacific Time.
+            </div>
+            <div class="text-xs mt-3 text-rose-400/80">
+              💡 Tip: Try again tomorrow, or use the cached results if available.
+            </div>
+          </div>
+        </div>
+      `, "error");
+      
+      if (quotaStatus) {
+        updateQuotaBanner(quotaStatus);
+      }
+    }
+
+    // Check quota on page load
+    checkQuotaStatus();
+
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const u = urlInput.value.trim();
       if (!u) return;
+      
+      // Check quota before making request
+      const quotaStatus = await checkQuotaStatus();
+      if (quotaStatus?.isExhausted) {
+        showQuotaExceededError(quotaStatus);
+        return;
+      }
       
       resultsEl.innerHTML = "";
       setLoading(true);
@@ -285,8 +391,18 @@
       const r = await fetch(`/api/analyze?url=${encodeURIComponent(u)}`);
       setLoading(false);
       
+      // Refresh quota status after request
+      checkQuotaStatus();
+      
       if (!r.ok) {
         const msg = await r.json().catch(() => ({error: 'Unexpected error'}));
+        
+        // Handle quota exceeded error specifically
+        if (r.status === 429 || msg.code === 'QUOTA_EXCEEDED') {
+          showQuotaExceededError(msg.quotaStatus);
+          return;
+        }
+        
         setStatus(`
           <div class="flex items-start gap-3">
             <svg class="w-6 h-6 text-rose-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">

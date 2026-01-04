@@ -29,6 +29,21 @@
       <p class="text-slate-300 mt-4 text-lg">Discover channel networks and collaboration patterns by analyzing video descriptions.</p>
     </header>
     <section class="glass-effect border border-slate-700/50 rounded-3xl p-6 md:p-8 shadow-2xl">
+      <!-- Quota Status Banner -->
+      <div id="quotaBanner" class="hidden mb-4 rounded-xl p-4 border">
+        <div class="flex items-center gap-3">
+          <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <div class="flex-1">
+            <span id="quotaMessage" class="text-sm font-medium"></span>
+            <div class="mt-2 h-2 bg-slate-800 rounded-full overflow-hidden">
+              <div id="quotaBar" class="h-full transition-all duration-500"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
       <form id="form">
         <div class="flex gap-3">
           <input id="url" type="text" placeholder="https://www.youtube.com/@YourFavoriteCreator" class="flex-1 rounded-xl bg-slate-900/80 border border-slate-700 px-4 py-3.5 outline-none focus:ring-2 focus:ring-amber-500" required />
@@ -53,6 +68,11 @@
     const submitBtn = document.getElementById('submitBtn');
     const btnText = document.getElementById('btnText');
     const btnSpinner = document.getElementById('btnSpinner');
+    
+    // Quota elements
+    const quotaBanner = document.getElementById('quotaBanner');
+    const quotaMessage = document.getElementById('quotaMessage');
+    const quotaBar = document.getElementById('quotaBar');
 
     function setStatus(html, tone="info") {
       statusEl.classList.remove('hidden');
@@ -68,10 +88,47 @@
       btnSpinner.classList.toggle('hidden', !loading);
     }
 
+    function updateQuotaBanner(status) {
+      if (!status) { quotaBanner.classList.add('hidden'); return; }
+      quotaBanner.classList.remove('hidden');
+      const percent = status.percentUsed;
+      quotaBar.style.width = `${percent}%`;
+      if (status.isExhausted) {
+        quotaBanner.className = 'mb-4 rounded-xl p-4 border bg-rose-500/10 border-rose-500/50';
+        quotaBar.className = 'h-full transition-all duration-500 bg-rose-500';
+        quotaMessage.textContent = '⚠️ Daily API limit reached. Please try again tomorrow.';
+        quotaMessage.className = 'text-sm font-medium text-rose-300';
+        submitBtn.disabled = true;
+      } else if (status.isLow) {
+        quotaBanner.className = 'mb-4 rounded-xl p-4 border bg-amber-500/10 border-amber-500/50';
+        quotaBar.className = 'h-full transition-all duration-500 bg-amber-500';
+        quotaMessage.textContent = `⚠️ API quota running low (${status.usableRemaining.toLocaleString()} units left).`;
+        quotaMessage.className = 'text-sm font-medium text-amber-300';
+      } else {
+        quotaBanner.classList.add('hidden');
+      }
+    }
+    
+    async function checkQuotaStatus() {
+      try {
+        const r = await fetch('/api/quota');
+        if (r.ok) { const status = await r.json(); updateQuotaBanner(status); return status; }
+      } catch (err) { console.error('Failed to check quota:', err); }
+      return null;
+    }
+    
+    checkQuotaStatus();
+
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const u = urlInput.value.trim();
       if (!u) return;
+      
+      const quotaStatus = await checkQuotaStatus();
+      if (quotaStatus?.isExhausted) {
+        setStatus('<div><div class="font-semibold text-lg">Daily API Limit Reached</div><div class="text-sm mt-1">Please try again tomorrow when the quota resets at midnight PT.</div></div>', "error");
+        return;
+      }
       
       resultsEl.innerHTML = "";
       setLoading(true);
@@ -79,9 +136,15 @@
       
       const r = await fetch(`/api/collab?url=${encodeURIComponent(u)}`);
       setLoading(false);
+      checkQuotaStatus();
       
       if (!r.ok) {
         const msg = await r.json().catch(() => ({error: 'Unexpected error'}));
+        if (r.status === 429 || msg.code === 'QUOTA_EXCEEDED') {
+          setStatus('<div><div class="font-semibold text-lg">Daily API Limit Reached</div><div class="text-sm mt-1">Please try again tomorrow when the quota resets at midnight PT.</div></div>', "error");
+          if (msg.quotaStatus) updateQuotaBanner(msg.quotaStatus);
+          return;
+        }
         setStatus(`<div><div class="font-semibold text-lg">Error</div><div class="text-sm mt-1">${msg.error || 'Unexpected error.'}</div></div>`, "error");
         return;
       }
