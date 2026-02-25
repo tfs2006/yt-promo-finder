@@ -1,4 +1,4 @@
-import { getQuotaStatus, setCorsHeaders } from "../utils.js";
+import { getQuotaStatusAsync, setCorsHeaders, initQuota } from "../utils.js";
 
 export default async function handler(req, res) {
   setCorsHeaders(res);
@@ -7,8 +7,11 @@ export default async function handler(req, res) {
     return res.status(200).end();
   }
 
+  // Initialize quota from persistent storage
+  await initQuota();
+
   try {
-    const status = getQuotaStatus();
+    const status = await getQuotaStatusAsync();
     res.json(status);
   } catch (err) {
     console.error(err);

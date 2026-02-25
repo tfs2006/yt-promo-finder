@@ -6,27 +6,227 @@ dotenv.config();
 
 export const API_KEY = process.env.YOUTUBE_API_KEY;
 
-const QUOTA_FILE = process.env.VERCEL 
-  ? path.join("/tmp", "quota.json") 
-  : path.join(process.cwd(), "quota.json");
+// ============================================
+// Storage Abstraction (Upstash Redis for production, file for local)
+// ============================================
+
+let redisClient = null;
+const IS_VERCEL = process.env.VERCEL === '1' || process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL;
+
+// Lazy load Upstash Redis client
+async function getRedisClient() {
+  if (redisClient) return redisClient;
+  if (!IS_VERCEL) return null;
+  
+  try {
+    const { Redis } = await import('@upstash/redis');
+    // Support both Upstash and Vercel KV environment variable names
+    const url = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL;
+    const token = process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN;
+    
+    if (!url || !token) {
+      console.warn('Redis credentials not found, falling back to file storage');
+      return null;
+    }
+    
+    redisClient = new Redis({ url, token });
+    return redisClient;
+  } catch (e) {
+    console.warn('Upstash Redis not available, falling back to file storage:', e.message);
+    return null;
+  }
+}
+
+// File-based storage fallback for local development
+const LOCAL_STORAGE_DIR = process.cwd();
+const QUOTA_FILE = path.join(LOCAL_STORAGE_DIR, "quota.json");
+
+async function kvGet(key) {
+  const redis = await getRedisClient();
+  if (redis) {
+    try {
+      return await redis.get(key);
+    } catch (e) {
+      console.error('Redis get error:', e.message);
+      return null;
+    }
+  }
+  // File fallback
+  try {
+    const filePath = path.join(LOCAL_STORAGE_DIR, `cache_${key.replace(/[^a-z0-9]/gi, '_')}.json`);
+    if (fs.existsSync(filePath)) {
+      return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+    }
+  } catch (e) {}
+  return null;
+}
+
+async function kvSet(key, value, options = {}) {
+  const redis = await getRedisClient();
+  if (redis) {
+    try {
+      // Upstash Redis supports ex (expiration in seconds)
+      if (options.ex) {
+        await redis.set(key, value, { ex: options.ex });
+      } else {
+        await redis.set(key, value);
+      }
+      return true;
+    } catch (e) {
+      console.error('Redis set error:', e.message);
+      return false;
+    }
+  }
+  // File fallback
+  try {
+    const filePath = path.join(LOCAL_STORAGE_DIR, `cache_${key.replace(/[^a-z0-9]/gi, '_')}.json`);
+    fs.writeFileSync(filePath, JSON.stringify(value));
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+// ============================================
+// Input Validation
+// ============================================
+
+/**
+ * Validate and sanitize YouTube channel input
+ * @param {string} input - User input (URL, handle, or channel ID)
+ * @returns {{ valid: boolean, sanitized?: string, error?: string }}
+ */
+export function validateChannelInput(input) {
+  if (!input || typeof input !== 'string') {
+    return { valid: false, error: 'Input is required' };
+  }
+
+  const trimmed = input.trim();
+  
+  // Check length
+  if (trimmed.length < 2) {
+    return { valid: false, error: 'Input is too short' };
+  }
+  if (trimmed.length > 500) {
+    return { valid: false, error: 'Input is too long' };
+  }
+
+  // Check for malicious patterns
+  const dangerousPatterns = [
+    /<script/i,
+    /javascript:/i,
+    /on\w+\s*=/i,
+    /data:/i,
+    /vbscript:/i
+  ];
+  
+  for (const pattern of dangerousPatterns) {
+    if (pattern.test(trimmed)) {
+      return { valid: false, error: 'Invalid characters in input' };
+    }
+  }
+
+  // Validate URL format if it looks like a URL
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+    try {
+      const url = new URL(trimmed);
+      // Only allow youtube.com domains
+      if (!url.hostname.match(/^(www\.)?(youtube\.com|youtu\.be)$/i)) {
+        return { valid: false, error: 'Only YouTube URLs are allowed' };
+      }
+    } catch {
+      return { valid: false, error: 'Invalid URL format' };
+    }
+  }
+
+  // Validate channel ID format
+  if (/^UC[\w-]+$/i.test(trimmed)) {
+    if (trimmed.length < 20 || trimmed.length > 30) {
+      return { valid: false, error: 'Invalid channel ID format' };
+    }
+  }
+
+  // Validate handle format
+  if (trimmed.startsWith('@')) {
+    if (!/^@[\w\.-]{1,50}$/.test(trimmed)) {
+      return { valid: false, error: 'Invalid handle format' };
+    }
+  }
+
+  return { valid: true, sanitized: trimmed };
+}
+
+/**
+ * Validate domain input for domain search
+ * @param {string} input - Domain to search for
+ * @returns {{ valid: boolean, sanitized?: string, error?: string }}
+ */
+export function validateDomainInput(input) {
+  if (!input || typeof input !== 'string') {
+    return { valid: false, error: 'Domain is required' };
+  }
+
+  let domain = input.trim().toLowerCase();
+  
+  // Remove protocol if present
+  domain = domain.replace(/^https?:\/\//, '');
+  // Remove www. prefix
+  domain = domain.replace(/^www\./, '');
+  // Remove trailing slash and path
+  domain = domain.split('/')[0];
+  // Remove port if present
+  domain = domain.split(':')[0];
+
+  // Check length
+  if (domain.length < 3 || domain.length > 253) {
+    return { valid: false, error: 'Invalid domain length' };
+  }
+
+  // Validate domain format
+  const domainRegex = /^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)*\.[a-z]{2,}$/i;
+  if (!domainRegex.test(domain)) {
+    return { valid: false, error: 'Invalid domain format' };
+  }
+
+  return { valid: true, sanitized: domain };
+}
+
+// ============================================
+// Quota Management (uses KV in production, file locally)
+// ============================================
 
 const DAILY_LIMIT = 10000;
 const SAFETY_BUFFER = 500; // Reserve some quota to prevent hitting hard limit
+const QUOTA_KEY_PREFIX = 'yt_promo_quota';
+
+// In-memory quota cache to reduce KV calls within same request
+let quotaCache = { date: null, used: 0 };
+
+function getQuotaKey() {
+  const today = new Date().toISOString().split("T")[0];
+  return `${QUOTA_KEY_PREFIX}:${today}`;
+}
 
 /**
- * Get current quota status
+ * Get current quota status (async for KV support)
  */
-export function getQuotaStatus() {
+export async function getQuotaStatusAsync() {
   const today = new Date().toISOString().split("T")[0];
   let currentUsed = 0;
-  try {
-    if (fs.existsSync(QUOTA_FILE)) {
-      const data = JSON.parse(fs.readFileSync(QUOTA_FILE, "utf8"));
-      if (data.date === today) {
-        currentUsed = data.used;
-      }
+  
+  // Check in-memory cache first
+  if (quotaCache.date === today) {
+    currentUsed = quotaCache.used;
+  } else {
+    // Fetch from KV or file
+    const data = await kvGet(getQuotaKey());
+    if (data && data.date === today) {
+      currentUsed = data.used;
+      quotaCache = { date: today, used: currentUsed };
+    } else {
+      quotaCache = { date: today, used: 0 };
     }
-  } catch (e) {}
+  }
 
   const remaining = DAILY_LIMIT - currentUsed;
   const usableRemaining = Math.max(0, remaining - SAFETY_BUFFER);
@@ -44,7 +244,44 @@ export function getQuotaStatus() {
 }
 
 /**
- * Check if we have enough quota for an operation
+ * Synchronous quota status (uses cached value, for backward compatibility)
+ */
+export function getQuotaStatus() {
+  const today = new Date().toISOString().split("T")[0];
+  const currentUsed = (quotaCache.date === today) ? quotaCache.used : 0;
+
+  const remaining = DAILY_LIMIT - currentUsed;
+  const usableRemaining = Math.max(0, remaining - SAFETY_BUFFER);
+  
+  return {
+    used: currentUsed,
+    remaining,
+    usableRemaining,
+    limit: DAILY_LIMIT,
+    percentUsed: Math.round((currentUsed / DAILY_LIMIT) * 100),
+    isLow: usableRemaining < 1000,
+    isExhausted: usableRemaining <= 0,
+    resetsAt: new Date(new Date().setHours(24, 0, 0, 0) - new Date().getTimezoneOffset() * 60000).toISOString()
+  };
+}
+
+/**
+ * Check if we have enough quota for an operation (async)
+ */
+export async function checkQuotaAsync(cost) {
+  const status = await getQuotaStatusAsync();
+  if (status.usableRemaining < cost) {
+    return {
+      allowed: false,
+      status,
+      message: `Insufficient API quota. Need ${cost} units but only ${status.usableRemaining} remaining. Quota resets at midnight PT.`
+    };
+  }
+  return { allowed: true, status };
+}
+
+/**
+ * Synchronous quota check (uses cached value, for backward compatibility)
  */
 export function checkQuota(cost) {
   const status = getQuotaStatus();
@@ -58,33 +295,57 @@ export function checkQuota(cost) {
   return { allowed: true, status };
 }
 
+/**
+ * Consume quota (updates in-memory cache immediately, persists async)
+ * This is synchronous for compatibility but uses background persist
+ */
 export function consumeQuota(cost) {
   const today = new Date().toISOString().split("T")[0];
-  let currentUsed = 0;
-  try {
-    if (fs.existsSync(QUOTA_FILE)) {
-      const data = JSON.parse(fs.readFileSync(QUOTA_FILE, "utf8"));
-      if (data.date === today) {
-        currentUsed = data.used;
-      }
-    }
-  } catch (e) {}
+  
+  // Initialize cache if needed
+  if (quotaCache.date !== today) {
+    quotaCache = { date: today, used: 0 };
+  }
 
   const usableLimit = DAILY_LIMIT - SAFETY_BUFFER;
-  if (currentUsed + cost > usableLimit) {
+  if (quotaCache.used + cost > usableLimit) {
     const error = new Error(`Daily API limit reached. Please try again tomorrow when the quota resets at midnight PT.`);
     error.code = 'QUOTA_EXCEEDED';
     error.quotaStatus = getQuotaStatus();
     throw error;
   }
 
-  const newUsed = currentUsed + cost;
-  try {
-    fs.writeFileSync(QUOTA_FILE, JSON.stringify({ date: today, used: newUsed }));
-  } catch (e) {
-    console.error("Error writing quota file:", e);
+  // Update in-memory immediately
+  quotaCache.used += cost;
+  
+  // Persist to storage asynchronously (fire and forget)
+  persistQuota(today, quotaCache.used).catch(e => {
+    console.error("Error persisting quota:", e.message);
+  });
+  
+  return quotaCache.used;
+}
+
+/**
+ * Persist quota to storage (KV or file)
+ */
+async function persistQuota(date, used) {
+  await kvSet(getQuotaKey(), { date, used }, { ex: 86400 }); // Expires in 24 hours
+}
+
+/**
+ * Initialize quota from storage (call at start of request)
+ */
+export async function initQuota() {
+  const today = new Date().toISOString().split("T")[0];
+  if (quotaCache.date === today) return; // Already initialized
+  
+  const data = await kvGet(getQuotaKey());
+  if (data && data.date === today) {
+    quotaCache = { date: today, used: data.used };
+  } else {
+    quotaCache = { date: today, used: 0 };
   }
-  return newUsed;
 }
 
 export async function fetchJson(url) {
@@ -205,4 +466,106 @@ export function handleApiError(res, err) {
   }
   
   return res.status(500).json({ error: err.message || "Unexpected server error." });
+}
+
+// ============================================
+// Video/Description Analysis Utilities
+// ============================================
+
+/**
+ * Extract URLs from text (video descriptions)
+ */
+export function extractUrls(text) {
+  if (!text) return [];
+  const urlRegex = /(https?:\/\/[^\s)\]>"']+)/gi;
+  const matches = text.match(urlRegex) || [];
+  return matches.map(u => u.replace(/[)\],.;:"'!\?\s]+$/, ""));
+}
+
+/**
+ * Get domain from a URL
+ */
+export function domainFromUrl(u) {
+  try { return new URL(u).hostname.toLowerCase().replace(/^www\./, ""); }
+  catch { return "unknown"; }
+}
+
+/**
+ * Normalize URL by removing tracking parameters
+ */
+export function normalizeUrl(u) {
+  try {
+    const x = new URL(u);
+    const toRemove = ["utm_source","utm_medium","utm_campaign","utm_term","utm_content","tag","ascsubtag","source","ref","aff","aff_id","affid"];
+    for (const k of toRemove) x.searchParams.delete(k);
+    return x.toString();
+  } catch { return u; }
+}
+
+/**
+ * Guess product name from description line containing URL
+ */
+export function guessProductNameFromLine(line, url) {
+  const idx = line.indexOf(url);
+  const before = idx > -1 ? line.slice(0, idx).trim() : line.trim();
+  const parts = before.split(/[:\-–]|\\|/).map(s => s.trim()).filter(Boolean);
+  if (parts.length) {
+    const guess = parts[parts.length - 1];
+    if (guess.length >= 3 && !/^(link|product|buy|amazon|gear)$/i.test(guess)) return guess;
+  }
+  return "";
+}
+
+/**
+ * Regex pattern for filtering out social media domains
+ */
+export const SOCIAL_MEDIA_FILTER = /(patreon|instagram|twitter|x\.com|facebook|tiktok|threads\.net|linkedin|discord|paypal|buymeacoffee|linktr|linktree|beacons\.ai|bitly\.page|youtube\.com)/i;
+
+/**
+ * Iterate through uploads playlist videos since a given date
+ */
+export async function* iterateUploads(playlistId, sinceISO) {
+  let pageToken = "";
+  const since = new Date(sinceISO);
+  while (true) {
+    consumeQuota(1);
+    const url = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet,contentDetails&maxResults=50&playlistId=${playlistId}&key=${API_KEY}${pageToken ? `&pageToken=${pageToken}` : ""}`;
+    const data = await fetchJson(url);
+    const items = data.items || [];
+    for (const it of items) {
+      const publishedAt = it.contentDetails?.videoPublishedAt || it.snippet?.publishedAt;
+      if (!publishedAt) continue;
+      const d = new Date(publishedAt);
+      if (d < since) return;
+      yield {
+        videoId: it.contentDetails?.videoId || it.snippet?.resourceId?.videoId,
+        title: it.snippet?.title,
+        publishedAt
+      };
+    }
+    pageToken = data.nextPageToken;
+    if (!pageToken) break;
+  }
+}
+
+/**
+ * Get video details (title, description) for a list of video IDs
+ */
+export async function getVideoDetails(videoIds) {
+  const details = [];
+  for (let i = 0; i < videoIds.length; i += 50) {
+    const chunk = videoIds.slice(i, i + 50);
+    consumeQuota(1);
+    const url = `https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails&id=${chunk.join(",")}&key=${API_KEY}`;
+    const data = await fetchJson(url);
+    for (const it of data.items || []) {
+      details.push({
+        videoId: it.id,
+        title: it.snippet?.title || "",
+        description: it.snippet?.description || "",
+        publishedAt: it.snippet?.publishedAt
+      });
+    }
+  }
+  return details;
 }

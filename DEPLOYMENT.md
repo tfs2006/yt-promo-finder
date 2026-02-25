@@ -91,7 +91,26 @@ heroku open
 - ✅ Use the `.env.example` file as a template for other developers
 - ✅ Monitor your YouTube API quota in [Google Cloud Console](https://console.cloud.google.com)
 
-## 🔧 Troubleshooting
+## 🔗 Setting Up Redis Storage (Recommended for Production)
+
+For persistent quota tracking across serverless invocations, set up Upstash Redis:
+
+### Option A: Via Vercel Marketplace (Easiest)
+1. Go to your Vercel project dashboard
+2. Click **Storage** → **Browse Storage** → Select **Upstash Redis**
+3. Follow the setup wizard
+4. Vercel will automatically add the required environment variables
+
+### Option B: Direct Upstash Setup
+1. Go to [Upstash Console](https://console.upstash.com/)
+2. Create a new Redis database
+3. Add these environment variables to your Vercel project:
+   - `UPSTASH_REDIS_REST_URL` - Your Upstash REST URL
+   - `UPSTASH_REDIS_REST_TOKEN` - Your Upstash REST token
+
+Without Redis storage, quota tracking will reset between serverless function invocations (which could lead to exceeding YouTube API limits).
+
+## �🔧 Troubleshooting
 
 ### Build fails on deployment
 - Ensure `package.json` has correct scripts

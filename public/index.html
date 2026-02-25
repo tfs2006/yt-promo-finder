@@ -297,6 +297,69 @@
       }
     }
 
+    // Store last results for export
+    let lastResults = null;
+
+    // Export functions
+    function exportToJSON() {
+      if (!lastResults || !lastResults.promotions.length) return;
+      
+      const exportData = {
+        exportedAt: new Date().toISOString(),
+        channelId: lastResults.channelId,
+        analyzedSince: lastResults.sinceISO,
+        videoCount: lastResults.videoCount,
+        promotions: lastResults.promotions.map(p => ({
+          productName: p.productName || '',
+          domain: p.domain,
+          url: p.url,
+          mentions: p.occurrences,
+          videos: p.videos.map(v => ({
+            title: v.title,
+            videoId: v.videoId,
+            url: `https://www.youtube.com/watch?v=${v.videoId}`,
+            publishedAt: v.publishedAt
+          }))
+        }))
+      };
+      
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+      downloadBlob(blob, `promotions-${lastResults.channelId}-${Date.now()}.json`);
+    }
+
+    function exportToCSV() {
+      if (!lastResults || !lastResults.promotions.length) return;
+      
+      const rows = [['Product Name', 'Domain', 'URL', 'Mentions', 'Sample Video', 'Video URL']];
+      
+      for (const p of lastResults.promotions) {
+        const sampleVideo = p.videos[0];
+        rows.push([
+          `"${(p.productName || '').replace(/"/g, '""')}"`,
+          p.domain,
+          p.url,
+          p.occurrences,
+          `"${(sampleVideo?.title || '').replace(/"/g, '""')}"`,
+          sampleVideo ? `https://www.youtube.com/watch?v=${sampleVideo.videoId}` : ''
+        ]);
+      }
+      
+      const csv = rows.map(row => row.join(',')).join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      downloadBlob(blob, `promotions-${lastResults.channelId}-${Date.now()}.csv`);
+    }
+
+    function downloadBlob(blob, filename) {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
     // Quota management functions
     function updateQuotaBanner(status) {
       if (!status) {
@@ -425,20 +488,41 @@
       
       const data = await r.json();
       clearStatus();
+      
+      // Store results for export
+      lastResults = data;
 
       const hdr = document.createElement('div');
       hdr.className = "glass-effect border border-emerald-500/30 rounded-2xl p-5 mb-6 fade-in";
       hdr.innerHTML = `
-        <div class="flex items-center gap-3 flex-wrap">
-          <svg class="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-          </svg>
-          <div class="text-slate-200">
-            <span class="font-semibold text-emerald-400 text-lg">${data.videoCount}</span> videos analyzed since 
-            <span class="mono font-medium">${new Date(data.sinceISO).toLocaleDateString()}</span>
-            <span class="mx-2 text-slate-600">•</span>
-            <span class="font-semibold text-emerald-400 text-lg">${data.promotions.length}</span> unique ${data.promotions.length === 1 ? 'promotion' : 'promotions'} found
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div class="flex items-center gap-3 flex-wrap">
+            <svg class="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <div class="text-slate-200">
+              <span class="font-semibold text-emerald-400 text-lg">${data.videoCount}</span> videos analyzed since 
+              <span class="mono font-medium">${new Date(data.sinceISO).toLocaleDateString()}</span>
+              <span class="mx-2 text-slate-600">•</span>
+              <span class="font-semibold text-emerald-400 text-lg">${data.promotions.length}</span> unique ${data.promotions.length === 1 ? 'promotion' : 'promotions'} found
+            </div>
           </div>
+          ${data.promotions.length ? `
+          <div class="flex items-center gap-2">
+            <button onclick="exportToCSV()" class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-800/50 border border-slate-600/50 hover:border-emerald-500/50 hover:bg-slate-800 transition-all text-sm text-slate-300 hover:text-emerald-400">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+              </svg>
+              CSV
+            </button>
+            <button onclick="exportToJSON()" class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-800/50 border border-slate-600/50 hover:border-emerald-500/50 hover:bg-slate-800 transition-all text-sm text-slate-300 hover:text-emerald-400">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+              </svg>
+              JSON
+            </button>
+          </div>
+          ` : ''}
         </div>
       `;
       resultsEl.appendChild(hdr);

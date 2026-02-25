@@ -9,7 +9,9 @@ import {
   getUploadsPlaylistId,
   setCorsHeaders,
   handleApiError,
-  checkQuota
+  checkQuota,
+  validateChannelInput,
+  initQuota
 } from "../utils.js";
 
 async function getRecentVideoDescriptions(playlistId, maxResults = 50) {
@@ -131,9 +133,16 @@ export default async function handler(req, res) {
     return res.status(200).end();
   }
 
+  // Initialize quota from persistent storage
+  await initQuota();
+
   try {
-    const input = (req.query.url || "").toString().trim();
-    if (!input) return res.status(400).json({ error: "Missing 'url' query param (channel URL, handle, or channel ID)." });
+    const rawInput = (req.query.url || "").toString();
+    const validation = validateChannelInput(rawInput);
+    if (!validation.valid) {
+      return res.status(400).json({ error: validation.error || "Invalid input." });
+    }
+    const input = validation.sanitized;
 
     if (!API_KEY) {
       return res.status(500).json({ error: "YouTube API key not configured." });

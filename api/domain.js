@@ -6,21 +6,10 @@ import {
   getCache,
   setCorsHeaders,
   handleApiError,
-  checkQuota
+  checkQuota,
+  validateDomainInput,
+  initQuota
 } from "../utils.js";
-
-function normalizeDomain(input) {
-  let domain = input.trim().toLowerCase();
-  // Remove protocol if present
-  domain = domain.replace(/^https?:\/\//, '');
-  // Remove www. prefix
-  domain = domain.replace(/^www\./, '');
-  // Remove trailing slash and path
-  domain = domain.split('/')[0];
-  // Remove port if present
-  domain = domain.split(':')[0];
-  return domain;
-}
 
 export default async function handler(req, res) {
   // Enable CORS
@@ -30,19 +19,19 @@ export default async function handler(req, res) {
     return res.status(200).end();
   }
 
+  // Initialize quota from persistent storage
+  await initQuota();
+
   try {
-    const input = (req.query.domain || "").toString().trim();
-    if (!input) {
-      return res.status(400).json({ error: "Missing 'domain' query param (e.g., amazon.com, gfuel.com)." });
+    const rawInput = (req.query.domain || "").toString();
+    const validation = validateDomainInput(rawInput);
+    if (!validation.valid) {
+      return res.status(400).json({ error: validation.error || "Invalid domain." });
     }
+    const domain = validation.sanitized;
 
     if (!API_KEY) {
       return res.status(500).json({ error: "YouTube API key not configured." });
-    }
-
-    const domain = normalizeDomain(input);
-    if (!domain || domain.length < 3) {
-      return res.status(400).json({ error: "Invalid domain provided." });
     }
 
     // Check quota before starting (domain search uses 500+ units)
