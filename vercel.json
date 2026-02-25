@@ -28,70 +28,22 @@
       ]
     }
   ],
-  "routes": [
-    {
-      "src": "/api/analyze",
-      "dest": "/api/analyze.js"
-    },
-    {
-      "src": "/api/collab",
-      "dest": "/api/collab.js"
-    },
-    {
-      "src": "/api/growth",
-      "dest": "/api/growth.js"
-    },
-    {
-      "src": "/api/unlisted",
-      "dest": "/api/unlisted.js"
-    },
-    {
-      "src": "/api/domain",
-      "dest": "/api/domain.js"
-    },
-    {
-      "src": "/api/compare",
-      "dest": "/api/compare.js"
-    },
-    {
-      "src": "/api/quota",
-      "dest": "/api/quota.js"
-    },
-    {
-      "src": "/compare",
-      "dest": "/public/compare.html"
-    },
-    {
-      "src": "/domain",
-      "dest": "/public/domain.html"
-    },
-    {
-      "src": "/unlisted",
-      "dest": "/public/unlisted.html"
-    },
-    {
-      "src": "/growth",
-      "dest": "/public/growth.html"
-    },
-    {
-      "src": "/collab",
-      "dest": "/public/collab.html"
-    },
-    {
-      "src": "/privacy",
-      "dest": "/public/privacy.html"
-    },
-    {
-      "src": "/terms",
-      "dest": "/public/terms.html"
-    },
-    {
-      "src": "/disclaimer",
-      "dest": "/public/disclaimer.html"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/public/$1"
-    }
+  "rewrites": [
+    { "source": "/api/analyze", "destination": "/api/analyze.js" },
+    { "source": "/api/collab", "destination": "/api/collab.js" },
+    { "source": "/api/growth", "destination": "/api/growth.js" },
+    { "source": "/api/unlisted", "destination": "/api/unlisted.js" },
+    { "source": "/api/domain", "destination": "/api/domain.js" },
+    { "source": "/api/compare", "destination": "/api/compare.js" },
+    { "source": "/api/quota", "destination": "/api/quota.js" },
+    { "source": "/compare", "destination": "/public/compare.html" },
+    { "source": "/domain", "destination": "/public/domain.html" },
+    { "source": "/unlisted", "destination": "/public/unlisted.html" },
+    { "source": "/growth", "destination": "/public/growth.html" },
+    { "source": "/collab", "destination": "/public/collab.html" },
+    { "source": "/privacy", "destination": "/public/privacy.html" },
+    { "source": "/terms", "destination": "/public/terms.html" },
+    { "source": "/disclaimer", "destination": "/public/disclaimer.html" },
+    { "source": "/(.*)", "destination": "/public/$1" }
   ]
 }
