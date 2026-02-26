@@ -209,7 +209,11 @@ export default async function handler(req, res) {
 
     // Link check mode
     if (mode === 'linkcheck') {
-      return await handleLinkCheck(req, res, input);
+      try {
+        return await handleLinkCheck(req, res, input);
+      } catch (err) {
+        return handleApiError(res, err);
+      }
     }
 
     // Default: Promotion analysis mode
@@ -397,5 +401,4 @@ async function handleLinkCheck(req, res, input) {
   };
 
   res.json(payload);
-}
 }

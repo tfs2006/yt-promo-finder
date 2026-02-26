@@ -368,13 +368,31 @@ export async function fetchJson(url) {
 // ============================================
 
 /**
- * Simple in-memory cache with TTL
+ * Tiered in-memory cache with configurable TTL
+ * Different data has different freshness requirements:
+ * - Channel info: 24 hours (rarely changes)
+ * - Channel resolution: 24 hours (handles don't change)
+ * - Analysis results: 15 minutes (may want fresh data)
  */
 const cache = new Map();
-const CACHE_TTL_MS = 1000 * 60 * 15; // 15 minutes
 
-export function setCache(key, data) { 
-  cache.set(key, { data, expires: Date.now() + CACHE_TTL_MS }); 
+// TTL presets in milliseconds
+export const CACHE_TTL = {
+  SHORT: 1000 * 60 * 15,      // 15 minutes - analysis results
+  MEDIUM: 1000 * 60 * 60,     // 1 hour - video lists
+  LONG: 1000 * 60 * 60 * 24,  // 24 hours - channel info, resolution
+};
+
+const DEFAULT_CACHE_TTL_MS = CACHE_TTL.SHORT;
+
+/**
+ * Set cache with optional custom TTL
+ * @param {string} key - Cache key
+ * @param {any} data - Data to cache
+ * @param {number} ttlMs - TTL in milliseconds (optional, defaults to 15 min)
+ */
+export function setCache(key, data, ttlMs = DEFAULT_CACHE_TTL_MS) { 
+  cache.set(key, { data, expires: Date.now() + ttlMs }); 
 }
 
 export function getCache(key) {
@@ -411,34 +429,84 @@ export function parseChannelIdFromUrl(rawUrl) {
 
 /**
  * Resolve a channel ID from various URL formats
+ * OPTIMIZED: Cached for 24 hours to save quota (search costs 100 units!)
  */
 export async function resolveChannelId(spec) {
+  // Direct channel ID - no API call needed
   if (spec.type === "channelId") return spec.value;
+  
+  // Check in-memory cache first
+  const cacheKey = `channel_resolve::${spec.type}::${spec.value}`;
+  const memCached = getCache(cacheKey);
+  if (memCached) return memCached;
+  
+  // Check persistent KV cache (survives between requests)
+  const kvCached = await kvGet(cacheKey);
+  if (kvCached) {
+    setCache(cacheKey, kvCached, CACHE_TTL.LONG); // Populate memory cache
+    return kvCached;
+  }
+  
+  let channelId = null;
+  
   if (spec.type === "username") {
     consumeQuota(1);
     const url = `https://www.googleapis.com/youtube/v3/channels?part=id&forUsername=${encodeURIComponent(spec.value)}&key=${API_KEY}`;
     const data = await fetchJson(url);
-    if (data.items?.length) return data.items[0].id;
+    if (data.items?.length) channelId = data.items[0].id;
   }
-  const q = spec.value.replace(/^@/, "");
-  consumeQuota(100);
-  const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=channel&maxResults=1&q=${encodeURIComponent(q)}&key=${API_KEY}`;
-  const data = await fetchJson(url);
-  if (data.items?.length) {
-    return data.items[0].snippet?.channelId || data.items[0].id?.channelId;
+  
+  if (!channelId) {
+    // Handle/custom URL - requires expensive search API (100 units)
+    const q = spec.value.replace(/^@/, "");
+    consumeQuota(100);
+    const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=channel&maxResults=1&q=${encodeURIComponent(q)}&key=${API_KEY}`;
+    const data = await fetchJson(url);
+    if (data.items?.length) {
+      channelId = data.items[0].snippet?.channelId || data.items[0].id?.channelId;
+    }
   }
-  throw new Error("Unable to resolve channel ID from the provided URL or handle.");
+  
+  if (!channelId) {
+    throw new Error("Unable to resolve channel ID from the provided URL or handle.");
+  }
+  
+  // Cache for 24 hours (handles/usernames rarely change)
+  setCache(cacheKey, channelId, CACHE_TTL.LONG);
+  
+  // Also persist to KV for cross-request caching (fire and forget)
+  kvSet(cacheKey, channelId, { ex: 86400 }).catch(() => {});
+  
+  return channelId;
 }
 
 /**
  * Get uploads playlist ID for a channel
+ * OPTIMIZED: Cached for 24 hours (never changes for a channel)
  */
 export async function getUploadsPlaylistId(channelId) {
+  // Check memory cache first
+  const cacheKey = `uploads_playlist::${channelId}`;
+  const memCached = getCache(cacheKey);
+  if (memCached) return memCached;
+  
+  // Check persistent KV cache (survives between requests)
+  const kvCached = await kvGet(cacheKey);
+  if (kvCached) {
+    setCache(cacheKey, kvCached, CACHE_TTL.LONG);
+    return kvCached;
+  }
+  
   consumeQuota(1);
   const url = `https://www.googleapis.com/youtube/v3/channels?part=contentDetails&id=${channelId}&key=${API_KEY}`;
   const data = await fetchJson(url);
   const uploads = data.items?.[0]?.contentDetails?.relatedPlaylists?.uploads;
   if (!uploads) throw new Error("Uploads playlist not available for this channel.");
+  
+  // Cache for 24 hours (uploads playlist ID never changes)
+  setCache(cacheKey, uploads, CACHE_TTL.LONG);
+  kvSet(cacheKey, uploads, { ex: 86400 }).catch(() => {});
+  
   return uploads;
 }
 
