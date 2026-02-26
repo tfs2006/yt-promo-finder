@@ -489,12 +489,13 @@
       
       const params = new URLSearchParams({
         url: channelUrl,
+        mode: 'linkcheck',
         months: monthsBack,
         check: 'true'
       });
       if (domainFilter) params.append('filter', domainFilter);
       
-      const r = await fetch(`/api/linkcheck?${params}`);
+      const r = await fetch(`/api/analyze?${params}`);
       setLoading(false);
       checkQuotaStatus();
       
