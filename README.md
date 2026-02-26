@@ -1,20 +1,74 @@
-# 🎯 YouTube Channel Promotion Finder
+# 🎯 YouTube Promo Finder
 
-A beautiful web application that analyzes YouTube channels to discover product promotions and affiliate links from the last year of uploads.
+A comprehensive suite of YouTube channel analysis tools to discover sponsorships, affiliate links, brand deals, collaborations, and more. Analyze 12 months of video data instantly.
+
+**🌐 Live at: [promofinder.4ourmedia.com](https://promofinder.4ourmedia.com)**
 
 ![YouTube Promo Finder](https://img.shields.io/badge/YouTube-API-red?style=for-the-badge&logo=youtube)
 ![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
 ![Express](https://img.shields.io/badge/Express-000000?style=for-the-badge&logo=express&logoColor=white)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
+![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)
 
 ## ✨ Features
 
-- 🔍 **Channel Analysis** - Analyzes the last 12 months of video uploads
-- 🎯 **Smart Detection** - Identifies product links and promotions from video descriptions
+### 🔍 Promotion Finder (Main Tool)
+- Analyzes the last 12 months of video uploads
+- Identifies product links, affiliate codes, and sponsorships from video descriptions
+- Groups promotions by domain with mention counts
+- Export results to CSV or JSON
+
+### 🌐 Domain Search
+- Search for any brand/website across YouTube
+- Find every video that mentions a specific domain
+- Perfect for competitive research and brand monitoring
+
+### 👁️ Unlisted Video Finder
+- Discover unlisted videos from any channel
+- Finds unlisted video URLs shared in other video descriptions
+- Useful for finding hidden content
+
+### 📈 Growth Tracker
+- Analyze channel statistics and upload patterns
+- See posting schedules and upload frequency
+- Track content output over time
+
+### 🤝 Collaboration Finder
+- Map creator networks and partnerships
+- Find channel mentions in video descriptions
+- Discover collaboration patterns
+
+### 🔀 Compare Sponsors
+- Compare sponsorships across multiple channels
+- Find common brand partnerships
+- Identify unique sponsorship deals
+
+### 💰 Sponsorship Rate Estimator
+- Estimate what a creator might charge for sponsored content
+- Calculate rates based on views, engagement, and niche
+- Compare sponsored vs non-sponsored video performance
+- Niche-specific CPM rates (tech, gaming, finance, lifestyle, etc.)
+
+### 🔥 Viral Video Detector
+- Identify videos that significantly outperformed channel average
+- Categorize videos (mega-viral, viral, hit, above-average, flop)
+- Analyze viral patterns (keywords, posting times, title lengths)
+- Find common elements in successful content
+
+### 📊 Sponsor Saturation Score
+- Measure how heavily a channel is monetized
+- Grade channels from A (light) to F (over-saturated)
+- Track sponsorship trend over time (increasing/decreasing)
+- Assess audience fatigue risk for brand partnerships
+- Identify top recurring sponsors
+
+### General Features
 - 🎨 **Modern UI** - Beautiful, responsive design with glass morphism effects
 - 📋 **Copy to Clipboard** - Easy copying of promotion URLs
 - ⚡ **Fast & Cached** - In-memory caching for quick repeated searches
 - 📱 **Mobile Friendly** - Fully responsive design
+- 📊 **Export Data** - Download results as CSV or JSON
+- 🔄 **Quota Management** - Real-time API quota tracking and display
 
 ## 🚀 Quick Start
 
@@ -62,43 +116,71 @@ A beautiful web application that analyzes YouTube channels to discover product p
 
 ## 📖 Usage
 
+### Promotion Finder
 1. Enter a YouTube channel URL in any of these formats:
    - `https://www.youtube.com/@handle`
    - `https://www.youtube.com/channel/UC-XXXXX`
    - `https://www.youtube.com/user/username`
    - `@handle` (bare handle)
    - `UC-XXXXX` (bare channel ID)
-
 2. Click **Analyze** and wait for results
+3. View discovered promotions with product names, URLs, mention counts, and video lists
+4. Export to CSV or JSON for further analysis
 
-3. View discovered promotions with:
-   - Product names and URLs
-   - Number of mentions
-   - List of videos featuring each promotion
-   - Quick copy-to-clipboard functionality
+### Domain Search
+1. Enter any domain (e.g., `amazon.com`, `nordvpn.com`)
+2. View all YouTube videos mentioning that domain
+
+### Other Tools
+Each tool has its own dedicated page accessible from the main navigation.
 
 ## 🛠️ Tech Stack
 
 - **Backend**: Node.js + Express
 - **Frontend**: HTML5, CSS3 (Tailwind CSS), Vanilla JavaScript
 - **API**: YouTube Data API v3
-- **Deployment Ready**: Works with Vercel, Render, Railway, etc.
+- **Deployment**: Vercel
+- **Utilities**: Custom URL parsing and link extraction
 
 ## 📁 Project Structure
 
 ```
 yt-promo-finder/
+├── api/
+│   ├── analyze.js      # Promotion analysis endpoint
+│   ├── domain.js       # Domain search endpoint
+│   ├── unlisted.js     # Unlisted video finder endpoint
+│   ├── growth.js       # Growth tracker endpoint
+│   ├── collab.js       # Collaboration finder endpoint
+│   ├── compare.js      # Sponsor comparison endpoint
+│   ├── rate.js         # Sponsorship rate estimator endpoint
+│   ├── viral.js        # Viral video detector endpoint
+│   ├── saturation.js   # Sponsor saturation score endpoint
+│   └── quota.js        # API quota status endpoint
 ├── public/
-│   └── index.html      # Frontend UI
-├── server.js           # Express server & API logic
+│   ├── index.html      # Main promotion finder UI
+│   ├── domain.html     # Domain search UI
+│   ├── unlisted.html   # Unlisted videos UI
+│   ├── growth.html     # Growth tracker UI
+│   ├── collab.html     # Collaboration finder UI
+│   ├── compare.html    # Compare sponsors UI
+│   ├── rate.html       # Rate estimator UI
+│   ├── viral.html      # Viral detector UI
+│   ├── saturation.html # Saturation score UI
+│   ├── privacy.html    # Privacy policy
+│   ├── terms.html      # Terms of service
+│   └── disclaimer.html # Disclaimer
+├── server.js           # Express server (local development)
+├── utils.js            # Shared utility functions
+├── vercel.json         # Vercel deployment config
 ├── package.json        # Dependencies
-├── .env.example        # Environment variables template
-└── README.md          # Documentation
+├── DEPLOYMENT.md       # Deployment documentation
+└── README.md           # This file
 ```
 
 ## 🌐 Deployment
 
-### Deploy to Vercel
+### Deploy to Vercel (Recommended)
 
 1. Install Vercel CLI:
    ```bash
@@ -107,25 +189,15 @@ yt-promo-finder/
 
 2. Deploy:
    ```bash
-   vercel
+   vercel --prod
    ```
 
 3. Set environment variables in Vercel dashboard:
    - `YOUTUBE_API_KEY`
 
-### Deploy to Render
+### Deploy to Other Platforms
 
-1. Create a new Web Service on [Render](https://render.com)
-2. Connect your GitHub repository
-3. Set environment variables
-4. Deploy!
-
-### Deploy to Railway
-
-1. Create a new project on [Railway](https://railway.app)
-2. Connect your GitHub repository
-3. Add environment variables
-4. Deploy automatically
+See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed instructions for Render, Railway, and other platforms.
 
 ## 🔒 Environment Variables
 
@@ -137,39 +209,87 @@ yt-promo-finder/
 ## 📝 API Endpoints
 
 ### `GET /api/analyze`
-
 Analyzes a YouTube channel for promotions.
 
 **Query Parameters:**
 - `url` (required): YouTube channel URL, handle, or channel ID
 
-**Example:**
-```
-GET /api/analyze?url=https://www.youtube.com/@PhilipDeFranco
-```
-
 **Response:**
 ```json
 {
+  "channelId": "UC-XXXXX",
   "videoCount": 156,
-  "sinceISO": "2024-11-01T00:00:00.000Z",
+  "sinceISO": "2025-02-01T00:00:00.000Z",
   "promotions": [
     {
       "url": "https://example.com/product",
       "domain": "example.com",
       "productName": "Cool Product",
       "occurrences": 5,
-      "videos": [
-        {
-          "videoId": "abc123",
-          "title": "Video Title",
-          "publishedAt": "2024-10-15T12:00:00Z"
-        }
-      ]
+      "videos": [...]
     }
   ]
 }
 ```
+
+### `GET /api/domain`
+Searches for videos mentioning a specific domain.
+
+**Query Parameters:**
+- `domain` (required): Domain to search for
+
+### `GET /api/unlisted`
+Finds unlisted videos from a channel.
+
+**Query Parameters:**
+- `url` (required): YouTube channel URL
+
+### `GET /api/growth`
+Analyzes channel growth and upload patterns.
+
+**Query Parameters:**
+- `url` (required): YouTube channel URL
+
+### `GET /api/collab`
+Finds collaborations and channel mentions.
+
+**Query Parameters:**
+- `url` (required): YouTube channel URL
+
+### `GET /api/compare`
+Compares sponsors across multiple channels.
+
+**Query Parameters:**
+- `urls` (required): Comma-separated YouTube channel URLs
+
+### `GET /api/quota`
+Returns current API quota status.
+
+**Response:**
+```json
+{
+  "used": 1500,
+  "limit": 10000,
+  "remaining": 8500,
+  "percentUsed": 15,
+  "isLow": false,
+  "isExhausted": false
+}
+```
+
+## ⚠️ Limitations
+
+- Results are based on video descriptions only
+- May not capture promotions shown on-screen or mentioned in audio
+- Subject to YouTube API quota limits (10,000 units/day by default)
+- Analyzes only the last 12 months of uploads
+
+## 🎯 Use Cases
+
+- **Brands & Marketers**: Find creators promoting competitors, discover influencer partners
+- **Content Creators**: Research sponsorship opportunities in your niche
+- **Researchers & Journalists**: Investigate sponsorship trends and undisclosed partnerships
+- **Curious Viewers**: See how your favorite creators monetize their content
 
 ## 🤝 Contributing
 
@@ -179,18 +299,13 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 This project is open source and available under the [MIT License](LICENSE).
 
-## ⚠️ Limitations
-
-- Results are based on video descriptions only
-- May not capture promotions shown on-screen or mentioned in audio
-- Subject to YouTube API quota limits (10,000 units/day by default)
-
 ## 🙏 Acknowledgments
 
 - Built with [YouTube Data API v3](https://developers.google.com/youtube/v3)
 - Styled with [Tailwind CSS](https://tailwindcss.com)
 - Icons from [Heroicons](https://heroicons.com)
+- Deployed on [Vercel](https://vercel.com)
 
 ---
 
-Made with ♥ by [Your Name]
+Made with ♥ by [David J Woodbury](https://davidjwoodbury.com)

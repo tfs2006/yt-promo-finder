@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>YouTube Revenue Calculator - Estimate Ad Earnings | YouTube Promo Finder</title>
+  <meta name="description" content="Estimate any YouTube channel's ad revenue based on views and niche. Free YouTube money calculator using industry CPM averages." />
+  <meta name="keywords" content="YouTube revenue calculator, YouTube money estimator, YouTuber earnings, YouTube CPM calculator, ad revenue estimator, YouTube income calculator" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .fade-in { animation: fadein 0.4s ease-out; }
+    @keyframes fadein { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .spin { animation: spin 1s linear infinite; }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+    .gradient-text { 
+      background: linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .glass-effect { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(12px); }
+    .revenue-glow { box-shadow: 0 0 60px rgba(16, 185, 129, 0.25); }
+    .chart-bar { transition: width 0.5s ease-out; }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-100 min-h-screen">
+  <div class="max-w-6xl mx-auto px-4 py-12 md:py-16">
+    <header class="mb-10">
+      <a href="/" class="inline-flex items-center gap-2 text-emerald-400 hover:text-emerald-300 transition-colors mb-6">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+        </svg>
+        Back to Home
+      </a>
+      <div class="inline-flex items-center gap-2 mb-4 px-4 py-2 rounded-full glass-effect border border-emerald-500/20">
+        <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <span class="text-sm font-medium text-emerald-400">Ad Revenue Intelligence</span>
+      </div>
+      <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
+        YouTube <span class="gradient-text">Revenue Calculator</span>
+      </h1>
+      <p class="text-slate-300 mt-4 text-lg md:text-xl max-w-3xl">
+        Estimate how much any YouTuber earns from ad revenue. Get monthly and yearly estimates based on their views, niche, and industry CPM averages.
+      </p>
+    </header>
+
+    <section class="glass-effect border border-slate-700/50 rounded-3xl p-6 md:p-8 shadow-2xl">
+      <form id="form" class="flex flex-col gap-3 md:flex-row md:items-center">
+        <div class="flex-1 relative">
+          <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+          </svg>
+          <input 
+            id="url" 
+            type="text" 
+            placeholder="https://www.youtube.com/@MrBeast" 
+            class="w-full rounded-xl bg-slate-900/80 border border-slate-700 pl-12 pr-4 py-3.5 outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all" 
+            required 
+          />
+        </div>
+        <button 
+          id="submitBtn" 
+          class="rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-white font-semibold px-8 py-3.5 transition-all shadow-lg hover:shadow-emerald-500/25 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 min-w-[180px]"
+          type="submit"
+        >
+          <span id="btnText">Calculate Revenue</span>
+          <svg id="btnIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+          </svg>
+          <svg id="btnSpinner" class="w-5 h-5 spin hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+        </button>
+      </form>
+      <div class="mt-4 flex flex-wrap items-center gap-2 text-xs text-slate-400">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <span>Enter any YouTube channel URL or handle to estimate their ad revenue</span>
+      </div>
+    </section>
+
+    <section id="status" class="mt-6 hidden"></section>
+    <section id="results" class="mt-6 space-y-6"></section>
+
+    <footer class="mt-16 pt-8 border-t border-slate-800/50">
+      <div class="text-center text-sm text-slate-500">
+        <p>Estimates based on industry CPM averages. Actual earnings vary based on many factors.</p>
+        <p class="mt-2">© <span id="year"></span> David J Woodbury. <a href="/privacy" class="text-emerald-400 hover:text-emerald-300">Privacy</a> • <a href="/terms" class="text-emerald-400 hover:text-emerald-300">Terms</a></p>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+    
+    const form = document.getElementById('form');
+    const urlInput = document.getElementById('url');
+    const statusEl = document.getElementById('status');
+    const resultsEl = document.getElementById('results');
+    const submitBtn = document.getElementById('submitBtn');
+    const btnText = document.getElementById('btnText');
+    const btnIcon = document.getElementById('btnIcon');
+    const btnSpinner = document.getElementById('btnSpinner');
+
+    function setStatus(html, tone="info") {
+      statusEl.classList.remove('hidden');
+      const base = "mt-6 rounded-2xl border p-5 fade-in glass-effect ";
+      statusEl.className = base + (tone === "error" ? "border-rose-500/50 text-rose-200" : "border-slate-700/50 text-slate-200");
+      statusEl.innerHTML = html;
+    }
+    
+    function clearStatus() { statusEl.classList.add('hidden'); }
+
+    function setLoading(loading) {
+      submitBtn.disabled = loading;
+      btnText.textContent = loading ? 'Calculating...' : 'Calculate Revenue';
+      btnIcon.classList.toggle('hidden', loading);
+      btnSpinner.classList.toggle('hidden', !loading);
+    }
+
+    function formatNumber(n) {
+      if (n >= 1000000000) return (n / 1000000000).toFixed(1) + 'B';
+      if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
+      if (n >= 1000) return (n / 1000).toFixed(1) + 'K';
+      return n.toLocaleString();
+    }
+
+    function getNicheEmoji(niche) {
+      const emojis = {
+        tech: '💻', gaming: '🎮', finance: '💰', beauty: '💄', fitness: '💪',
+        education: '📚', lifestyle: '🏠', food: '🍳', travel: '✈️', entertainment: '🎭',
+        news: '📰', music: '🎵', default: '📺'
+      };
+      return emojis[niche] || emojis.default;
+    }
+
+    function getGradeColor(grade) {
+      const colors = {
+        'S': 'text-rose-400 border-rose-500/30 bg-rose-500/10',
+        'A+': 'text-amber-400 border-amber-500/30 bg-amber-500/10',
+        'A': 'text-emerald-400 border-emerald-500/30 bg-emerald-500/10',
+        'B+': 'text-teal-400 border-teal-500/30 bg-teal-500/10',
+        'B': 'text-blue-400 border-blue-500/30 bg-blue-500/10',
+        'C+': 'text-violet-400 border-violet-500/30 bg-violet-500/10',
+        'C': 'text-slate-400 border-slate-500/30 bg-slate-500/10',
+        'D': 'text-slate-500 border-slate-600/30 bg-slate-600/10'
+      };
+      return colors[grade] || colors['D'];
+    }
+
+    function getTrendIcon(trend) {
+      if (trend.includes('growing')) {
+        return `<svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+        </svg>`;
+      } else if (trend.includes('declining')) {
+        return `<svg class="w-5 h-5 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"/>
+        </svg>`;
+      }
+      return `<svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14"/>
+      </svg>`;
+    }
+
+    function getTrendText(trend, percent) {
+      if (trend === 'growing') return `Growing (+${percent}%)`;
+      if (trend === 'slightly-growing') return `Slightly up (+${percent}%)`;
+      if (trend === 'declining') return `Declining (${percent}%)`;
+      if (trend === 'slightly-declining') return `Slightly down (${percent}%)`;
+      return 'Stable';
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const u = urlInput.value.trim();
+      if (!u) return;
+      
+      resultsEl.innerHTML = "";
+      setLoading(true);
+      setStatus(`
+        <div class="flex items-center gap-3">
+          <svg class="w-5 h-5 spin text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <span>Analyzing channel views and calculating estimated revenue...</span>
+        </div>
+      `);
+      
+      try {
+        const r = await fetch(`/api/revenue?url=${encodeURIComponent(u)}`);
+        setLoading(false);
+        
+        if (!r.ok) {
+          const msg = await r.json().catch(() => ({error: 'Unexpected error'}));
+          setStatus(`<div class="text-rose-300">${msg.error || 'Failed to analyze channel.'}</div>`, "error");
+          return;
+        }
+        
+        const data = await r.json();
+        clearStatus();
+        
+        // Build monthly chart
+        const maxViews = Math.max(...data.monthlyBreakdown.map(m => m.views));
+        const monthlyChart = data.monthlyBreakdown.slice(0, 12).map(m => {
+          const widthPercent = maxViews > 0 ? (m.views / maxViews) * 100 : 0;
+          const monthName = new Date(m.month + '-01').toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
+          return `
+            <div class="flex items-center gap-3">
+              <div class="w-16 text-xs text-slate-400">${monthName}</div>
+              <div class="flex-1 h-6 bg-slate-800/50 rounded-full overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-emerald-600 to-emerald-400 rounded-full chart-bar" style="width: ${widthPercent}%"></div>
+              </div>
+              <div class="w-24 text-xs text-right">
+                <span class="text-slate-300">${formatNumber(m.views)}</span>
+                <span class="text-emerald-400 ml-1">${m.estimatedRevenue.avg}</span>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        // Main Results
+        resultsEl.innerHTML = `
+          <!-- Channel Info -->
+          <div class="glass-effect border border-slate-700/50 rounded-2xl p-6 fade-in">
+            <div class="flex items-center gap-4">
+              ${data.channelThumbnail ? `<img src="${data.channelThumbnail}" alt="${data.channelName}" class="w-16 h-16 rounded-full"/>` : ''}
+              <div class="flex-1">
+                <h2 class="text-xl font-bold text-white">${data.channelName}</h2>
+                <div class="flex flex-wrap gap-3 mt-1 text-sm text-slate-400">
+                  <span>${formatNumber(data.subscriberCount)} subscribers</span>
+                  <span>•</span>
+                  <span>${formatNumber(data.totalChannelViews)} total views</span>
+                </div>
+              </div>
+              <div class="text-center px-4 py-2 rounded-xl border ${getGradeColor(data.revenueGrade.grade)}">
+                <div class="text-2xl font-bold">${data.revenueGrade.grade}</div>
+                <div class="text-xs">${data.revenueGrade.label}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Main Revenue Card -->
+          <div class="glass-effect border border-emerald-500/30 rounded-3xl p-8 text-center revenue-glow fade-in">
+            <div class="text-sm text-slate-400 mb-2">Estimated Monthly Ad Revenue</div>
+            <div class="text-5xl md:text-6xl font-bold text-white mb-2">
+              ${data.estimatedRevenue.monthly.formatted.avg}
+            </div>
+            <div class="text-slate-400 text-lg">
+              Range: <span class="text-emerald-400">${data.estimatedRevenue.monthly.formatted.low}</span> — <span class="text-emerald-400">${data.estimatedRevenue.monthly.formatted.high}</span>
+            </div>
+            <div class="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-800/50 border border-slate-700">
+              <span class="text-2xl">${getNicheEmoji(data.niche.primary)}</span>
+              <span class="text-slate-300 capitalize">${data.niche.primary} Niche</span>
+              <span class="text-slate-500">•</span>
+              <span class="text-emerald-400">$${data.cpmRates.avg.toFixed(2)} avg CPM</span>
+            </div>
+          </div>
+
+          <!-- Revenue Breakdown Grid -->
+          <div class="grid md:grid-cols-3 gap-4 fade-in">
+            <div class="glass-effect border border-slate-700/50 rounded-2xl p-5 text-center">
+              <div class="text-sm text-slate-400 mb-2">Yearly Estimate</div>
+              <div class="text-3xl font-bold text-white">${data.estimatedRevenue.yearly.formatted.avg}</div>
+              <div class="text-xs text-slate-500 mt-1">${data.estimatedRevenue.yearly.formatted.low} - ${data.estimatedRevenue.yearly.formatted.high}</div>
+            </div>
+            <div class="glass-effect border border-slate-700/50 rounded-2xl p-5 text-center">
+              <div class="text-sm text-slate-400 mb-2">Per Video Average</div>
+              <div class="text-3xl font-bold text-white">${data.estimatedRevenue.perVideo.formatted.avg}</div>
+              <div class="text-xs text-slate-500 mt-1">${data.estimatedRevenue.perVideo.formatted.low} - ${data.estimatedRevenue.perVideo.formatted.high}</div>
+            </div>
+            <div class="glass-effect border border-slate-700/50 rounded-2xl p-5 text-center">
+              <div class="text-sm text-slate-400 mb-2">Videos Analyzed</div>
+              <div class="text-3xl font-bold text-white">${data.videosAnalyzed}</div>
+              <div class="text-xs text-slate-500 mt-1">Last ${data.analysisTimeframe}</div>
+            </div>
+          </div>
+
+          <!-- View Metrics -->
+          <div class="grid md:grid-cols-2 gap-4 fade-in">
+            <div class="glass-effect border border-slate-700/50 rounded-2xl p-5">
+              <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
+                <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                </svg>
+                View Metrics (12 months)
+              </h3>
+              <div class="space-y-3">
+                <div class="flex justify-between">
+                  <span class="text-slate-400">Total Views</span>
+                  <span class="font-semibold">${formatNumber(data.viewMetrics.totalViews)}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-400">Average per Video</span>
+                  <span class="font-semibold">${formatNumber(data.viewMetrics.averageViews)}</span>
+                </div>
+              </div>
+            </div>
+            <div class="glass-effect border border-slate-700/50 rounded-2xl p-5">
+              <h3 class="text-lg font-semibold mb-3 flex items-center gap-2">
+                ${getTrendIcon(data.viewTrends.trend)}
+                View Trend
+              </h3>
+              <div class="space-y-3">
+                <div class="flex justify-between items-center">
+                  <span class="text-slate-400">Performance</span>
+                  <span class="font-semibold ${data.viewTrends.trend.includes('growing') ? 'text-emerald-400' : data.viewTrends.trend.includes('declining') ? 'text-rose-400' : 'text-slate-300'}">
+                    ${getTrendText(data.viewTrends.trend, data.viewTrends.trendPercent)}
+                  </span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-400">Recent 3mo avg</span>
+                  <span class="font-semibold">${formatNumber(data.viewTrends.recentAvgViews)}</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-400">Earlier avg</span>
+                  <span class="font-semibold">${formatNumber(data.viewTrends.olderAvgViews)}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Monthly Breakdown Chart -->
+          <div class="glass-effect border border-slate-700/50 rounded-2xl p-6 fade-in">
+            <h3 class="text-xl font-semibold mb-4 flex items-center gap-2">
+              <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+              </svg>
+              Monthly Revenue Breakdown
+            </h3>
+            <div class="space-y-2">
+              ${monthlyChart}
+            </div>
+          </div>
+
+          <!-- CPM Info -->
+          <div class="glass-effect border border-slate-700/50 rounded-2xl p-6 fade-in">
+            <h3 class="text-xl font-semibold mb-4 flex items-center gap-2">
+              <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              Ad CPM Rates (${data.niche.primary.charAt(0).toUpperCase() + data.niche.primary.slice(1)} Niche)
+            </h3>
+            <div class="grid md:grid-cols-3 gap-4">
+              <div class="text-center p-4 bg-slate-800/30 rounded-xl">
+                <div class="text-sm text-slate-400 mb-1">Low CPM</div>
+                <div class="text-xl font-bold text-slate-300">${data.cpmRates.formatted.low}</div>
+              </div>
+              <div class="text-center p-4 bg-emerald-500/10 rounded-xl border border-emerald-500/30">
+                <div class="text-sm text-emerald-400 mb-1">Average CPM</div>
+                <div class="text-xl font-bold text-emerald-400">${data.cpmRates.formatted.avg}</div>
+              </div>
+              <div class="text-center p-4 bg-slate-800/30 rounded-xl">
+                <div class="text-sm text-slate-400 mb-1">High CPM</div>
+                <div class="text-xl font-bold text-slate-300">${data.cpmRates.formatted.high}</div>
+              </div>
+            </div>
+            <p class="text-xs text-slate-500 mt-4 text-center">CPM = revenue per 1,000 views. ~${data.assumptions.monetizationRate} of views are monetized. YouTube takes ~45% of ad revenue.</p>
+          </div>
+
+          <!-- Top Earning Videos -->
+          ${data.topEarningVideos && data.topEarningVideos.length > 0 ? `
+            <div class="glass-effect border border-slate-700/50 rounded-2xl p-6 fade-in">
+              <h3 class="text-xl font-semibold mb-4 flex items-center gap-2">
+                <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
+                </svg>
+                Top Earning Videos
+              </h3>
+              <div class="space-y-3">
+                ${data.topEarningVideos.slice(0, 5).map((v, i) => `
+                  <a href="https://youtube.com/watch?v=${v.videoId}" target="_blank" class="block p-4 bg-slate-800/30 rounded-xl hover:bg-slate-800/50 transition-all">
+                    <div class="flex items-start gap-3">
+                      <div class="w-8 h-8 flex items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400 font-bold text-sm flex-shrink-0">
+                        ${i + 1}
+                      </div>
+                      <div class="flex-1 min-w-0">
+                        <div class="font-medium text-slate-200 truncate">${v.title}</div>
+                        <div class="text-sm text-slate-500 mt-1">${new Date(v.publishedAt).toLocaleDateString()}</div>
+                      </div>
+                      <div class="text-right flex-shrink-0">
+                        <div class="text-emerald-400 font-semibold">${v.estimatedRevenue.avg}</div>
+                        <div class="text-xs text-slate-500">${formatNumber(v.viewCount)} views</div>
+                      </div>
+                    </div>
+                  </a>
+                `).join('')}
+              </div>
+            </div>
+          ` : ''}
+
+          <!-- Grade Explanation -->
+          <div class="glass-effect border border-slate-700/50 rounded-2xl p-6 fade-in">
+            <h3 class="text-lg font-semibold mb-4">Revenue Grade Explanation</h3>
+            <p class="text-slate-400">${data.revenueGrade.description}</p>
+          </div>
+
+          <!-- Disclaimer -->
+          <div class="glass-effect border border-amber-500/30 rounded-2xl p-5 bg-amber-500/5 fade-in">
+            <div class="flex items-start gap-3">
+              <svg class="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              <p class="text-sm text-amber-200/80">${data.disclaimer}</p>
+            </div>
+          </div>
+        `;
+      } catch (err) {
+        setLoading(false);
+        setStatus(`<div class="text-rose-300">Network error. Please try again.</div>`, "error");
+      }
+    });
+  </script>
+</body>
+</html>

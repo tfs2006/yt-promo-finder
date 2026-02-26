@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sponsorship Rate Estimator - YouTube Promo Finder</title>
+  <meta name="description" content="Estimate how much YouTubers charge for sponsorships based on their views, engagement, and niche. Free sponsorship rate calculator for influencer marketing." />
+  <meta name="keywords" content="YouTube sponsorship rates, influencer pricing calculator, YouTuber sponsorship cost, influencer marketing rates, sponsorship rate estimator" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .fade-in { animation: fadein 0.4s ease-out; }
+    @keyframes fadein { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .spin { animation: spin 1s linear infinite; }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+    .gradient-text { 
+      background: linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .glass-effect { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(12px); }
+    .price-glow { box-shadow: 0 0 40px rgba(16, 185, 129, 0.2); }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-100 min-h-screen">
+  <div class="max-w-6xl mx-auto px-4 py-12 md:py-16">
+    <header class="mb-10">
+      <a href="/" class="inline-flex items-center gap-2 text-emerald-400 hover:text-emerald-300 transition-colors mb-6">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+        </svg>
+        Back to Home
+      </a>
+      <div class="inline-flex items-center gap-2 mb-4 px-4 py-2 rounded-full glass-effect border border-emerald-500/20">
+        <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <span class="text-sm font-medium text-emerald-400">Influencer Pricing Intelligence</span>
+      </div>
+      <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
+        Sponsorship <span class="gradient-text">Rate Estimator</span>
+      </h1>
+      <p class="text-slate-300 mt-4 text-lg md:text-xl max-w-3xl">
+        Discover how much any YouTuber likely charges for sponsorships. Get estimated rates based on views, engagement, and niche — the same data brands pay agencies $1,000+ for.
+      </p>
+    </header>
+
+    <section class="glass-effect border border-slate-700/50 rounded-3xl p-6 md:p-8 shadow-2xl">
+      <form id="form" class="flex flex-col gap-3 md:flex-row md:items-center">
+        <div class="flex-1 relative">
+          <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+          </svg>
+          <input 
+            id="url" 
+            type="text" 
+            placeholder="https://www.youtube.com/@MKBHD" 
+            class="w-full rounded-xl bg-slate-900/80 border border-slate-700 pl-12 pr-4 py-3.5 outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all" 
+            required 
+          />
+        </div>
+        <button 
+          id="submitBtn" 
+          class="rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-white font-semibold px-8 py-3.5 transition-all shadow-lg hover:shadow-emerald-500/25 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 min-w-[160px]"
+          type="submit"
+        >
+          <span id="btnText">Estimate Rate</span>
+          <svg id="btnIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+          </svg>
+          <svg id="btnSpinner" class="w-5 h-5 spin hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+        </button>
+      </form>
+      <div class="mt-4 flex flex-wrap items-center gap-2 text-xs text-slate-400">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <span>Enter any YouTube channel URL or handle to estimate their sponsorship rates</span>
+      </div>
+    </section>
+
+    <section id="status" class="mt-6 hidden"></section>
+    <section id="results" class="mt-6 space-y-6"></section>
+
+    <footer class="mt-16 pt-8 border-t border-slate-800/50">
+      <div class="text-center text-sm text-slate-500">
+        <p>Estimates based on industry data and public metrics. Actual rates vary.</p>
+        <p class="mt-2">© <span id="year"></span> David J Woodbury. <a href="/privacy" class="text-emerald-400 hover:text-emerald-300">Privacy</a> • <a href="/terms" class="text-emerald-400 hover:text-emerald-300">Terms</a></p>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+    
+    const form = document.getElementById('form');
+    const urlInput = document.getElementById('url');
+    const statusEl = document.getElementById('status');
+    const resultsEl = document.getElementById('results');
+    const submitBtn = document.getElementById('submitBtn');
+    const btnText = document.getElementById('btnText');
+    const btnIcon = document.getElementById('btnIcon');
+    const btnSpinner = document.getElementById('btnSpinner');
+
+    function setStatus(html, tone="info") {
+      statusEl.classList.remove('hidden');
+      const base = "mt-6 rounded-2xl border p-5 fade-in glass-effect ";
+      statusEl.className = base + (tone === "error" ? "border-rose-500/50 text-rose-200" : "border-slate-700/50 text-slate-200");
+      statusEl.innerHTML = html;
+    }
+    
+    function clearStatus() { statusEl.classList.add('hidden'); }
+
+    function setLoading(loading) {
+      submitBtn.disabled = loading;
+      btnText.textContent = loading ? 'Analyzing...' : 'Estimate Rate';
+      btnIcon.classList.toggle('hidden', loading);
+      btnSpinner.classList.toggle('hidden', !loading);
+    }
+
+    function formatNumber(n) {
+      if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
+      if (n >= 1000) return (n / 1000).toFixed(1) + 'K';
+      return n.toLocaleString();
+    }
+
+    function getNicheEmoji(niche) {
+      const emojis = {
+        tech: '💻', gaming: '🎮', finance: '💰', beauty: '💄', fitness: '💪',
+        education: '📚', lifestyle: '🏠', food: '🍳', travel: '✈️', entertainment: '🎭', default: '📺'
+      };
+      return emojis[niche] || emojis.default;
+    }
+
+    function getTierColor(tier) {
+      const colors = {
+        micro: 'text-slate-400', small: 'text-blue-400', medium: 'text-purple-400',
+        large: 'text-amber-400', mega: 'text-rose-400'
+      };
+      return colors[tier] || colors.micro;
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const u = urlInput.value.trim();
+      if (!u) return;
+      
+      resultsEl.innerHTML = "";
+      setLoading(true);
+      setStatus(`
+        <div class="flex items-center gap-3">
+          <svg class="w-5 h-5 spin text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <span>Analyzing channel performance and calculating sponsorship rates...</span>
+        </div>
+      `);
+      
+      try {
+        const r = await fetch(`/api/rate?url=${encodeURIComponent(u)}`);
+        setLoading(false);
+        
+        if (!r.ok) {
+          const msg = await r.json().catch(() => ({error: 'Unexpected error'}));
+          setStatus(`<div class="text-rose-300">${msg.error || 'Failed to analyze channel.'}</div>`, "error");
+          return;
+        }
+        
+        const data = await r.json();
+        clearStatus();
+        
+        // Main Price Card
+        resultsEl.innerHTML = `
+          <div class="glass-effect border border-emerald-500/30 rounded-3xl p-8 text-center price-glow fade-in">
+            <div class="text-sm text-slate-400 mb-2">Estimated Sponsorship Rate Per Video</div>
+            <div class="text-5xl md:text-6xl font-bold text-white mb-2">
+              ${data.estimatedRates.perVideo.formatted.average}
+            </div>
+            <div class="text-slate-400 text-lg">
+              Range: <span class="text-emerald-400">${data.estimatedRates.perVideo.formatted.low}</span> — <span class="text-emerald-400">${data.estimatedRates.perVideo.formatted.high}</span>
+            </div>
+            <div class="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-800/50 border border-slate-700">
+              <span class="text-2xl">${getNicheEmoji(data.detectedNiche)}</span>
+              <span class="text-slate-300 capitalize">${data.detectedNiche} Niche</span>
+              <span class="text-slate-500">•</span>
+              <span class="${getTierColor(data.tier.name)}">${data.tier.description}</span>
+            </div>
+          </div>
+
+          <!-- Metrics Grid -->
+          <div class="grid md:grid-cols-4 gap-4 fade-in">
+            <div class="glass-effect border border-slate-700/50 rounded-2xl p-5 text-center">
+              <div class="text-3xl font-bold text-white">${formatNumber(data.metrics.averageViews)}</div>
+              <div class="text-sm text-slate-400 mt-1">Avg Views/Video</div>
+            </div>
+            <div class="glass-effect border border-slate-700/50 rounded-2xl p-5 text-center">
+              <div class="text-3xl font-bold text-white">${formatNumber(data.metrics.totalViews)}</div>
+              <div class="text-sm text-slate-400 mt-1">Total Views (12mo)</div>
+            </div>
+            <div class="glass-effect border border-slate-700/50 rounded-2xl p-5 text-center">
+              <div class="text-3xl font-bold text-white">${data.metrics.engagementRate}%</div>
+              <div class="text-sm text-slate-400 mt-1">Engagement Rate</div>
+            </div>
+            <div class="glass-effect border border-slate-700/50 rounded-2xl p-5 text-center">
+              <div class="text-3xl font-bold text-white">${data.videoCount}</div>
+              <div class="text-sm text-slate-400 mt-1">Videos Analyzed</div>
+            </div>
+          </div>
+
+          <!-- Sponsorship Analysis -->
+          <div class="glass-effect border border-slate-700/50 rounded-2xl p-6 fade-in">
+            <h3 class="text-xl font-semibold mb-4 flex items-center gap-2">
+              <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+              </svg>
+              Sponsored vs Non-Sponsored Performance
+            </h3>
+            <div class="grid md:grid-cols-2 gap-4">
+              <div class="bg-slate-800/50 rounded-xl p-4">
+                <div class="flex justify-between items-center mb-2">
+                  <span class="text-slate-400">Sponsored Videos</span>
+                  <span class="text-emerald-400 font-semibold">${data.sponsorshipAnalysis.sponsoredVideoCount} videos</span>
+                </div>
+                <div class="text-2xl font-bold">${formatNumber(data.sponsorshipAnalysis.sponsoredAvgViews)} avg views</div>
+              </div>
+              <div class="bg-slate-800/50 rounded-xl p-4">
+                <div class="flex justify-between items-center mb-2">
+                  <span class="text-slate-400">Non-Sponsored Videos</span>
+                  <span class="text-slate-300 font-semibold">${data.sponsorshipAnalysis.nonSponsoredVideoCount} videos</span>
+                </div>
+                <div class="text-2xl font-bold">${formatNumber(data.sponsorshipAnalysis.nonSponsoredAvgViews)} avg views</div>
+              </div>
+            </div>
+            ${data.sponsorshipAnalysis.viewDifferencePercent !== null ? `
+              <div class="mt-4 p-4 rounded-xl ${data.sponsorshipAnalysis.viewDifferencePercent >= 0 ? 'bg-emerald-500/10 border border-emerald-500/30' : 'bg-amber-500/10 border border-amber-500/30'}">
+                <div class="flex items-center gap-2">
+                  <svg class="w-5 h-5 ${data.sponsorshipAnalysis.viewDifferencePercent >= 0 ? 'text-emerald-400' : 'text-amber-400'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${data.sponsorshipAnalysis.viewDifferencePercent >= 0 ? 'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6' : 'M13 17h8m0 0V9m0 8l-8-8-4 4-6-6'}"/>
+                  </svg>
+                  <span class="${data.sponsorshipAnalysis.viewDifferencePercent >= 0 ? 'text-emerald-300' : 'text-amber-300'}">
+                    Sponsored videos get <strong>${Math.abs(data.sponsorshipAnalysis.viewDifferencePercent)}% ${data.sponsorshipAnalysis.viewDifferencePercent >= 0 ? 'more' : 'fewer'}</strong> views than non-sponsored content
+                  </span>
+                </div>
+              </div>
+            ` : ''}
+          </div>
+
+          <!-- CPM Rates -->
+          <div class="glass-effect border border-slate-700/50 rounded-2xl p-6 fade-in">
+            <h3 class="text-xl font-semibold mb-4 flex items-center gap-2">
+              <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              Industry CPM Rates (${data.detectedNiche.charAt(0).toUpperCase() + data.detectedNiche.slice(1)} Niche)
+            </h3>
+            <div class="grid md:grid-cols-3 gap-4">
+              <div class="text-center p-4 bg-slate-800/30 rounded-xl">
+                <div class="text-sm text-slate-400 mb-1">Low CPM</div>
+                <div class="text-xl font-bold text-slate-300">$${data.nicheCPM.low}</div>
+              </div>
+              <div class="text-center p-4 bg-emerald-500/10 rounded-xl border border-emerald-500/30">
+                <div class="text-sm text-emerald-400 mb-1">Average CPM</div>
+                <div class="text-xl font-bold text-emerald-400">$${data.nicheCPM.avg}</div>
+              </div>
+              <div class="text-center p-4 bg-slate-800/30 rounded-xl">
+                <div class="text-sm text-slate-400 mb-1">High CPM</div>
+                <div class="text-xl font-bold text-slate-300">$${data.nicheCPM.high}</div>
+              </div>
+            </div>
+            <p class="text-xs text-slate-500 mt-4 text-center">CPM = Cost Per Mille (cost per 1,000 views). Sponsorship rates are typically 8-12x higher than ad CPM.</p>
+          </div>
+
+          <!-- Top Sponsored Videos -->
+          ${data.sponsorshipAnalysis.topSponsoredVideos.length > 0 ? `
+            <div class="glass-effect border border-slate-700/50 rounded-2xl p-6 fade-in">
+              <h3 class="text-xl font-semibold mb-4">Top Performing Sponsored Videos</h3>
+              <div class="space-y-3">
+                ${data.sponsorshipAnalysis.topSponsoredVideos.map(v => `
+                  <a href="https://youtube.com/watch?v=${v.videoId}" target="_blank" class="block p-4 bg-slate-800/30 rounded-xl hover:bg-slate-800/50 transition-all">
+                    <div class="flex justify-between items-start gap-4">
+                      <div class="flex-1 min-w-0">
+                        <div class="font-medium text-slate-200 truncate">${v.title}</div>
+                        <div class="text-sm text-slate-500">${new Date(v.publishedAt).toLocaleDateString()}</div>
+                      </div>
+                      <div class="text-emerald-400 font-semibold whitespace-nowrap">${formatNumber(v.viewCount)} views</div>
+                    </div>
+                  </a>
+                `).join('')}
+              </div>
+            </div>
+          ` : ''}
+
+          <!-- Disclaimer -->
+          <div class="glass-effect border border-amber-500/30 rounded-2xl p-5 bg-amber-500/5 fade-in">
+            <div class="flex items-start gap-3">
+              <svg class="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              <p class="text-sm text-amber-200/80">${data.disclaimer}</p>
+            </div>
+          </div>
+        `;
+      } catch (err) {
+        setLoading(false);
+        setStatus(`<div class="text-rose-300">Network error. Please try again.</div>`, "error");
+      }
+    });
+  </script>
+</body>
+</html>

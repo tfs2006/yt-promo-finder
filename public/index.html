@@ -3,8 +3,24 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>YouTube Promo Finder - Discover Product Promotions</title>
-  <meta name="description" content="Analyze YouTube channels to discover product promotions and affiliate links from the last year of uploads." />
+  <title>YouTube Promo Finder - Discover Sponsorships, Affiliate Links & Brand Deals on Any Channel</title>
+  <meta name="description" content="Free tool to analyze any YouTube channel and uncover every sponsorship, affiliate link, and brand partnership. Perfect for marketers, brands, creators, and researchers. Analyze 12 months of video data instantly." />
+  <meta name="keywords" content="YouTube sponsorship finder, YouTube affiliate link checker, brand deal tracker, influencer marketing research, YouTube channel analyzer, sponsorship detection, creator partnerships, YouTube marketing tools" />
+  <meta name="author" content="David J Woodbury" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://yt-promo-finder.vercel.app/" />
+  
+  <!-- Open Graph / Social -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="YouTube Promo Finder - Uncover Hidden Sponsorships & Affiliate Links" />
+  <meta property="og:description" content="Instantly discover every brand deal, sponsorship, and affiliate link on any YouTube channel. Free tool for marketers, brands, and creators." />
+  <meta property="og:url" content="https://yt-promo-finder.vercel.app/" />
+  
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="YouTube Promo Finder - Discover Hidden Sponsorships" />
+  <meta name="twitter:description" content="Free tool to uncover every sponsorship and affiliate link on any YouTube channel." />
+  
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     .fade-in { animation: fadein 0.4s ease-out; }
@@ -77,17 +93,76 @@
           </svg>
           <span class="text-pink-400 group-hover:text-pink-300 transition-colors font-medium">Compare Sponsors</span>
         </a>
+        <a href="/rate" class="inline-flex items-center gap-2 px-3 py-2 rounded-lg glass-effect border border-teal-500/20 hover:border-teal-500/40 transition-all text-sm group">
+          <svg class="w-4 h-4 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <span class="text-teal-400 group-hover:text-teal-300 transition-colors font-medium">Rate Estimator</span>
+        </a>
+        <a href="/viral" class="inline-flex items-center gap-2 px-3 py-2 rounded-lg glass-effect border border-rose-500/20 hover:border-rose-500/40 transition-all text-sm group">
+          <svg class="w-4 h-4 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.879 16.121A3 3 0 1012.015 11L11 14H9c0 .768.293 1.536.879 2.121z"></path>
+          </svg>
+          <span class="text-rose-400 group-hover:text-rose-300 transition-colors font-medium">Viral Detector</span>
+        </a>
+        <a href="/saturation" class="inline-flex items-center gap-2 px-3 py-2 rounded-lg glass-effect border border-violet-500/20 hover:border-violet-500/40 transition-all text-sm group">
+          <svg class="w-4 h-4 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+          </svg>
+          <span class="text-violet-400 group-hover:text-violet-300 transition-colors font-medium">Saturation Score</span>
+        </a>
+        <a href="/revenue" class="inline-flex items-center gap-2 px-3 py-2 rounded-lg glass-effect border border-lime-500/20 hover:border-lime-500/40 transition-all text-sm group">
+          <svg class="w-4 h-4 text-lime-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
+          </svg>
+          <span class="text-lime-400 group-hover:text-lime-300 transition-colors font-medium">Revenue Calculator</span>
+        </a>
+        <a href="/predictor" class="inline-flex items-center gap-2 px-3 py-2 rounded-lg glass-effect border border-cyan-500/20 hover:border-cyan-500/40 transition-all text-sm group">
+          <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+          </svg>
+          <span class="text-cyan-400 group-hover:text-cyan-300 transition-colors font-medium">Performance Predictor</span>
+        </a>
+        <a href="/niche" class="inline-flex items-center gap-2 px-3 py-2 rounded-lg glass-effect border border-fuchsia-500/20 hover:border-fuchsia-500/40 transition-all text-sm group">
+          <svg class="w-4 h-4 text-fuchsia-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+          </svg>
+          <span class="text-fuchsia-400 group-hover:text-fuchsia-300 transition-colors font-medium">Niche Analyzer</span>
+        </a>
+        <a href="/loyalty" class="inline-flex items-center gap-2 px-3 py-2 rounded-lg glass-effect border border-yellow-500/20 hover:border-yellow-500/40 transition-all text-sm group">
+          <svg class="w-4 h-4 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+          </svg>
+          <span class="text-yellow-400 group-hover:text-yellow-300 transition-colors font-medium">Loyalty Tracker</span>
+        </a>
       </div>
       <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
         YouTube Channel <span class="gradient-text">Promotion Finder</span>
       </h1>
       <p class="text-slate-300 mt-4 text-lg md:text-xl max-w-3xl">
-        Discover product promotions and affiliate links from any YouTube channel. 
-        Analyze the last year of uploads to uncover partnerships and recommendations.
+        <strong>Uncover every sponsorship, affiliate link, and brand deal</strong> hiding in any YouTube channel's video descriptions.
+        Get instant insights from 12 months of content — 100% free.
       </p>
+      
+      <!-- Trust Indicators -->
+      <div class="mt-6 flex flex-wrap items-center gap-4 text-sm text-slate-400">
+        <div class="flex items-center gap-2">
+          <svg class="w-5 h-5 text-emerald-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+          <span>No signup required</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <svg class="w-5 h-5 text-emerald-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+          <span>Export to CSV/JSON</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <svg class="w-5 h-5 text-emerald-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+          <span>Analyzes 12 months of videos</span>
+        </div>
+      </div>
     </header>
 
-    <section class="glass-effect border border-slate-700/50 rounded-3xl p-6 md:p-8 shadow-2xl">
+    <section id="analyzer" class="glass-effect border border-slate-700/50 rounded-3xl p-6 md:p-8 shadow-2xl">
       <!-- Quota Status Banner -->
       <div id="quotaBanner" class="hidden mb-4 rounded-xl p-4 border">
         <div class="flex items-center gap-3">
@@ -147,21 +222,311 @@
     <section id="status" class="mt-6 hidden"></section>
     <section id="results" class="mt-6 space-y-4"></section>
 
+    <!-- How It Works Section -->
+    <section class="mt-16 pt-12 border-t border-slate-800/30">
+      <div class="text-center mb-10">
+        <h2 class="text-2xl md:text-3xl font-bold mb-3">How It Works</h2>
+        <p class="text-slate-400 max-w-2xl mx-auto">Get actionable sponsorship data in seconds. No complex setup required.</p>
+      </div>
+      
+      <div class="grid md:grid-cols-3 gap-6">
+        <div class="glass-effect border border-slate-700/50 rounded-2xl p-6 text-center">
+          <div class="w-12 h-12 mx-auto mb-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+            <span class="text-2xl font-bold text-emerald-400">1</span>
+          </div>
+          <h3 class="font-semibold text-lg mb-2">Paste Any Channel URL</h3>
+          <p class="text-slate-400 text-sm">Enter a YouTube channel URL, handle (@MKBHD), or channel ID. We support all formats.</p>
+        </div>
+        
+        <div class="glass-effect border border-slate-700/50 rounded-2xl p-6 text-center">
+          <div class="w-12 h-12 mx-auto mb-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+            <span class="text-2xl font-bold text-emerald-400">2</span>
+          </div>
+          <h3 class="font-semibold text-lg mb-2">We Scan 12 Months</h3>
+          <p class="text-slate-400 text-sm">Our tool analyzes up to a year of video descriptions, extracting every promotional link and brand mention.</p>
+        </div>
+        
+        <div class="glass-effect border border-slate-700/50 rounded-2xl p-6 text-center">
+          <div class="w-12 h-12 mx-auto mb-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+            <span class="text-2xl font-bold text-emerald-400">3</span>
+          </div>
+          <h3 class="font-semibold text-lg mb-2">Get Instant Results</h3>
+          <p class="text-slate-400 text-sm">See every sponsorship, affiliate link, and brand deal — organized by frequency. Export to CSV or JSON.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Use Cases Section -->
+    <section class="mt-16">
+      <div class="text-center mb-10">
+        <h2 class="text-2xl md:text-3xl font-bold mb-3">Who Uses This Tool?</h2>
+        <p class="text-slate-400 max-w-2xl mx-auto">Whether you're a brand, creator, or researcher — unlock powerful sponsorship insights.</p>
+      </div>
+      
+      <div class="grid md:grid-cols-2 gap-6">
+        <div class="glass-effect border border-slate-700/50 rounded-2xl p-6 hover:border-emerald-500/30 transition-all">
+          <div class="flex items-start gap-4">
+            <div class="w-10 h-10 flex-shrink-0 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
+              <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+            </div>
+            <div>
+              <h3 class="font-semibold text-lg mb-1 text-blue-400">Brands & Marketers</h3>
+              <p class="text-slate-400 text-sm">Find out which creators already promote your competitors. Discover potential influencer partners by seeing who promotes similar products in your niche.</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="glass-effect border border-slate-700/50 rounded-2xl p-6 hover:border-emerald-500/30 transition-all">
+          <div class="flex items-start gap-4">
+            <div class="w-10 h-10 flex-shrink-0 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center">
+              <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+            </div>
+            <div>
+              <h3 class="font-semibold text-lg mb-1 text-purple-400">Content Creators</h3>
+              <p class="text-slate-400 text-sm">Research what brands sponsor creators in your niche. Discover sponsorship opportunities by seeing which companies are actively partnering with YouTubers like you.</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="glass-effect border border-slate-700/50 rounded-2xl p-6 hover:border-emerald-500/30 transition-all">
+          <div class="flex items-start gap-4">
+            <div class="w-10 h-10 flex-shrink-0 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
+              <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+            </div>
+            <div>
+              <h3 class="font-semibold text-lg mb-1 text-amber-400">Researchers & Journalists</h3>
+              <p class="text-slate-400 text-sm">Investigate undisclosed sponsorships and track influencer marketing trends. Export data for reports and analysis on creator monetization patterns.</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="glass-effect border border-slate-700/50 rounded-2xl p-6 hover:border-emerald-500/30 transition-all">
+          <div class="flex items-start gap-4">
+            <div class="w-10 h-10 flex-shrink-0 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center">
+              <svg class="w-5 h-5 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            </div>
+            <div>
+              <h3 class="font-semibold text-lg mb-1 text-rose-400">Curious Viewers</h3>
+              <p class="text-slate-400 text-sm">Ever wonder how your favorite creators make money? See exactly which brands and products they promote, and how often they mention them.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Real Examples Section -->
+    <section class="mt-16">
+      <div class="text-center mb-10">
+        <h2 class="text-2xl md:text-3xl font-bold mb-3">Real-World Examples</h2>
+        <p class="text-slate-400 max-w-2xl mx-auto">Here's what you can discover with YouTube Promo Finder</p>
+      </div>
+      
+      <div class="glass-effect border border-slate-700/50 rounded-2xl p-6 md:p-8">
+        <div class="grid md:grid-cols-2 gap-8">
+          <div>
+            <h3 class="font-semibold text-emerald-400 mb-3 flex items-center gap-2">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              What You'll Find
+            </h3>
+            <ul class="space-y-2 text-slate-300 text-sm">
+              <li class="flex items-start gap-2"><span class="text-emerald-400">•</span> Affiliate links (Amazon Associates, Impact, ShareASale, etc.)</li>
+              <li class="flex items-start gap-2"><span class="text-emerald-400">•</span> Sponsored product links with tracking codes</li>
+              <li class="flex items-start gap-2"><span class="text-emerald-400">•</span> Recurring brand partnerships (NordVPN, Squarespace, etc.)</li>
+              <li class="flex items-start gap-2"><span class="text-emerald-400">•</span> Creator discount codes and referral links</li>
+              <li class="flex items-start gap-2"><span class="text-emerald-400">•</span> Equipment and gear recommendations</li>
+              <li class="flex items-start gap-2"><span class="text-emerald-400">•</span> Podcast and social media cross-promotions</li>
+            </ul>
+          </div>
+          <div>
+            <h3 class="font-semibold text-emerald-400 mb-3 flex items-center gap-2">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+              Example Insights
+            </h3>
+            <div class="space-y-3 text-sm">
+              <div class="bg-slate-800/50 rounded-lg p-3 border border-slate-700/50">
+                <p class="text-slate-300"><span class="text-emerald-400 font-medium">Tech reviewer:</span> "Uses Amazon affiliate links in 87% of videos, partners with dbrand 12x/year"</p>
+              </div>
+              <div class="bg-slate-800/50 rounded-lg p-3 border border-slate-700/50">
+                <p class="text-slate-300"><span class="text-emerald-400 font-medium">Fitness creator:</span> "Promotes Athletic Greens monthly, uses MyProtein affiliate links"</p>
+              </div>
+              <div class="bg-slate-800/50 rounded-lg p-3 border border-slate-700/50">
+                <p class="text-slate-300"><span class="text-emerald-400 font-medium">Gaming channel:</span> "Sponsored by Razer 8x, uses G2A and CDKeys affiliate links"</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- All Tools Section -->
+    <section class="mt-16">
+      <div class="text-center mb-10">
+        <h2 class="text-2xl md:text-3xl font-bold mb-3">Complete YouTube Intelligence Suite</h2>
+        <p class="text-slate-400 max-w-2xl mx-auto">More than just promotion tracking — explore our full toolkit</p>
+      </div>
+      
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <a href="/domain" class="glass-effect border border-orange-500/20 rounded-2xl p-5 hover:border-orange-500/40 transition-all group">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 rounded-xl bg-orange-500/10 flex items-center justify-center">
+              <svg class="w-5 h-5 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9"/></svg>
+            </div>
+            <h3 class="font-semibold text-orange-400 group-hover:text-orange-300 transition-colors">Domain Search</h3>
+          </div>
+          <p class="text-slate-400 text-sm">Search for any brand or website and find every YouTube video that mentions it. Perfect for competitive research.</p>
+        </a>
+        
+        <a href="/unlisted" class="glass-effect border border-purple-500/20 rounded-2xl p-5 hover:border-purple-500/40 transition-all group">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center">
+              <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+            </div>
+            <h3 class="font-semibold text-purple-400 group-hover:text-purple-300 transition-colors">Unlisted Videos</h3>
+          </div>
+          <p class="text-slate-400 text-sm">Discover unlisted videos from any channel by finding URLs shared in other video descriptions.</p>
+        </a>
+        
+        <a href="/growth" class="glass-effect border border-blue-500/20 rounded-2xl p-5 hover:border-blue-500/40 transition-all group">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
+              <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+            </div>
+            <h3 class="font-semibold text-blue-400 group-hover:text-blue-300 transition-colors">Growth Tracker</h3>
+          </div>
+          <p class="text-slate-400 text-sm">Analyze upload patterns, posting schedules, and channel statistics over time.</p>
+        </a>
+        
+        <a href="/collab" class="glass-effect border border-amber-500/20 rounded-2xl p-5 hover:border-amber-500/40 transition-all group">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center">
+              <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            </div>
+            <h3 class="font-semibold text-amber-400 group-hover:text-amber-300 transition-colors">Collaboration Finder</h3>
+          </div>
+          <p class="text-slate-400 text-sm">Map creator networks by finding channel mentions and collaborations in video descriptions.</p>
+        </a>
+        
+        <a href="/compare" class="glass-effect border border-pink-500/20 rounded-2xl p-5 hover:border-pink-500/40 transition-all group">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 rounded-xl bg-pink-500/10 flex items-center justify-center">
+              <svg class="w-5 h-5 text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+            </div>
+            <h3 class="font-semibold text-pink-400 group-hover:text-pink-300 transition-colors">Compare Sponsors</h3>
+          </div>
+          <p class="text-slate-400 text-sm">Compare sponsorships across multiple channels to find common partnerships and unique deals.</p>
+        </a>
+        
+        <div class="glass-effect border border-emerald-500/20 rounded-2xl p-5 bg-emerald-500/5">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center">
+              <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+            <h3 class="font-semibold text-emerald-400">100% Free</h3>
+          </div>
+          <p class="text-slate-400 text-sm">All tools are completely free to use. No account required, no hidden fees, no premium tier.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="mt-16">
+      <div class="text-center mb-10">
+        <h2 class="text-2xl md:text-3xl font-bold mb-3">Frequently Asked Questions</h2>
+        <p class="text-slate-400 max-w-2xl mx-auto">Everything you need to know about YouTube Promo Finder</p>
+      </div>
+      
+      <div class="glass-effect border border-slate-700/50 rounded-2xl divide-y divide-slate-700/50">
+        <details class="p-5 group">
+          <summary class="cursor-pointer font-semibold flex items-center justify-between">
+            <span>How does YouTube Promo Finder work?</span>
+            <svg class="w-5 h-5 text-slate-400 group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </summary>
+          <p class="mt-3 text-slate-400 text-sm">We use the official YouTube Data API to fetch video metadata from any public channel. Our algorithm scans video descriptions from the last 12 months, extracting and categorizing all external links, affiliate codes, and promotional URLs. Results are grouped by domain and sorted by frequency.</p>
+        </details>
+        
+        <details class="p-5 group">
+          <summary class="cursor-pointer font-semibold flex items-center justify-between">
+            <span>Is this tool really free?</span>
+            <svg class="w-5 h-5 text-slate-400 group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </summary>
+          <p class="mt-3 text-slate-400 text-sm">Yes! YouTube Promo Finder is 100% free with no signup required. We don't have a premium tier or paid features. The only limitation is the daily YouTube API quota, which is shared across all users and resets at midnight Pacific Time.</p>
+        </details>
+        
+        <details class="p-5 group">
+          <summary class="cursor-pointer font-semibold flex items-center justify-between">
+            <span>What kind of promotions can you detect?</span>
+            <svg class="w-5 h-5 text-slate-400 group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </summary>
+          <p class="mt-3 text-slate-400 text-sm">We detect any external links in video descriptions, including: affiliate links (Amazon, Impact, ShareASale), sponsored product links, brand landing pages, creator discount codes, equipment links, social media promotions, and referral URLs. We cannot detect spoken sponsorships or on-screen promotions that aren't linked in the description.</p>
+        </details>
+        
+        <details class="p-5 group">
+          <summary class="cursor-pointer font-semibold flex items-center justify-between">
+            <span>Why am I seeing a "quota exceeded" error?</span>
+            <svg class="w-5 h-5 text-slate-400 group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </summary>
+          <p class="mt-3 text-slate-400 text-sm">YouTube limits API usage per day. Our tool shares this quota across all users. If you see this error, it means the daily limit has been reached. The quota resets at midnight Pacific Time, so please try again tomorrow. We display the current quota status at the top of the page.</p>
+        </details>
+        
+        <details class="p-5 group">
+          <summary class="cursor-pointer font-semibold flex items-center justify-between">
+            <span>Can I export the data?</span>
+            <svg class="w-5 h-5 text-slate-400 group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </summary>
+          <p class="mt-3 text-slate-400 text-sm">Absolutely! After running an analysis, you'll see export buttons for both CSV and JSON formats. CSV is great for spreadsheets like Excel or Google Sheets, while JSON is perfect for developers or further data processing.</p>
+        </details>
+        
+        <details class="p-5 group">
+          <summary class="cursor-pointer font-semibold flex items-center justify-between">
+            <span>How far back does the analysis go?</span>
+            <svg class="w-5 h-5 text-slate-400 group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </summary>
+          <p class="mt-3 text-slate-400 text-sm">We analyze the last 12 months of video uploads from any channel. This gives you a comprehensive view of recent sponsorship activity while keeping the analysis fast and API-efficient.</p>
+        </details>
+      </div>
+    </section>
+
+    <!-- Final CTA Section -->
+    <section class="mt-16">
+      <div class="glass-effect border border-emerald-500/30 rounded-3xl p-8 md:p-12 text-center bg-gradient-to-br from-emerald-500/5 to-transparent">
+        <h2 class="text-2xl md:text-3xl font-bold mb-4">Ready to Uncover Hidden Sponsorships?</h2>
+        <p class="text-slate-400 max-w-2xl mx-auto mb-6">Stop guessing which brands partner with your favorite creators. Get the data you need in seconds.</p>
+        <a href="#analyzer" class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-white font-semibold px-8 py-3.5 transition-all shadow-lg hover:shadow-emerald-500/25">
+          Analyze a Channel Now
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+        </a>
+        <p class="mt-4 text-xs text-slate-500">No signup • No credit card • Instant results</p>
+      </div>
+    </section>
+
     <footer class="mt-16 pt-8 border-t border-slate-800/50">
+      <!-- Disclaimer -->
       <div class="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-slate-400 mb-6">
         <div class="flex items-start gap-2">
           <svg class="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
           </svg>
-          <p>Results are based on video descriptions and may not capture all promotions shown on-screen or mentioned in audio.</p>
+          <p>Results are based on video descriptions and may not capture all promotions shown on-screen or mentioned in audio. This tool is for research purposes only.</p>
         </div>
+      </div>
+      
+      <!-- SEO Keywords/Links -->
+      <div class="glass-effect border border-slate-700/30 rounded-xl p-4 mb-6 text-center">
+        <p class="text-xs text-slate-500">
+          <span class="font-medium text-slate-400">YouTube Promo Finder</span> — Free tools for 
+          <span class="text-slate-400">sponsorship detection</span> • 
+          <span class="text-slate-400">affiliate link tracking</span> • 
+          <span class="text-slate-400">influencer marketing research</span> • 
+          <span class="text-slate-400">brand deal analysis</span> • 
+          <span class="text-slate-400">creator partnership insights</span>
+        </p>
       </div>
       
       <div class="pt-6 border-t border-slate-800/30">
         <div class="flex flex-col md:flex-row items-center justify-between gap-4 text-sm">
           <div class="text-slate-400">
             <p class="text-center md:text-left">
-              <span class="text-emerald-400 font-medium">Built for curiosity, powered by procrastination</span> 🎬
+              <span class="text-emerald-400 font-medium">Stop guessing. Start analyzing.</span> 🎬
               <br class="md:hidden" />
               <span class="hidden md:inline">•</span>
               Crafted with <span class="text-red-500">♥</span> by <a href="https://davidjwoodbury.com" target="_blank" rel="noopener" class="text-emerald-400 hover:text-emerald-300 font-medium transition-colors">David J Woodbury</a>

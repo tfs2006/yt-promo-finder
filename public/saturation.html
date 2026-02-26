@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sponsor Saturation Score - YouTube Channel Analysis</title>
+  <meta name="description" content="Check if a YouTube channel is over-saturated with sponsorships. Analyze sponsor frequency, audience fatigue risk, and brand deal ROI potential." />
+  <meta name="keywords" content="YouTube sponsorship saturation, influencer fatigue, sponsorship frequency, brand deal ROI, YouTube channel analysis" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .fade-in { animation: fadein 0.4s ease-out; }
+    @keyframes fadein { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .spin { animation: spin 1s linear infinite; }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+    .gradient-text { 
+      background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 50%, #6d28d9 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .glass-effect { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(12px); }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-100 min-h-screen">
+  <div class="max-w-6xl mx-auto px-4 py-12 md:py-16">
+    <header class="mb-10">
+      <a href="/" class="inline-flex items-center gap-2 text-purple-400 hover:text-purple-300 transition-colors mb-6">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+        </svg>
+        Back to Home
+      </a>
+      <div class="inline-flex items-center gap-2 mb-4 px-4 py-2 rounded-full glass-effect border border-purple-500/20">
+        <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+        </svg>
+        <span class="text-sm font-medium text-purple-400">Brand Deal Intelligence</span>
+      </div>
+      <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
+        Sponsor <span class="gradient-text">Saturation Score</span>
+      </h1>
+      <p class="text-slate-300 mt-4 text-lg md:text-xl max-w-3xl">
+        Is this channel "sold out"? Measure sponsorship frequency, detect audience fatigue risk, and determine if a creator is over-monetized. Essential data for brands before partnering.
+      </p>
+    </header>
+
+    <section class="glass-effect border border-slate-700/50 rounded-3xl p-6 md:p-8 shadow-2xl">
+      <form id="form" class="flex flex-col gap-3 md:flex-row md:items-center">
+        <div class="flex-1 relative">
+          <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+          </svg>
+          <input 
+            id="url" 
+            type="text" 
+            placeholder="https://www.youtube.com/@LinusTechTips" 
+            class="w-full rounded-xl bg-slate-900/80 border border-slate-700 pl-12 pr-4 py-3.5 outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all" 
+            required 
+          />
+        </div>
+        <button 
+          id="submitBtn" 
+          class="rounded-xl bg-gradient-to-r from-purple-500 to-violet-600 hover:from-purple-400 hover:to-violet-500 text-white font-semibold px-8 py-3.5 transition-all shadow-lg hover:shadow-purple-500/25 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 min-w-[160px]"
+          type="submit"
+        >
+          <span id="btnText">Check Score</span>
+          <svg id="btnIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+          </svg>
+          <svg id="btnSpinner" class="w-5 h-5 spin hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+        </button>
+      </form>
+      <div class="mt-4 flex flex-wrap items-center gap-2 text-xs text-slate-400">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <span>Analyzes 12 months of content to measure sponsorship saturation and audience fatigue</span>
+      </div>
+    </section>
+
+    <section id="status" class="mt-6 hidden"></section>
+    <section id="results" class="mt-6 space-y-6"></section>
+
+    <footer class="mt-16 pt-8 border-t border-slate-800/50">
+      <div class="text-center text-sm text-slate-500">
+        <p>Saturation analysis based on promotional links in video descriptions.</p>
+        <p class="mt-2">© <span id="year"></span> David J Woodbury. <a href="/privacy" class="text-purple-400 hover:text-purple-300">Privacy</a> • <a href="/terms" class="text-purple-400 hover:text-purple-300">Terms</a></p>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+    
+    const form = document.getElementById('form');
+    const urlInput = document.getElementById('url');
+    const statusEl = document.getElementById('status');
+    const resultsEl = document.getElementById('results');
+    const submitBtn = document.getElementById('submitBtn');
+    const btnText = document.getElementById('btnText');
+    const btnIcon = document.getElementById('btnIcon');
+    const btnSpinner = document.getElementById('btnSpinner');
+
+    function setStatus(html, tone="info") {
+      statusEl.classList.remove('hidden');
+      const base = "mt-6 rounded-2xl border p-5 fade-in glass-effect ";
+      statusEl.className = base + (tone === "error" ? "border-rose-500/50 text-rose-200" : "border-slate-700/50 text-slate-200");
+      statusEl.innerHTML = html;
+    }
+    
+    function clearStatus() { statusEl.classList.add('hidden'); }
+
+    function setLoading(loading) {
+      submitBtn.disabled = loading;
+      btnText.textContent = loading ? 'Analyzing...' : 'Check Score';
+      btnIcon.classList.toggle('hidden', loading);
+      btnSpinner.classList.toggle('hidden', !loading);
+    }
+
+    function formatNumber(n) {
+      if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
+      if (n >= 1000) return (n / 1000).toFixed(1) + 'K';
+      return n.toLocaleString();
+    }
+
+    function getGradeColor(color) {
+      const colors = {
+        rose: 'text-rose-400 bg-rose-500/20 border-rose-500/30',
+        amber: 'text-amber-400 bg-amber-500/20 border-amber-500/30',
+        yellow: 'text-yellow-400 bg-yellow-500/20 border-yellow-500/30',
+        emerald: 'text-emerald-400 bg-emerald-500/20 border-emerald-500/30',
+        blue: 'text-blue-400 bg-blue-500/20 border-blue-500/30'
+      };
+      return colors[color] || colors.emerald;
+    }
+
+    function getRiskColor(color) {
+      const colors = {
+        rose: 'border-rose-500/30 bg-rose-500/10',
+        amber: 'border-amber-500/30 bg-amber-500/10',
+        emerald: 'border-emerald-500/30 bg-emerald-500/10'
+      };
+      return colors[color] || colors.emerald;
+    }
+
+    function getRecTypeStyle(type) {
+      const styles = {
+        warning: { icon: '⚠️', bg: 'bg-rose-500/10 border-rose-500/30' },
+        caution: { icon: '⚡', bg: 'bg-amber-500/10 border-amber-500/30' },
+        opportunity: { icon: '✨', bg: 'bg-emerald-500/10 border-emerald-500/30' },
+        info: { icon: 'ℹ️', bg: 'bg-blue-500/10 border-blue-500/30' }
+      };
+      return styles[type] || styles.info;
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const u = urlInput.value.trim();
+      if (!u) return;
+      
+      resultsEl.innerHTML = "";
+      setLoading(true);
+      setStatus(`
+        <div class="flex items-center gap-3">
+          <svg class="w-5 h-5 spin text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <span>Calculating saturation score and analyzing sponsor patterns...</span>
+        </div>
+      `);
+      
+      try {
+        const r = await fetch(`/api/saturation?url=${encodeURIComponent(u)}`);
+        setLoading(false);
+        
+        if (!r.ok) {
+          const msg = await r.json().catch(() => ({error: 'Unexpected error'}));
+          setStatus(`<div class="text-rose-300">${msg.error || 'Failed to analyze channel.'}</div>`, "error");
+          return;
+        }
+        
+        const data = await r.json();
+        clearStatus();
+        
+        const gradeColors = getGradeColor(data.saturation.grade.color);
+        const riskColors = getRiskColor(data.audienceFatigue.color);
+
+        // Build monthly chart bars
+        const maxSat = Math.max(...data.monthlyBreakdown.map(m => m.saturation), 1);
+        const monthBars = data.monthlyBreakdown.map(m => {
+          const height = (m.saturation / 100) * 100;
+          const monthLabel = new Date(m.month + '-01').toLocaleDateString('en-US', { month: 'short' });
+          return `
+            <div class="flex-1 flex flex-col items-center gap-1">
+              <div class="text-xs text-slate-500">${m.saturation}%</div>
+              <div class="w-full bg-slate-800 rounded-t relative" style="height: 80px">
+                <div class="absolute bottom-0 w-full rounded-t ${m.saturation >= 50 ? 'bg-rose-500' : m.saturation >= 30 ? 'bg-amber-500' : 'bg-emerald-500'}" style="height: ${height}%"></div>
+              </div>
+              <div class="text-xs text-slate-500">${monthLabel}</div>
+            </div>
+          `;
+        }).join('');
+
+        resultsEl.innerHTML = `
+          <!-- Main Score Card -->
+          <div class="glass-effect border border-purple-500/30 rounded-3xl p-8 text-center fade-in">
+            <div class="text-sm text-slate-400 mb-4">Sponsor Saturation Score</div>
+            <div class="inline-flex items-center justify-center w-32 h-32 rounded-full ${gradeColors} border-4 mb-4">
+              <div>
+                <div class="text-5xl font-bold">${data.saturation.grade.grade}</div>
+                <div class="text-sm opacity-80">${data.saturation.grade.label}</div>
+              </div>
+            </div>
+            <div class="text-3xl font-bold text-white mb-2">${data.saturation.percentage}% Sponsored</div>
+            <p class="text-slate-400 max-w-md mx-auto">${data.saturation.grade.description}</p>
+          </div>
+
+          <!-- Key Metrics -->
+          <div class="grid md:grid-cols-4 gap-4 fade-in">
+            <div class="glass-effect border border-slate-700/50 rounded-2xl p-5 text-center">
+              <div class="text-3xl font-bold text-purple-400">${data.saturation.sponsoredCount}</div>
+              <div class="text-sm text-slate-400 mt-1">Sponsored Videos</div>
+            </div>
+            <div class="glass-effect border border-slate-700/50 rounded-2xl p-5 text-center">
+              <div class="text-3xl font-bold text-slate-300">${data.saturation.organicCount}</div>
+              <div class="text-sm text-slate-400 mt-1">Organic Videos</div>
+            </div>
+            <div class="glass-effect border border-slate-700/50 rounded-2xl p-5 text-center">
+              <div class="text-3xl font-bold ${data.performance.performanceDiff >= 0 ? 'text-emerald-400' : 'text-rose-400'}">${data.performance.performanceDiff >= 0 ? '+' : ''}${data.performance.performanceDiff}%</div>
+              <div class="text-sm text-slate-400 mt-1">Sponsored vs Organic</div>
+            </div>
+            <div class="glass-effect border ${riskColors} rounded-2xl p-5 text-center">
+              <div class="text-3xl font-bold">${data.audienceFatigue.risk}</div>
+              <div class="text-sm text-slate-400 mt-1">Fatigue Risk</div>
+            </div>
+          </div>
+
+          <!-- Trend Analysis -->
+          <div class="glass-effect border border-slate-700/50 rounded-2xl p-6 fade-in">
+            <h3 class="text-xl font-semibold mb-4 flex items-center gap-2">
+              <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+              </svg>
+              Sponsorship Trend
+            </h3>
+            <div class="flex items-center gap-4 mb-6">
+              <div class="px-4 py-2 rounded-lg ${data.trend.trend.includes('increasing') ? 'bg-rose-500/10 border border-rose-500/30 text-rose-400' : data.trend.trend.includes('decreasing') ? 'bg-emerald-500/10 border border-emerald-500/30 text-emerald-400' : 'bg-slate-800/50 border border-slate-700 text-slate-300'}">
+                ${data.trend.trend === 'increasing' ? '📈 Increasing' : data.trend.trend === 'decreasing' ? '📉 Decreasing' : data.trend.trend === 'stable-high' ? '⚠️ Stable High' : '➡️ Stable'}
+              </div>
+              <p class="text-slate-400">${data.trend.description}</p>
+            </div>
+            
+            <!-- Monthly Chart -->
+            <div class="flex items-end gap-1 h-32">
+              ${monthBars}
+            </div>
+            <div class="text-center text-xs text-slate-500 mt-2">Monthly sponsorship rate over the last 12 months</div>
+          </div>
+
+          <!-- Audience Fatigue Factors -->
+          ${data.audienceFatigue.factors.length > 0 ? `
+            <div class="glass-effect border ${riskColors} rounded-2xl p-6 fade-in">
+              <h3 class="text-xl font-semibold mb-4 flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+                Audience Fatigue Analysis
+              </h3>
+              <ul class="space-y-2">
+                ${data.audienceFatigue.factors.map(f => `
+                  <li class="flex items-center gap-2 text-slate-300">
+                    <span class="w-2 h-2 rounded-full ${data.audienceFatigue.color === 'rose' ? 'bg-rose-400' : data.audienceFatigue.color === 'amber' ? 'bg-amber-400' : 'bg-emerald-400'}"></span>
+                    ${f}
+                  </li>
+                `).join('')}
+              </ul>
+            </div>
+          ` : ''}
+
+          <!-- Performance Comparison -->
+          <div class="glass-effect border border-slate-700/50 rounded-2xl p-6 fade-in">
+            <h3 class="text-xl font-semibold mb-4">View Performance Comparison</h3>
+            <div class="grid md:grid-cols-3 gap-4">
+              <div class="p-4 bg-slate-800/30 rounded-xl text-center">
+                <div class="text-sm text-slate-400 mb-1">Overall Average</div>
+                <div class="text-2xl font-bold text-white">${formatNumber(data.performance.overallAvgViews)}</div>
+              </div>
+              <div class="p-4 bg-purple-500/10 border border-purple-500/30 rounded-xl text-center">
+                <div class="text-sm text-purple-400 mb-1">Sponsored Avg</div>
+                <div class="text-2xl font-bold text-purple-400">${formatNumber(data.performance.sponsoredAvgViews)}</div>
+              </div>
+              <div class="p-4 bg-slate-800/30 rounded-xl text-center">
+                <div class="text-sm text-slate-400 mb-1">Non-Sponsored Avg</div>
+                <div class="text-2xl font-bold text-white">${formatNumber(data.performance.nonSponsoredAvgViews)}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Top Sponsors -->
+          ${data.topSponsors.length > 0 ? `
+            <div class="glass-effect border border-slate-700/50 rounded-2xl p-6 fade-in">
+              <h3 class="text-xl font-semibold mb-4">Most Frequent Sponsors</h3>
+              <div class="grid md:grid-cols-2 gap-3">
+                ${data.topSponsors.map(s => `
+                  <div class="flex items-center justify-between p-3 bg-slate-800/30 rounded-lg">
+                    <span class="text-slate-300 mono text-sm">${s.domain}</span>
+                    <span class="text-purple-400 font-medium">${s.count} videos (${s.percentage}%)</span>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          ` : ''}
+
+          <!-- Recent Sponsored Videos -->
+          ${data.recentSponsored.length > 0 ? `
+            <div class="glass-effect border border-slate-700/50 rounded-2xl p-6 fade-in">
+              <h3 class="text-xl font-semibold mb-4">Recent Sponsored Videos</h3>
+              <div class="space-y-3">
+                ${data.recentSponsored.map(v => `
+                  <a href="https://youtube.com/watch?v=${v.videoId}" target="_blank" class="block p-4 bg-slate-800/30 rounded-xl hover:bg-slate-800/50 transition-all">
+                    <div class="flex justify-between items-start gap-4">
+                      <div class="flex-1 min-w-0">
+                        <div class="font-medium text-slate-200 truncate">${v.title}</div>
+                        <div class="text-sm text-slate-500 mt-1">${v.sponsors.join(', ')}</div>
+                      </div>
+                      <div class="text-right text-sm">
+                        <div class="text-slate-400">${formatNumber(v.viewCount)} views</div>
+                        <div class="text-slate-500">${new Date(v.publishedAt).toLocaleDateString()}</div>
+                      </div>
+                    </div>
+                  </a>
+                `).join('')}
+              </div>
+            </div>
+          ` : ''}
+
+          <!-- Recommendations -->
+          ${data.recommendations.length > 0 ? `
+            <div class="glass-effect border border-slate-700/50 rounded-2xl p-6 fade-in">
+              <h3 class="text-xl font-semibold mb-4">💡 Recommendations</h3>
+              <div class="space-y-3">
+                ${data.recommendations.map(r => {
+                  const style = getRecTypeStyle(r.type);
+                  return `
+                    <div class="p-4 rounded-xl border ${style.bg}">
+                      <div class="flex items-start gap-3">
+                        <span class="text-xl">${style.icon}</span>
+                        <div>
+                          <div class="font-semibold text-slate-200">${r.title}</div>
+                          <div class="text-sm text-slate-400 mt-1">${r.description}</div>
+                        </div>
+                      </div>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+            </div>
+          ` : ''}
+        `;
+      } catch (err) {
+        setLoading(false);
+        setStatus(`<div class="text-rose-300">Network error. Please try again.</div>`, "error");
+      }
+    });
+  </script>
+</body>
+</html>

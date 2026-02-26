@@ -27,3 +27,5 @@ logs/
 # Build
 dist/
 build/
+.vercel
+.env*.local
