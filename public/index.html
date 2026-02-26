@@ -1,14 +1,18 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>YouTube Promo Finder - Discover Sponsorships, Affiliate Links & Brand Deals on Any Channel</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="/styles.css">
   <meta name="description" content="Free tool to analyze any YouTube channel and uncover every sponsorship, affiliate link, and brand partnership. Perfect for marketers, brands, creators, and researchers. Analyze 12 months of video data instantly." />
   <meta name="keywords" content="YouTube sponsorship finder, YouTube affiliate link checker, brand deal tracker, influencer marketing research, YouTube channel analyzer, sponsorship detection, creator partnerships, YouTube marketing tools" />
   <meta name="author" content="David J Woodbury" />
   <meta name="robots" content="index, follow" />
-  <link rel="canonical" href="https://yt-promo-finder.vercel.app/" />
+  <link rel="canonical" href="https://promofinder.4ourmedia.com/" />
   
   <!-- Open Graph / Social -->
   <meta property="og:type" content="website" />
@@ -52,6 +56,36 @@
   </style>
 </head>
 <body class="bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-100 min-h-screen">
+<nav class="site-nav">
+  <div class="site-nav-inner">
+    <div class="site-nav-top">
+      <a href="/" class="site-logo">
+        <div class="site-logo-mark">
+          <svg width="17" height="17" viewBox="0 0 17 17" fill="none"><circle cx="6.5" cy="6.5" r="4.5" stroke="white" stroke-width="1.6"/><polygon points="4.5,4.5 4.5,8.5 8.5,6.5" fill="white"/><line x1="10" y1="10" x2="15" y2="15" stroke="white" stroke-width="1.6" stroke-linecap="round"/></svg>
+        </div>
+        <span class="site-logo-text">Promo<span>Finder</span></span>
+      </a>
+      <a href="https://4ourmedia.com" target="_blank" rel="noopener" class="site-nav-external">
+        4ourmedia.com
+        <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+      </a>
+    </div>
+    <div class="tool-strip">
+      <a href="/" class="tool-chip chip-active-emerald">Promo Finder</a>
+      <a href="/domain" class="tool-chip">Domain Search</a>
+      <a href="/unlisted" class="tool-chip">Unlisted Videos</a>
+      <a href="/growth" class="tool-chip">Growth Tracker</a>
+      <a href="/collab" class="tool-chip">Collaborations</a>
+      <a href="/compare" class="tool-chip">Compare Sponsors</a>
+      <a href="/rate" class="tool-chip">Rate Estimator</a>
+      <a href="/viral" class="tool-chip">Viral Detector</a>
+      <a href="/saturation" class="tool-chip">Saturation Score</a>
+      <a href="/revenue" class="tool-chip">Revenue Calculator</a>
+      <a href="/predictor" class="tool-chip">Performance Predictor</a>
+      <a href="/linkcheck" class="tool-chip">Link Checker</a>
+    </div>
+  </div>
+</nav>
   <div class="max-w-6xl mx-auto px-4 py-12 md:py-16">
     <header class="mb-10 text-center md:text-left">
       <div class="inline-flex items-center gap-2 mb-4 px-4 py-2 rounded-full glass-effect border border-emerald-500/20">
@@ -59,81 +93,8 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
         </svg>
         <span class="text-sm font-medium text-emerald-400">YouTube Channel Analysis Tools</span>
-        <span class="text-slate-600 mx-1">|</span>
-        <a href="https://4ourmedia.com" target="_blank" rel="noopener" class="text-sm text-slate-400 hover:text-white transition-colors font-medium">4ourmedia.com</a>
       </div>
-      
-      <div class="flex flex-wrap gap-2 mb-6">
-        <a href="/domain" class="inline-flex items-center gap-2 px-3 py-2 rounded-lg glass-effect border border-orange-500/20 hover:border-orange-500/40 transition-all text-sm group">
-          <svg class="w-4 h-4 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path>
-          </svg>
-          <span class="text-orange-400 group-hover:text-orange-300 transition-colors font-medium">Domain Search</span>
-        </a>
-        <a href="/unlisted" class="inline-flex items-center gap-2 px-3 py-2 rounded-lg glass-effect border border-purple-500/20 hover:border-purple-500/40 transition-all text-sm group">
-          <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-          </svg>
-          <span class="text-purple-400 group-hover:text-purple-300 transition-colors font-medium">Unlisted Videos</span>
-        </a>
-        <a href="/growth" class="inline-flex items-center gap-2 px-3 py-2 rounded-lg glass-effect border border-blue-500/20 hover:border-blue-500/40 transition-all text-sm group">
-          <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
-          </svg>
-          <span class="text-blue-400 group-hover:text-blue-300 transition-colors font-medium">Growth Tracker</span>
-        </a>
-        <a href="/collab" class="inline-flex items-center gap-2 px-3 py-2 rounded-lg glass-effect border border-amber-500/20 hover:border-amber-500/40 transition-all text-sm group">
-          <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
-          </svg>
-          <span class="text-amber-400 group-hover:text-amber-300 transition-colors font-medium">Collaborations</span>
-        </a>
-        <a href="/compare" class="inline-flex items-center gap-2 px-3 py-2 rounded-lg glass-effect border border-pink-500/20 hover:border-pink-500/40 transition-all text-sm group">
-          <svg class="w-4 h-4 text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
-          </svg>
-          <span class="text-pink-400 group-hover:text-pink-300 transition-colors font-medium">Compare Sponsors</span>
-        </a>
-        <a href="/rate" class="inline-flex items-center gap-2 px-3 py-2 rounded-lg glass-effect border border-teal-500/20 hover:border-teal-500/40 transition-all text-sm group">
-          <svg class="w-4 h-4 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-          </svg>
-          <span class="text-teal-400 group-hover:text-teal-300 transition-colors font-medium">Rate Estimator</span>
-        </a>
-        <a href="/viral" class="inline-flex items-center gap-2 px-3 py-2 rounded-lg glass-effect border border-rose-500/20 hover:border-rose-500/40 transition-all text-sm group">
-          <svg class="w-4 h-4 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z"></path>
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.879 16.121A3 3 0 1012.015 11L11 14H9c0 .768.293 1.536.879 2.121z"></path>
-          </svg>
-          <span class="text-rose-400 group-hover:text-rose-300 transition-colors font-medium">Viral Detector</span>
-        </a>
-        <a href="/saturation" class="inline-flex items-center gap-2 px-3 py-2 rounded-lg glass-effect border border-violet-500/20 hover:border-violet-500/40 transition-all text-sm group">
-          <svg class="w-4 h-4 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
-          </svg>
-          <span class="text-violet-400 group-hover:text-violet-300 transition-colors font-medium">Saturation Score</span>
-        </a>
-        <a href="/revenue" class="inline-flex items-center gap-2 px-3 py-2 rounded-lg glass-effect border border-lime-500/20 hover:border-lime-500/40 transition-all text-sm group">
-          <svg class="w-4 h-4 text-lime-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
-          </svg>
-          <span class="text-lime-400 group-hover:text-lime-300 transition-colors font-medium">Revenue Calculator</span>
-        </a>
-        <a href="/predictor" class="inline-flex items-center gap-2 px-3 py-2 rounded-lg glass-effect border border-cyan-500/20 hover:border-cyan-500/40 transition-all text-sm group">
-          <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-          </svg>
-          <span class="text-cyan-400 group-hover:text-cyan-300 transition-colors font-medium">Performance Predictor</span>
-        </a>
-        <a href="/linkcheck" class="inline-flex items-center gap-2 px-3 py-2 rounded-lg glass-effect border border-sky-500/20 hover:border-sky-500/40 transition-all text-sm group">
-          <svg class="w-4 h-4 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
-          </svg>
-          <span class="text-sky-400 group-hover:text-sky-300 transition-colors font-medium">Link Checker</span>
-        </a>
-      </div>
-      <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
+            <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
         YouTube Channel <span class="gradient-text">Promotion Finder</span>
       </h1>
       <p class="text-slate-300 mt-4 text-lg md:text-xl max-w-3xl">
@@ -495,59 +456,31 @@
       </div>
     </section>
 
-    <footer class="mt-16 pt-8 border-t border-slate-800/50">
-      <!-- Support the Project -->
-      <div class="text-center mb-6">
-        <p class="text-sm text-slate-400 mb-3">Found this tool useful? Support the project!</p>
-        <a href="https://pay.4ourmedia.com/b/14AfZh1SU9M3arI5pQ8bS0o" target="_blank" rel="noopener" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-400 hover:to-rose-400 text-white font-medium transition-all shadow-lg hover:shadow-pink-500/25">
-          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/></svg>
-          Donate
-        </a>
+    <footer class="pf-footer">
+      <!-- Disclaimer note -->
+      <div class="flex items-start gap-2 text-sm text-slate-500 mb-6">
+        <svg class="w-4 h-4 flex-shrink-0 mt-0.5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <p>Results are based on video descriptions and may not capture all promotions shown on-screen or mentioned in audio. For research purposes only.</p>
       </div>
 
-      <!-- Disclaimer -->
-      <div class="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-slate-400 mb-6">
-        <div class="flex items-start gap-2">
-          <svg class="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-          </svg>
-          <p>Results are based on video descriptions and may not capture all promotions shown on-screen or mentioned in audio. This tool is for research purposes only.</p>
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-5 mb-6">
+        <a href="https://pay.4ourmedia.com/b/14AfZh1SU9M3arI5pQ8bS0o" target="_blank" rel="noopener" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-400 hover:to-rose-400 text-white font-medium text-sm transition-all shadow-lg hover:shadow-pink-500/25">
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/></svg>
+          Support the Project
+        </a>
+        <div class="text-xs text-slate-500 text-center sm:text-right leading-relaxed">
+          <p>Crafted by <a href="https://davidjwoodbury.com" target="_blank" rel="noopener" class="text-slate-400 hover:text-emerald-400 transition-colors font-medium">David J Woodbury</a></p>
+          <p class="mt-0.5">&copy; <span id="year"></span> David J Woodbury. All rights reserved.</p>
         </div>
       </div>
-      
-      <!-- SEO Keywords/Links -->
-      <div class="glass-effect border border-slate-700/30 rounded-xl p-4 mb-6 text-center">
-        <p class="text-xs text-slate-500">
-          <span class="font-medium text-slate-400">YouTube Promo Finder</span> — Free tools for 
-          <span class="text-slate-400">sponsorship detection</span> • 
-          <span class="text-slate-400">affiliate link tracking</span> • 
-          <span class="text-slate-400">influencer marketing research</span> • 
-          <span class="text-slate-400">brand deal analysis</span> • 
-          <span class="text-slate-400">creator partnership insights</span>
-        </p>
-      </div>
-      
-      <div class="pt-6 border-t border-slate-800/30">
-        <div class="flex flex-col md:flex-row items-center justify-between gap-4 text-sm">
-          <div class="text-slate-400">
-            <p class="text-center md:text-left">
-              <span class="text-emerald-400 font-medium">Stop guessing. Start analyzing.</span> 🎬
-              <br class="md:hidden" />
-              <span class="hidden md:inline">•</span>
-              Crafted with <span class="text-red-500">♥</span> by <a href="https://davidjwoodbury.com" target="_blank" rel="noopener" class="text-emerald-400 hover:text-emerald-300 font-medium transition-colors">David J Woodbury</a>
-            </p>
-          </div>
-          <div class="flex flex-col md:flex-row items-center gap-4 text-xs text-slate-500">
-            <span id="copyright">© <span id="year"></span> David J Woodbury. All rights reserved.</span>
-            <div class="flex gap-3">
-              <a href="/privacy" class="hover:text-emerald-400 transition-colors">Privacy Policy</a>
-              <span>•</span>
-              <a href="/terms" class="hover:text-emerald-400 transition-colors">Terms of Service</a>
-              <span>•</span>
-              <a href="/disclaimer" class="hover:text-emerald-400 transition-colors">Disclaimer</a>
-            </div>
-          </div>
-        </div>
+      <div class="flex flex-wrap justify-center gap-x-5 gap-y-1.5 pt-4 border-t border-slate-800/30 text-xs text-slate-600">
+        <a href="/" class="hover:text-slate-400 transition-colors">Home</a>
+        <a href="/privacy" class="hover:text-slate-400 transition-colors">Privacy Policy</a>
+        <a href="/terms" class="hover:text-slate-400 transition-colors">Terms of Service</a>
+        <a href="/disclaimer" class="hover:text-slate-400 transition-colors">Disclaimer</a>
+        <a href="https://4ourmedia.com" target="_blank" rel="noopener" class="hover:text-slate-400 transition-colors">4ourmedia.com</a>
       </div>
     </footer>
   </div>
@@ -747,13 +680,13 @@
       if (status.isExhausted) {
         quotaBanner.className = 'mb-4 rounded-xl p-4 border bg-rose-500/10 border-rose-500/50';
         quotaBar.className = 'h-full transition-all duration-500 bg-rose-500';
-        quotaMessage.textContent = '⚠️ Daily API limit reached. Please try again tomorrow when the quota resets at midnight PT.';
+        quotaMessage.textContent = 'Daily API limit reached. Please try again tomorrow when the quota resets at midnight PT.';
         quotaMessage.className = 'text-sm font-medium text-rose-300';
         submitBtn.disabled = true;
       } else if (status.isLow) {
         quotaBanner.className = 'mb-4 rounded-xl p-4 border bg-amber-500/10 border-amber-500/50';
         quotaBar.className = 'h-full transition-all duration-500 bg-amber-500';
-        quotaMessage.textContent = `⚠️ API quota running low (${status.usableRemaining.toLocaleString()} units left). Results may be limited.`;
+        quotaMessage.textContent = `API quota running low — ${status.usableRemaining.toLocaleString()} units left. Results may be limited.`;
         quotaMessage.className = 'text-sm font-medium text-amber-300';
       } else {
         quotaBanner.className = 'mb-4 rounded-xl p-4 border bg-emerald-500/10 border-emerald-500/50';
@@ -789,7 +722,7 @@
               The YouTube API quota has been exhausted for today. This is a shared resource limit that resets at midnight Pacific Time.
             </div>
             <div class="text-xs mt-3 text-rose-400/80">
-              💡 Tip: Try again tomorrow, or use the cached results if available.
+              Tip: Try again tomorrow, or use the cached results if available.
             </div>
           </div>
         </div>
@@ -924,7 +857,7 @@
         title.textContent = p.productName ? `${p.productName}` : p.domain;
         link.textContent = p.url.length > 60 ? p.url.substring(0, 57) + '...' : p.url;
         link.href = p.url;
-        meta.textContent = p.productName ? `🔗 ${p.domain}` : `🔗 ${p.domain}`;
+        meta.textContent = p.domain;
         badge.textContent = `${p.occurrences} ${p.occurrences === 1 ? "mention" : "mentions"}`;
         
         copyBtn.addEventListener('click', () => copyToClipboard(p.url, copyBtn));

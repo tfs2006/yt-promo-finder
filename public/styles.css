@@ -1,0 +1,270 @@
+/* ─── PromoFinder — Shared Stylesheet ───────────────────────────────────── */
+
+/* Typography — Inter */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+/* ─── Base ────────────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  letter-spacing: -0.025em;
+  line-height: 1.2;
+}
+
+/* ─── Scrollbar hide ─────────────────────────────────────────────────────── */
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+
+/* ─── Glass effect (enhanced) ───────────────────────────────────────────── */
+.glass-effect {
+  background: rgba(13, 19, 36, 0.65);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+/* ─── Site navigation ───────────────────────────────────────────────────── */
+.site-nav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(8, 13, 24, 0.94);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-bottom: 1px solid rgba(51, 65, 85, 0.45);
+}
+
+.site-nav-inner {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.site-nav-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 56px;
+}
+
+.site-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.site-logo-mark {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
+  flex-shrink: 0;
+}
+
+.site-logo-text {
+  font-weight: 800;
+  font-size: 1.05rem;
+  letter-spacing: -0.03em;
+  color: white;
+}
+
+.site-logo-text span {
+  color: #10b981;
+}
+
+.site-nav-external {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: #64748b;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.site-nav-external:hover { color: #e2e8f0; }
+
+.tool-strip {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding-bottom: 10px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.tool-strip::-webkit-scrollbar { display: none; }
+
+.tool-chip {
+  flex-shrink: 0;
+  display: inline-block;
+  padding: 5px 12px;
+  border-radius: 100px;
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: #64748b;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 0.15s, background 0.15s;
+  border: 1px solid transparent;
+}
+
+.tool-chip:hover {
+  color: #cbd5e1;
+  background: rgba(51, 65, 85, 0.45);
+}
+
+/* Active chip colours per tool */
+.chip-active-emerald { background: rgba(16,185,129,0.12); color: #34d399 !important; border-color: rgba(16,185,129,0.25); font-weight: 600; }
+.chip-active-orange  { background: rgba(249,115,22,0.12);  color: #fb923c !important; border-color: rgba(249,115,22,0.25);  font-weight: 600; }
+.chip-active-purple  { background: rgba(168,85,247,0.12);  color: #c084fc !important; border-color: rgba(168,85,247,0.25);  font-weight: 600; }
+.chip-active-blue    { background: rgba(59,130,246,0.12);   color: #60a5fa !important; border-color: rgba(59,130,246,0.25);   font-weight: 600; }
+.chip-active-amber   { background: rgba(245,158,11,0.12);   color: #fbbf24 !important; border-color: rgba(245,158,11,0.25);   font-weight: 600; }
+.chip-active-pink    { background: rgba(236,72,153,0.12);   color: #f472b6 !important; border-color: rgba(236,72,153,0.25);   font-weight: 600; }
+.chip-active-teal    { background: rgba(20,184,166,0.12);   color: #2dd4bf !important; border-color: rgba(20,184,166,0.25);   font-weight: 600; }
+.chip-active-rose    { background: rgba(244,63,94,0.12);    color: #fb7185 !important; border-color: rgba(244,63,94,0.25);    font-weight: 600; }
+.chip-active-violet  { background: rgba(139,92,246,0.12);   color: #a78bfa !important; border-color: rgba(139,92,246,0.25);   font-weight: 600; }
+.chip-active-lime    { background: rgba(132,204,22,0.12);   color: #a3e635 !important; border-color: rgba(132,204,22,0.25);   font-weight: 600; }
+.chip-active-cyan    { background: rgba(6,182,212,0.12);    color: #22d3ee !important; border-color: rgba(6,182,212,0.25);    font-weight: 600; }
+.chip-active-sky     { background: rgba(14,165,233,0.12);   color: #38bdf8 !important; border-color: rgba(14,165,233,0.25);   font-weight: 600; }
+
+/* ─── Mesh / Orb backgrounds ────────────────────────────────────────────── */
+.orb-1 {
+  position: fixed; top: -15vh; right: -10vw;
+  width: 55vw; height: 55vw; border-radius: 50%;
+  background: radial-gradient(circle, rgba(16,185,129,0.055) 0%, transparent 65%);
+  pointer-events: none; z-index: 0;
+}
+
+.orb-2 {
+  position: fixed; bottom: -20vh; left: -8vw;
+  width: 45vw; height: 45vw; border-radius: 50%;
+  background: radial-gradient(circle, rgba(59,130,246,0.035) 0%, transparent 65%);
+  pointer-events: none; z-index: 0;
+}
+
+/* ─── Card styles ────────────────────────────────────────────────────────── */
+.pf-card {
+  background: rgba(13, 19, 36, 0.65);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(51, 65, 85, 0.5);
+  border-radius: 1rem;
+  transition: border-color 0.25s, box-shadow 0.25s, transform 0.2s;
+}
+
+.pf-card:hover {
+  border-color: rgba(16, 185, 129, 0.25);
+  box-shadow: 0 8px 32px rgba(16, 185, 129, 0.06);
+  transform: translateY(-1px);
+}
+
+/* ─── Badge pill ─────────────────────────────────────────────────────────── */
+.badge-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 100px;
+  background: rgba(13, 19, 36, 0.65);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: #34d399;
+  backdrop-filter: blur(12px);
+}
+
+/* ─── Gradient text ─────────────────────────────────────────────────────── */
+.gradient-text-main {
+  background: linear-gradient(135deg, #10b981 0%, #34d399 50%, #6ee7b7 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ─── Hero section ──────────────────────────────────────────────────────── */
+.hero-grid {
+  background-image:
+    linear-gradient(rgba(16,185,129,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(16,185,129,0.04) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+/* ─── Animations ────────────────────────────────────────────────────────── */
+.fade-in { animation: fadein 0.4s ease-out; }
+@keyframes fadein {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.slide-in { animation: slidein 0.5s ease-out; }
+@keyframes slidein {
+  from { opacity: 0; transform: translateX(-10px);}
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.spin { animation: spin 1s linear infinite; }
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-6px); }
+}
+.float { animation: float 4s ease-in-out infinite; }
+
+@keyframes pulse-ring {
+  0%   { box-shadow: 0 0 0 0 rgba(16,185,129,0.25); }
+  70%  { box-shadow: 0 0 0 10px rgba(16,185,129,0); }
+  100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); }
+}
+.pulse-ring { animation: pulse-ring 2.5s ease-out infinite; }
+
+/* ─── Form inputs ────────────────────────────────────────────────────────── */
+input[type="text"], input[type="search"] {
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+
+input[type="text"]:focus, input[type="search"]:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+}
+
+/* ─── Footer ─────────────────────────────────────────────────────────────── */
+.pf-footer {
+  margin-top: 4rem;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(51, 65, 85, 0.35);
+}
+
+/* ─── Step cards ─────────────────────────────────────────────────────────── */
+.step-number {
+  width: 48px; height: 48px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.25rem; font-weight: 800;
+  background: linear-gradient(135deg, rgba(16,185,129,0.15), rgba(16,185,129,0.05));
+  border: 1px solid rgba(16,185,129,0.2);
+  color: #10b981;
+}
+
+/* ─── Misc ───────────────────────────────────────────────────────────────── */
+.mono { font-family: ui-monospace, 'SF Mono', 'Cascadia Mono', Menlo, monospace; }
+details[open] summary ~ * { animation: slidein 0.3s ease-out; }
+.copy-btn { transition: all 0.2s ease; }
+.copy-btn:active { transform: scale(0.92); }
