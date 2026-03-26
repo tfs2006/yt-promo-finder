@@ -7,7 +7,7 @@ import {
   parseChannelIdFromUrl,
   resolveChannelId,
   getUploadsPlaylistId,
-  setCorsHeaders,
+  applyApiGuards,
   handleApiError,
   checkQuota,
   extractUrls,
@@ -102,11 +102,7 @@ function formatCurrency(amount) {
 }
 
 export default async function handler(req, res) {
-  setCorsHeaders(res);
-  
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
+  if (applyApiGuards(req, res, { rateKey: "rate", maxRequests: 10, windowMs: 60_000 })) return;
 
   await initQuota();
 

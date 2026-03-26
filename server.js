@@ -1,6 +1,6 @@
 import express from "express";
 import * as dotenv from "dotenv";
-import { API_KEY } from "./utils.js";
+import { API_KEY, getQuotaStatusAsync } from "./utils.js";
 
 // Import API handlers for local development
 import collabHandler from "./api/collab.js";
@@ -24,6 +24,40 @@ if (!API_KEY) {
 
 app.use(express.static("public", { extensions: ["html"] }));
 
+app.use((req, res, next) => {
+  const incoming = req.headers["x-request-id"];
+  const requestId = (typeof incoming === "string" && incoming.trim())
+    ? incoming.trim()
+    : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+  req.requestId = requestId;
+  res.setHeader("X-Request-ID", requestId);
+  next();
+});
+
+app.get("/health", (req, res) => {
+  res.json({ status: "ok", uptime: process.uptime(), requestId: req.requestId });
+});
+
+app.get("/health/live", (req, res) => {
+  if (!API_KEY) {
+    return res.status(503).json({ status: "down", error: "YOUTUBE_API_KEY missing", requestId: req.requestId });
+  }
+  res.json({ status: "alive", requestId: req.requestId });
+});
+
+app.get("/health/ready", async (req, res) => {
+  try {
+    const quotaStatus = await getQuotaStatusAsync();
+    res.json({
+      status: quotaStatus.isExhausted ? "degraded" : "ready",
+      quotaRemaining: quotaStatus.usableRemaining,
+      requestId: req.requestId
+    });
+  } catch (err) {
+    res.status(503).json({ status: "not-ready", error: err.message, requestId: req.requestId });
+  }
+});
+
 // Register API routes for local development
 app.get("/api/analyze", analyzeHandler);
 app.get("/api/collab", collabHandler);
@@ -34,6 +68,22 @@ app.get("/api/quota", quotaHandler);
 app.get("/api/compare", compareHandler);
 app.get("/api/revenue", revenueHandler);
 app.get("/api/predictor", predictorHandler);
+
+app.use((err, req, res, next) => {
+  console.error(JSON.stringify({
+    ts: new Date().toISOString(),
+    level: "error",
+    msg: "express_unhandled_error",
+    requestId: req?.requestId,
+    error: err?.message,
+    stack: err?.stack
+  }));
+  if (res.headersSent) return next(err);
+  return res.status(err.status || 500).json({
+    error: err.message || "Internal server error",
+    requestId: req?.requestId
+  });
+});
 
 if (process.env.NODE_ENV !== "production") {
   app.listen(PORT, () => {

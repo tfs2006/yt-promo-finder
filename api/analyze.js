@@ -7,7 +7,7 @@ import {
   parseChannelIdFromUrl,
   resolveChannelId,
   getUploadsPlaylistId,
-  setCorsHeaders,
+  applyApiGuards,
   handleApiError,
   checkQuota,
   extractUrls,
@@ -174,12 +174,7 @@ async function analyzeDescriptions(videos) {
 }
 
 export default async function handler(req, res) {
-  // Enable CORS
-  setCorsHeaders(res);
-  
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
+  if (applyApiGuards(req, res, { rateKey: "analyze", maxRequests: 12, windowMs: 60_000 })) return;
 
   // Initialize quota from persistent storage
   await initQuota();

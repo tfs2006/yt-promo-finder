@@ -1,0 +1,5 @@
+Contact: mailto:ytpf@4ourmedia.com
+Expires: 2027-03-26T00:00:00.000Z
+Preferred-Languages: en
+Canonical: https://promofinder.4ourmedia.com/.well-known/security.txt
+Policy: https://promofinder.4ourmedia.com/disclaimer

@@ -4,7 +4,7 @@ import {
   API_KEY,
   setCache,
   getCache,
-  setCorsHeaders,
+  applyApiGuards,
   handleApiError,
   checkQuota,
   validateDomainInput,
@@ -12,12 +12,7 @@ import {
 } from "../utils.js";
 
 export default async function handler(req, res) {
-  // Enable CORS
-  setCorsHeaders(res);
-  
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
+  if (applyApiGuards(req, res, { rateKey: "domain", maxRequests: 8, windowMs: 60_000 })) return;
 
   // Initialize quota from persistent storage
   await initQuota();

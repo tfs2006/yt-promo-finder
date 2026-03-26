@@ -1,11 +1,7 @@
-import { getQuotaStatusAsync, setCorsHeaders, initQuota } from "../utils.js";
+import { getQuotaStatusAsync, applyApiGuards, initQuota, handleApiError } from "../utils.js";
 
 export default async function handler(req, res) {
-  setCorsHeaders(res);
-  
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
+  if (applyApiGuards(req, res, { rateKey: "quota", maxRequests: 90, windowMs: 60_000 })) return;
 
   // Initialize quota from persistent storage
   await initQuota();
@@ -14,7 +10,6 @@ export default async function handler(req, res) {
     const status = await getQuotaStatusAsync();
     res.json(status);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Failed to get quota status." });
+    return handleApiError(res, err, req);
   }
 }

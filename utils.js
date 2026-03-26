@@ -6,6 +6,21 @@ dotenv.config();
 
 export const API_KEY = process.env.YOUTUBE_API_KEY;
 
+const DEFAULT_ALLOWED_ORIGINS = [
+  "https://promofinder.4ourmedia.com",
+  "http://localhost:3000",
+  "http://127.0.0.1:3000"
+];
+
+const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || "")
+  .split(",")
+  .map((s) => s.trim())
+  .filter(Boolean);
+
+const CORS_ALLOWED_ORIGINS = ALLOWED_ORIGINS.length ? ALLOWED_ORIGINS : DEFAULT_ALLOWED_ORIGINS;
+
+const rateLimitBuckets = new Map();
+
 // ============================================
 // Storage Abstraction (Upstash Redis for production, file for local)
 // ============================================
@@ -510,30 +525,178 @@ export async function getUploadsPlaylistId(channelId) {
   return uploads;
 }
 
+function getClientIp(req) {
+  if (!req) return "unknown";
+  const xff = req.headers?.["x-forwarded-for"];
+  if (typeof xff === "string" && xff.length) {
+    return xff.split(",")[0].trim();
+  }
+  return req.headers?.["x-real-ip"] || req.socket?.remoteAddress || "unknown";
+}
+
+function getRequestId(req) {
+  return req?.requestId || null;
+}
+
+function log(level, message, data = {}) {
+  const entry = {
+    ts: new Date().toISOString(),
+    level,
+    msg: message,
+    ...data
+  };
+  const line = JSON.stringify(entry);
+  if (level === "error") {
+    console.error(line);
+    return;
+  }
+  console.log(line);
+}
+
+function setRequestId(req, res) {
+  const existing = req.headers?.["x-request-id"];
+  const requestId = (typeof existing === "string" && existing.trim())
+    ? existing.trim()
+    : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+  req.requestId = requestId;
+  res.setHeader("X-Request-ID", requestId);
+  return requestId;
+}
+
+function isOriginAllowed(origin) {
+  if (!origin) return false;
+  return CORS_ALLOWED_ORIGINS.includes(origin);
+}
+
+function checkRateLimit(req, key, windowMs, maxRequests) {
+  const ip = getClientIp(req);
+  const bucketKey = `${key}:${ip}`;
+  const now = Date.now();
+  const hit = rateLimitBuckets.get(bucketKey);
+
+  if (!hit || now > hit.resetAt) {
+    rateLimitBuckets.set(bucketKey, { count: 1, resetAt: now + windowMs });
+    return { allowed: true, remaining: maxRequests - 1, resetAt: now + windowMs };
+  }
+
+  if (hit.count >= maxRequests) {
+    return { allowed: false, remaining: 0, resetAt: hit.resetAt };
+  }
+
+  hit.count += 1;
+  return { allowed: true, remaining: maxRequests - hit.count, resetAt: hit.resetAt };
+}
+
+function pruneRateLimitBuckets() {
+  const now = Date.now();
+  for (const [key, val] of rateLimitBuckets.entries()) {
+    if (val.resetAt <= now) {
+      rateLimitBuckets.delete(key);
+    }
+  }
+}
+
+/**
+ * Apply common API guards: request ID, CORS, OPTIONS handling, and in-memory rate limiting.
+ * Returns true when a response has already been sent.
+ */
+export function applyApiGuards(req, res, options = {}) {
+  const {
+    rateLimit = true,
+    rateKey = "api",
+    maxRequests = 30,
+    windowMs = 60_000,
+    skipMethods = ["OPTIONS"]
+  } = options;
+
+  const requestId = setRequestId(req, res);
+  setCorsHeaders(res, req);
+
+  if (skipMethods.includes(req.method)) {
+    res.status(200).end();
+    return true;
+  }
+
+  if (rateLimit) {
+    if (Math.random() < 0.01) {
+      pruneRateLimitBuckets();
+    }
+    const rate = checkRateLimit(req, rateKey, windowMs, maxRequests);
+    res.setHeader("X-RateLimit-Limit", String(maxRequests));
+    res.setHeader("X-RateLimit-Remaining", String(Math.max(0, rate.remaining)));
+    res.setHeader("X-RateLimit-Reset", String(Math.floor(rate.resetAt / 1000)));
+
+    if (!rate.allowed) {
+      log("error", "rate_limit_exceeded", {
+        requestId,
+        rateKey,
+        ip: getClientIp(req),
+        maxRequests,
+        windowMs
+      });
+      res.status(429).json({
+        error: "Too many requests. Please wait and try again.",
+        code: "RATE_LIMITED",
+        requestId
+      });
+      return true;
+    }
+  }
+
+  return false;
+}
+
+export function logRequestStart(req, route, details = {}) {
+  log("info", "request_start", {
+    requestId: getRequestId(req),
+    route,
+    method: req?.method,
+    ip: getClientIp(req),
+    ...details
+  });
+}
+
 /**
  * Standard CORS headers for API responses
  */
-export function setCorsHeaders(res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+export function setCorsHeaders(res, req = null) {
+  const origin = req?.headers?.origin;
+  if (origin && isOriginAllowed(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+    res.setHeader("Vary", "Origin");
+  } else {
+    // Keep a safe default for direct browser loads and server-to-server calls.
+    res.setHeader("Access-Control-Allow-Origin", CORS_ALLOWED_ORIGINS[0]);
+  }
+  res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, X-Request-ID");
 }
 
 /**
  * Handle API errors consistently
  */
-export function handleApiError(res, err) {
-  console.error(err);
+export function handleApiError(res, err, req = null) {
+  const requestId = getRequestId(req) || res.getHeader("X-Request-ID") || null;
+  log("error", "api_error", {
+    requestId,
+    code: err?.code,
+    message: err?.message,
+    stack: err?.stack
+  });
   
   if (err.code === 'QUOTA_EXCEEDED' || err.code === 'YOUTUBE_QUOTA_EXCEEDED') {
     return res.status(429).json({ 
       error: err.message,
       code: 'QUOTA_EXCEEDED',
-      quotaStatus: err.quotaStatus || getQuotaStatus()
+      quotaStatus: err.quotaStatus || getQuotaStatus(),
+      requestId
     });
   }
   
-  return res.status(500).json({ error: err.message || "Unexpected server error." });
+  return res.status(500).json({
+    error: err.message || "Unexpected server error.",
+    requestId
+  });
 }
 
 // ============================================

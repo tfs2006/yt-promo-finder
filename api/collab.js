@@ -7,7 +7,7 @@ import {
   parseChannelIdFromUrl,
   resolveChannelId,
   getUploadsPlaylistId,
-  setCorsHeaders,
+  applyApiGuards,
   handleApiError,
   checkQuota,
   validateChannelInput,
@@ -126,12 +126,7 @@ async function resolveChannelInfo(mention) {
 }
 
 export default async function handler(req, res) {
-  // Enable CORS
-  setCorsHeaders(res);
-  
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
+  if (applyApiGuards(req, res, { rateKey: "collab", maxRequests: 8, windowMs: 60_000 })) return;
 
   // Initialize quota from persistent storage
   await initQuota();

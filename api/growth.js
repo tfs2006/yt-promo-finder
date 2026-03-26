@@ -6,7 +6,7 @@ import {
   getCache,
   parseChannelIdFromUrl,
   resolveChannelId,
-  setCorsHeaders,
+  applyApiGuards,
   handleApiError,
   checkQuota,
   validateChannelInput,
@@ -108,12 +108,7 @@ function analyzeUploadPattern(videos) {
 }
 
 export default async function handler(req, res) {
-  // Enable CORS
-  setCorsHeaders(res);
-  
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
+  if (applyApiGuards(req, res, { rateKey: "growth", maxRequests: 12, windowMs: 60_000 })) return;
 
   // Initialize quota from persistent storage
   await initQuota();
