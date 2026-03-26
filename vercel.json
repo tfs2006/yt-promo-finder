@@ -36,6 +36,9 @@
     }
   ],
   "rewrites": [
+    { "source": "/health", "destination": "/api/health.js" },
+    { "source": "/health/live", "destination": "/api/health-live.js" },
+    { "source": "/health/ready", "destination": "/api/health-ready.js" },
     { "source": "/api/analyze", "destination": "/api/analyze.js" },
     { "source": "/api/collab", "destination": "/api/collab.js" },
     { "source": "/api/growth", "destination": "/api/growth.js" },
