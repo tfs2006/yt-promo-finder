@@ -6,12 +6,10 @@ import {
   getCache,
   parseChannelIdFromUrl,
   resolveChannelId,
-  getUploadsPlaylistId,
+  getChannelSnapshot,
   applyApiGuards,
   handleApiError,
   checkQuota,
-  iterateUploads,
-  getVideoDetails,
   validateChannelInput,
   initQuota
 } from "../utils.js";
@@ -201,7 +199,6 @@ export default async function handler(req, res) {
 
     const spec = parseChannelIdFromUrl(input);
     const channelId = await resolveChannelId(spec);
-    const uploadsId = await getUploadsPlaylistId(channelId);
 
     // Get channel info
     consumeQuota(1);
@@ -213,38 +210,17 @@ export default async function handler(req, res) {
       return res.status(404).json({ error: "Channel not found." });
     }
 
-    // Fetch recent videos
-    const recent = [];
-    for await (const item of iterateUploads(uploadsId, sinceISO)) {
-      recent.push(item);
-      if (recent.length >= 200) break;
-    }
-    
-    if (!recent.length) {
+    const snapshot = await getChannelSnapshot(input, sinceISO, {
+      maxVideos: 200,
+      includeStatistics: true,
+      cacheTtlSeconds: 3600
+    });
+
+    if (!snapshot.videoCount) {
       return res.status(400).json({ error: "No videos found in the last 12 months." });
     }
 
-    // Get video details with view counts
-    consumeQuota(Math.ceil(recent.length / 50));
-    const videoIds = recent.map(v => v.videoId);
-    const details = [];
-    
-    for (let i = 0; i < videoIds.length; i += 50) {
-      const chunk = videoIds.slice(i, i + 50);
-      const url = `https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics&id=${chunk.join(",")}&key=${API_KEY}`;
-      const data = await fetchJson(url);
-      for (const it of data.items || []) {
-        details.push({
-          videoId: it.id,
-          title: it.snippet?.title || "",
-          description: it.snippet?.description || "",
-          publishedAt: it.snippet?.publishedAt,
-          viewCount: parseInt(it.statistics?.viewCount || 0, 10),
-          likeCount: parseInt(it.statistics?.likeCount || 0, 10),
-          commentCount: parseInt(it.statistics?.commentCount || 0, 10)
-        });
-      }
-    }
+    const details = snapshot.videos;
 
     // Detect niche
     const nicheAnalysis = detectNiche(details);

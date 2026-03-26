@@ -16,6 +16,7 @@ import {
   guessProductNameFromLine,
   iterateUploads,
   getVideoDetails,
+  getChannelSnapshot,
   SOCIAL_MEDIA_FILTER,
   validateChannelInput,
   initQuota
@@ -220,35 +221,25 @@ export default async function handler(req, res) {
     const cached = getCache(cacheKey);
     if (cached) return res.json({ fromCache: true, ...cached });
 
-    const spec = parseChannelIdFromUrl(input);
-    const channelId = await resolveChannelId(spec);
-    const uploadsId = await getUploadsPlaylistId(channelId);
+    const snapshot = await getChannelSnapshot(input, sinceISO, {
+      maxVideos: 1200,
+      includeStatistics: false,
+      cacheTtlSeconds: 3600
+    });
 
-    const recent = [];
-    for await (const item of iterateUploads(uploadsId, sinceISO)) {
-      recent.push(item);
-      if (recent.length >= 1200) break;
-    }
-    
-    if (!recent.length) {
-      const payload = { channelId, sinceISO, videoCount: 0, promotions: [] };
+    if (!snapshot.videoCount) {
+      const payload = { channelId: snapshot.channelId, sinceISO, videoCount: 0, promotions: [] };
       setCache(cacheKey, payload);
       return res.json(payload);
     }
 
-    const details = await getVideoDetails(recent.map(v => v.videoId));
-    const merged = recent.map(v => {
-      const d = details.find(x => x.videoId === v.videoId);
-      return { 
-        videoId: v.videoId, 
-        title: d?.title || v.title, 
-        description: d?.description || "", 
-        publishedAt: d?.publishedAt || v.publishedAt 
-      };
-    });
-
-    const promotions = await analyzeDescriptions(merged);
-    const payload = { channelId, sinceISO, videoCount: merged.length, promotions };
+    const promotions = await analyzeDescriptions(snapshot.videos);
+    const payload = {
+      channelId: snapshot.channelId,
+      sinceISO,
+      videoCount: snapshot.videoCount,
+      promotions
+    };
     setCache(cacheKey, payload);
     res.json(payload);
   } catch (err) {

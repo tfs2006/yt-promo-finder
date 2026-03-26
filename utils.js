@@ -782,21 +782,99 @@ export async function* iterateUploads(playlistId, sinceISO) {
 /**
  * Get video details (title, description) for a list of video IDs
  */
-export async function getVideoDetails(videoIds) {
+export async function getVideoDetails(videoIds, options = {}) {
+  const { includeStatistics = false } = options;
+  const part = includeStatistics ? "snippet,contentDetails,statistics" : "snippet,contentDetails";
   const details = [];
   for (let i = 0; i < videoIds.length; i += 50) {
     const chunk = videoIds.slice(i, i + 50);
     consumeQuota(1);
-    const url = `https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails&id=${chunk.join(",")}&key=${API_KEY}`;
+    const url = `https://www.googleapis.com/youtube/v3/videos?part=${part}&id=${chunk.join(",")}&key=${API_KEY}`;
     const data = await fetchJson(url);
     for (const it of data.items || []) {
-      details.push({
+      const entry = {
         videoId: it.id,
         title: it.snippet?.title || "",
         description: it.snippet?.description || "",
         publishedAt: it.snippet?.publishedAt
-      });
+      };
+      if (includeStatistics) {
+        entry.viewCount = parseInt(it.statistics?.viewCount || 0, 10);
+        entry.likeCount = parseInt(it.statistics?.likeCount || 0, 10);
+        entry.commentCount = parseInt(it.statistics?.commentCount || 0, 10);
+      }
+      details.push(entry);
     }
   }
   return details;
+}
+
+/**
+ * Build or fetch a shared channel snapshot to reuse base data across tools.
+ */
+export async function getChannelSnapshot(input, sinceISO, options = {}) {
+  const {
+    maxVideos = 200,
+    includeStatistics = false,
+    cacheTtlSeconds = 3600
+  } = options;
+
+  const spec = typeof input === "string" ? parseChannelIdFromUrl(input) : input;
+  const channelId = await resolveChannelId(spec);
+  const snapshotKey = `snapshot::${channelId}::${sinceISO}::${maxVideos}::${includeStatistics ? "stats" : "basic"}`;
+
+  const memCached = getCache(snapshotKey);
+  if (memCached) {
+    return { fromSnapshotCache: true, ...memCached };
+  }
+
+  const kvCached = await kvGet(snapshotKey);
+  if (kvCached) {
+    setCache(snapshotKey, kvCached, CACHE_TTL.MEDIUM);
+    return { fromSnapshotCache: true, ...kvCached };
+  }
+
+  const uploadsId = await getUploadsPlaylistId(channelId);
+  const recent = [];
+  for await (const item of iterateUploads(uploadsId, sinceISO)) {
+    recent.push(item);
+    if (recent.length >= maxVideos) break;
+  }
+
+  let videos = [];
+  if (recent.length > 0) {
+    const details = await getVideoDetails(
+      recent.map((v) => v.videoId),
+      { includeStatistics }
+    );
+    const byId = new Map(details.map((d) => [d.videoId, d]));
+    videos = recent.map((v) => {
+      const d = byId.get(v.videoId);
+      return {
+        videoId: v.videoId,
+        title: d?.title || v.title,
+        description: d?.description || "",
+        publishedAt: d?.publishedAt || v.publishedAt,
+        ...(includeStatistics
+          ? {
+              viewCount: d?.viewCount || 0,
+              likeCount: d?.likeCount || 0,
+              commentCount: d?.commentCount || 0
+            }
+          : {})
+      };
+    });
+  }
+
+  const snapshot = {
+    channelId,
+    sinceISO,
+    videoCount: videos.length,
+    videos
+  };
+
+  setCache(snapshotKey, snapshot, CACHE_TTL.MEDIUM);
+  kvSet(snapshotKey, snapshot, { ex: cacheTtlSeconds }).catch(() => {});
+
+  return snapshot;
 }

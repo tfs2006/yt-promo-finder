@@ -6,6 +6,7 @@ import {
   getCache,
   parseChannelIdFromUrl,
   resolveChannelId,
+  getChannelSnapshot,
   applyApiGuards,
   handleApiError,
   checkQuota,
@@ -27,18 +28,6 @@ async function getChannelStats(channelId) {
     viewCount: parseInt(item.statistics?.viewCount || 0),
     publishedAt: item.snippet?.publishedAt
   };
-}
-
-async function getRecentVideos(channelId, maxResults = 50) {
-  consumeQuota(100);
-  const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${channelId}&order=date&type=video&maxResults=${maxResults}&key=${API_KEY}`;
-  const data = await fetchJson(url);
-  
-  return (data.items || []).map(item => ({
-    videoId: item.id?.videoId,
-    title: item.snippet?.title,
-    publishedAt: item.snippet?.publishedAt
-  })).filter(v => v.videoId);
 }
 
 function analyzeUploadPattern(videos) {
@@ -145,8 +134,15 @@ export default async function handler(req, res) {
     // Get channel statistics
     const stats = await getChannelStats(channelId);
     
-    // Get recent videos for upload pattern analysis
-    const recentVideos = await getRecentVideos(channelId, 50);
+    // Use a shared snapshot so other tools can reuse this base dataset.
+    const sinceDate = new Date();
+    sinceDate.setFullYear(sinceDate.getFullYear() - 3);
+    const snapshot = await getChannelSnapshot(input, sinceDate.toISOString(), {
+      maxVideos: 50,
+      includeStatistics: false,
+      cacheTtlSeconds: 3600
+    });
+    const recentVideos = snapshot.videos;
     
     // Analyze upload patterns
     const uploadPattern = analyzeUploadPattern(recentVideos);
