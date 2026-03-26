@@ -137,6 +137,7 @@ export default async function handler(req, res) {
     // Use a shared snapshot so other tools can reuse this base dataset.
     const sinceDate = new Date();
     sinceDate.setFullYear(sinceDate.getFullYear() - 3);
+    sinceDate.setUTCHours(0, 0, 0, 0);
     const snapshot = await getChannelSnapshot(input, sinceDate.toISOString(), {
       maxVideos: 50,
       includeStatistics: false,

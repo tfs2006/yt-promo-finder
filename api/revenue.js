@@ -191,6 +191,7 @@ export default async function handler(req, res) {
     // Use 12 months of data
     const sinceDate = new Date();
     sinceDate.setFullYear(sinceDate.getFullYear() - 1);
+    sinceDate.setUTCHours(0, 0, 0, 0);
     const sinceISO = sinceDate.toISOString();
 
     const cacheKey = `revenue::${input}::${sinceISO}`;

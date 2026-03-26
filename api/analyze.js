@@ -215,6 +215,7 @@ export default async function handler(req, res) {
     // Default: Promotion analysis mode
     const sinceDate = new Date();
     sinceDate.setFullYear(sinceDate.getFullYear() - 1);
+    sinceDate.setUTCHours(0, 0, 0, 0);
     const sinceISO = sinceDate.toISOString();
 
     const cacheKey = `${input}::${sinceISO}`;
