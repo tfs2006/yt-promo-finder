@@ -36,12 +36,6 @@
     }
   ],
   "rewrites": [
-    { "source": "/api/health", "destination": "/api/health.js" },
-    { "source": "/api/health-live", "destination": "/api/health-live.js" },
-    { "source": "/api/health-ready", "destination": "/api/health-ready.js" },
-    { "source": "/health", "destination": "/api/health" },
-    { "source": "/health/live", "destination": "/api/health-live" },
-    { "source": "/health/ready", "destination": "/api/health-ready" },
     { "source": "/api/analyze", "destination": "/api/analyze.js" },
     { "source": "/api/collab", "destination": "/api/collab.js" },
     { "source": "/api/growth", "destination": "/api/growth.js" },
