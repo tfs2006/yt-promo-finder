@@ -3,13 +3,60 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>YouTube Revenue Calculator - Estimate Ad Earnings | YouTube Promo Finder</title>
+  <title>YouTube Revenue Calculator — Estimate Any Channel's Ad Earnings (Free)</title>
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="/styles.css">
-  <meta name="description" content="Estimate any YouTube channel's ad revenue based on views and niche. Free YouTube money calculator using industry CPM averages." />
-  <meta name="keywords" content="YouTube revenue calculator, YouTube money estimator, YouTuber earnings, YouTube CPM calculator, ad revenue estimator, YouTube income calculator" />
+  <meta name="description" content="Free YouTube revenue calculator. Estimate any YouTube channel's monthly and annual ad earnings based on views, niche, and CPM rates. See how much money YouTubers make from ads." />
+  <meta name="keywords" content="YouTube revenue calculator, YouTube money estimator, how much do YouTubers make, YouTuber earnings calculator, YouTube CPM calculator, ad revenue estimator, YouTube income calculator" />
+  <meta name="author" content="David J Woodbury" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://promofinder.4ourmedia.com/revenue" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="YouTube Revenue Calculator — Estimate Any Channel's Ad Earnings" />
+  <meta property="og:description" content="Free YouTube money calculator. Estimate how much a YouTube channel earns from ads based on real view counts and niche CPM data." />
+  <meta property="og:url" content="https://promofinder.4ourmedia.com/revenue" />
+  <meta property="og:site_name" content="YouTube Promo Finder" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="YouTube Revenue Calculator — How Much Do YouTubers Make?" />
+  <meta name="twitter:description" content="Estimate any YouTube channel's ad earnings for free. Uses real view data and niche CPM averages." />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebApplication",
+        "name": "YouTube Revenue Calculator",
+        "url": "https://promofinder.4ourmedia.com/revenue",
+        "description": "Estimate any YouTube channel's ad revenue using view count data and niche-specific CPM averages.",
+        "applicationCategory": "UtilityApplication",
+        "operatingSystem": "Web",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "How much money does a YouTube channel make per 1000 views?",
+            "acceptedAnswer": { "@type": "Answer", "text": "YouTube channels earn roughly $1–$5 per 1,000 views on average, though this varies significantly by niche. Finance, tech, and business channels can earn $10–25 per 1,000 views. Entertainment and gaming channels typically earn $1–3 per 1,000 views. These are net creator earnings after YouTube's 45% revenue share cut." }
+          },
+          {
+            "@type": "Question",
+            "name": "How much does YouTube pay per view?",
+            "acceptedAnswer": { "@type": "Answer", "text": "YouTube pays creators an average of $0.001–$0.003 per view (or $1–$3 per 1,000 views after YouTube's cut). The actual amount varies based on the viewer's location, the advertiser's bid, whether ads were skipped, and the video's niche and audience demographics." }
+          },
+          {
+            "@type": "Question",
+            "name": "Is this YouTube revenue calculator accurate?",
+            "acceptedAnswer": { "@type": "Answer", "text": "This tool provides estimates based on publicly available CPM benchmarks and actual channel view data from the YouTube API. Actual earnings can differ based on factors like ad block usage, viewer location, seasonality, and monetization status. Use it as a directional estimate, not an exact figure." }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     .fade-in { animation: fadein 0.4s ease-out; }
@@ -109,13 +156,42 @@
     <section id="status" class="mt-6 hidden"></section>
     <section id="results" class="mt-6 space-y-6"></section>
 
+    <!-- FAQ Section -->
+    <section class="mt-16 pt-12 border-t border-slate-800/30">
+      <h2 class="text-2xl md:text-3xl font-bold mb-8 text-center">YouTube Revenue Calculator — FAQ</h2>
+      <div class="max-w-3xl mx-auto space-y-4">
+        <details class="glass-effect border border-slate-700/50 rounded-2xl p-5 group">
+          <summary class="font-semibold cursor-pointer list-none flex justify-between items-center gap-3">
+            How much money does a YouTube channel make per 1,000 views?
+            <svg class="w-5 h-5 text-slate-400 flex-shrink-0 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </summary>
+          <p class="mt-3 text-slate-400 text-sm leading-relaxed">On average, YouTube channels earn $1–$5 per 1,000 views after YouTube's revenue share. High-CPM niches like finance, insurance, and B2B software can reach $15–$25 per 1,000 views. Entertainment and gaming channels typically earn $1–$3 per 1,000 views.</p>
+        </details>
+        <details class="glass-effect border border-slate-700/50 rounded-2xl p-5 group">
+          <summary class="font-semibold cursor-pointer list-none flex justify-between items-center gap-3">
+            How much does YouTube pay per view?
+            <svg class="w-5 h-5 text-slate-400 flex-shrink-0 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </summary>
+          <p class="mt-3 text-slate-400 text-sm leading-relaxed">YouTube pays creators approximately $0.001–$0.003 per view on average, which translates to $1–$3 per 1,000 views. The per-view rate depends on whether the viewer watched ads (skippable vs. non-skippable), the viewer's country, the video's category, and current advertiser demand.</p>
+        </details>
+        <details class="glass-effect border border-slate-700/50 rounded-2xl p-5 group">
+          <summary class="font-semibold cursor-pointer list-none flex justify-between items-center gap-3">
+            How much does a YouTuber with 1 million subscribers make?
+            <svg class="w-5 h-5 text-slate-400 flex-shrink-0 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </summary>
+          <p class="mt-3 text-slate-400 text-sm leading-relaxed">A YouTube channel with 1 million subscribers typically earns $3,000–$40,000 per month from ad revenue alone, depending heavily on their niche and average views per video. Total income including sponsorships, merchandise, and memberships is usually 2–5x the ad revenue figure.</p>
+        </details>
+        <details class="glass-effect border border-slate-700/50 rounded-2xl p-5 group">
+          <summary class="font-semibold cursor-pointer list-none flex justify-between items-center gap-3">
+            Is this YouTube money calculator accurate?
+            <svg class="w-5 h-5 text-slate-400 flex-shrink-0 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </summary>
+          <p class="mt-3 text-slate-400 text-sm leading-relaxed">This tool provides realistic estimates based on real view counts from the YouTube API and published CPM benchmarks by niche. Actual earnings vary based on ad-block usage, viewer geography, seasonality, and YouTube's monetization thresholds. Treat it as an informed estimate, not a guarantee.</p>
+        </details>
+      </div>
+    </section>
+
     <footer class="pf-footer">
-      <div class="flex flex-col sm:flex-row items-center justify-between gap-5 mb-6">
-        <a href="https://pay.4ourmedia.com/b/14AfZh1SU9M3arI5pQ8bS0o" target="_blank" rel="noopener" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-400 hover:to-rose-400 text-white font-medium text-sm transition-all shadow-lg hover:shadow-pink-500/25">
-          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/></svg>
-          Support the Project
-        </a>
-        <div class="text-xs text-slate-500 text-center sm:text-right leading-relaxed">
           <p>Crafted by <a href="https://davidjwoodbury.com" target="_blank" rel="noopener" class="text-slate-400 hover:text-emerald-400 transition-colors font-medium">David J Woodbury</a></p>
           <p class="mt-0.5">&copy; <span id="year"></span> David J Woodbury. All rights reserved.</p>
         </div>

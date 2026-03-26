@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://promofinder.4ourmedia.com/sitemap.xml

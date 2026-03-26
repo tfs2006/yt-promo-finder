@@ -3,27 +3,78 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>YouTube Promo Finder - Discover Sponsorships, Affiliate Links & Brand Deals on Any Channel</title>
+  <title>YouTube Sponsorship Finder — Discover Brand Deals & Affiliate Links on Any Channel (Free)</title>
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="/styles.css">
-  <meta name="description" content="Free tool to analyze any YouTube channel and uncover every sponsorship, affiliate link, and brand partnership. Perfect for marketers, brands, creators, and researchers. Analyze 12 months of video data instantly." />
-  <meta name="keywords" content="YouTube sponsorship finder, YouTube affiliate link checker, brand deal tracker, influencer marketing research, YouTube channel analyzer, sponsorship detection, creator partnerships, YouTube marketing tools" />
+  <meta name="description" content="Free YouTube sponsorship finder. Discover every brand deal, affiliate link, and sponsorship on any YouTube channel. Analyzes 12 months of videos instantly — no signup required." />
+  <meta name="keywords" content="YouTube sponsorship finder, YouTube affiliate link checker, brand deal tracker, influencer marketing research, YouTube channel analyzer, sponsorship detection, creator partnerships, YouTube marketing tools, find YouTube sponsors" />
   <meta name="author" content="David J Woodbury" />
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="https://promofinder.4ourmedia.com/" />
   
   <!-- Open Graph / Social -->
   <meta property="og:type" content="website" />
-  <meta property="og:title" content="YouTube Promo Finder - Uncover Hidden Sponsorships & Affiliate Links" />
-  <meta property="og:description" content="Instantly discover every brand deal, sponsorship, and affiliate link on any YouTube channel. Free tool for marketers, brands, and creators." />
-  <meta property="og:url" content="https://yt-promo-finder.vercel.app/" />
+  <meta property="og:title" content="YouTube Sponsorship Finder — Discover Brand Deals & Affiliate Links on Any Channel" />
+  <meta property="og:description" content="Free tool to discover every brand deal, sponsorship, and affiliate link on any YouTube channel. Analyzes 12 months of videos — no signup required." />
+  <meta property="og:url" content="https://promofinder.4ourmedia.com/" />
+  <meta property="og:site_name" content="YouTube Promo Finder" />
   
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="YouTube Promo Finder - Discover Hidden Sponsorships" />
-  <meta name="twitter:description" content="Free tool to uncover every sponsorship and affiliate link on any YouTube channel." />
+  <meta name="twitter:title" content="YouTube Sponsorship Finder — Discover Hidden Brand Deals" />
+  <meta name="twitter:description" content="Free tool to uncover every sponsorship and affiliate link on any YouTube channel. Analyzes 12 months of content instantly." />
+
+  <!-- Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "name": "YouTube Promo Finder",
+        "url": "https://promofinder.4ourmedia.com/",
+        "description": "Free YouTube channel analysis tools — find sponsorships, unlisted videos, revenue estimates, and more."
+      },
+      {
+        "@type": "WebApplication",
+        "name": "YouTube Sponsorship Finder",
+        "url": "https://promofinder.4ourmedia.com/",
+        "description": "Analyze any YouTube channel and uncover every sponsorship, affiliate link, and brand partnership from the last 12 months.",
+        "applicationCategory": "UtilityApplication",
+        "operatingSystem": "Web",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+        "featureList": ["Find all sponsorships on any channel", "Detect affiliate links", "12 months of video analysis", "Export to CSV/JSON", "No login required"]
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "How do I find what sponsors a YouTuber has?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Paste any YouTube channel URL or @handle into the search box and click Analyze. The tool scans up to 12 months of video descriptions and surfaces every brand deal, sponsorship mention, and affiliate link found, along with the video it appeared in." }
+          },
+          {
+            "@type": "Question",
+            "name": "Is the YouTube sponsorship finder free?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Yes, 100% free. No account, no signup, and no credit card required. Just paste a channel URL and get instant results." }
+          },
+          {
+            "@type": "Question",
+            "name": "How does the sponsorship detection work?",
+            "acceptedAnswer": { "@type": "Answer", "text": "The tool fetches video descriptions from the YouTube Data API and scans for known sponsorship patterns — affiliate links, promo codes, brand mentions, and disclosure language like 'sponsored by' or 'this video is brought to you by'." }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I find affiliate links on a YouTube channel?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Yes. The tool identifies affiliate links from common networks (Amazon Associates, Impact, ShareASale, etc.) and custom promo links hidden in video descriptions." }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
   
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
@@ -453,6 +504,48 @@
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
         </a>
         <p class="mt-4 text-xs text-slate-500">No signup • No credit card • Instant results</p>
+      </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="mt-14 pt-12 border-t border-slate-800/30">
+      <h2 class="text-2xl md:text-3xl font-bold mb-8 text-center">Frequently Asked Questions</h2>
+      <div class="max-w-3xl mx-auto space-y-4">
+        <details class="glass-effect border border-slate-700/50 rounded-2xl p-5 group">
+          <summary class="font-semibold cursor-pointer list-none flex justify-between items-center gap-3">
+            How do I find what sponsors a YouTuber has?
+            <svg class="w-5 h-5 text-slate-400 flex-shrink-0 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </summary>
+          <p class="mt-3 text-slate-400 text-sm leading-relaxed">Paste any YouTube channel URL, @handle, or channel ID into the search box above. The tool scans up to 12 months of their video descriptions and identifies every brand deal, sponsorship mention, and affiliate link — grouped by brand with the videos they appeared in.</p>
+        </details>
+        <details class="glass-effect border border-slate-700/50 rounded-2xl p-5 group">
+          <summary class="font-semibold cursor-pointer list-none flex justify-between items-center gap-3">
+            Can I find affiliate links hidden in YouTube descriptions?
+            <svg class="w-5 h-5 text-slate-400 flex-shrink-0 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </summary>
+          <p class="mt-3 text-slate-400 text-sm leading-relaxed">Yes. The tool detects affiliate links from common networks like Amazon Associates, Impact Radius, ShareASale, Commission Junction, and many others. It also catches custom promo codes and discount links that creators embed in their video descriptions.</p>
+        </details>
+        <details class="glass-effect border border-slate-700/50 rounded-2xl p-5 group">
+          <summary class="font-semibold cursor-pointer list-none flex justify-between items-center gap-3">
+            Is this YouTube sponsorship finder free to use?
+            <svg class="w-5 h-5 text-slate-400 flex-shrink-0 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </summary>
+          <p class="mt-3 text-slate-400 text-sm leading-relaxed">Yes, completely free. No account signup, no credit card, and no limitations on which channels you can analyze. Results are instant.</p>
+        </details>
+        <details class="glass-effect border border-slate-700/50 rounded-2xl p-5 group">
+          <summary class="font-semibold cursor-pointer list-none flex justify-between items-center gap-3">
+            Who is this tool useful for?
+            <svg class="w-5 h-5 text-slate-400 flex-shrink-0 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </summary>
+          <p class="mt-3 text-slate-400 text-sm leading-relaxed">Brands and marketers use it to research which creators are promoting competitors or potential partners. Content creators use it to benchmark what sponsorship rates competitors command. Journalists and researchers use it to audit influencer marketing relationships. Anyone can use it to understand a channel's commercial activity.</p>
+        </details>
+        <details class="glass-effect border border-slate-700/50 rounded-2xl p-5 group">
+          <summary class="font-semibold cursor-pointer list-none flex justify-between items-center gap-3">
+            Can I export sponsorship data to a spreadsheet?
+            <svg class="w-5 h-5 text-slate-400 flex-shrink-0 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </summary>
+          <p class="mt-3 text-slate-400 text-sm leading-relaxed">Yes. After analyzing a channel, you can export all detected sponsorships and affiliate links as a CSV file (opens in Excel or Google Sheets) or as JSON for developers.</p>
+        </details>
       </div>
     </section>
 

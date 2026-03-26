@@ -3,12 +3,100 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Unlisted Video Finder - YouTube Promo Finder</title>
+  <title>Unlisted YouTube Video Finder — Discover Hidden Videos on Any Channel (Free)</title>
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="/styles.css">
-  <meta name="description" content="Discover unlisted YouTube videos from any channel by searching through their public playlists." />
+  <meta name="description" content="Free unlisted YouTube video finder. Discover hidden videos on any channel by scanning public playlists. Works with any channel URL, handle, or channel ID — no login required." />
+  <meta name="keywords" content="unlisted YouTube video finder, find unlisted YouTube videos, YouTube unlisted video search, hidden YouTube videos, discover unlisted videos, unlisted video scanner" />
+  <meta name="author" content="David J Woodbury" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://promofinder.4ourmedia.com/unlisted" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Unlisted YouTube Video Finder — Discover Hidden Videos for Free" />
+  <meta property="og:description" content="Find unlisted videos hiding in any YouTube channel's public playlists. Instant results, no signup required." />
+  <meta property="og:url" content="https://promofinder.4ourmedia.com/unlisted" />
+  <meta property="og:site_name" content="YouTube Promo Finder" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Unlisted YouTube Video Finder — Discover Hidden Videos" />
+  <meta name="twitter:description" content="Free tool to find unlisted videos on any YouTube channel. Scans public playlists for hidden content." />
+
+  <!-- Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebApplication",
+        "name": "Unlisted YouTube Video Finder",
+        "url": "https://promofinder.4ourmedia.com/unlisted",
+        "description": "Free tool to discover unlisted YouTube videos on any channel by scanning their public playlists.",
+        "applicationCategory": "UtilityApplication",
+        "operatingSystem": "Web",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+        "featureList": ["Find unlisted videos by channel URL", "Scan all public playlists", "No login or signup required", "Works with @handles and channel IDs"]
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "How do I find unlisted YouTube videos?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Paste any YouTube channel URL, handle (e.g. @ChannelName), or channel ID into the search box and click Search. The tool scans all public playlists on that channel and identifies any unlisted videos that appear in them — displaying the title, thumbnail, and a direct watch link."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What is an unlisted YouTube video?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "An unlisted YouTube video is a video that is not shown on a creator's public channel page or in search results. Only people with the direct link can watch it. Creators often use unlisted videos for private previews, client deliverables, beta content, or older videos they still want accessible but not promoted."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can you find unlisted YouTube videos without the link?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes — if the creator has added the unlisted video to a public playlist, this tool can find it. By scanning all public playlists on a channel, we surface unlisted videos that were accidentally or intentionally included in a shared playlist."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Is this unlisted video finder free?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes, completely free. No signup, no account, and no credit card required. Simply paste the channel URL and search."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Why would a YouTuber make a video unlisted?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Common reasons include: sharing early-access content with patrons, sending client review videos, hosting unlisted tutorials linked from their website, archiving old content without deleting it, or testing thumbnails and titles before a full public launch."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Does this tool respect privacy?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. This tool only surfaces unlisted videos that the channel owner has placed inside a public playlist — meaning they chose to make those videos discoverable via that playlist. We do not brute-force video IDs or access any private content."
+            }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     .fade-in { animation: fadein 0.4s ease-out; }
@@ -77,12 +165,27 @@
         <span class="text-sm font-medium text-purple-400">Discover Hidden Content</span>
       </div>
       <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
-        <span class="gradient-text">Unlisted Video</span> Finder
+        <span class="gradient-text">Unlisted YouTube</span> Video Finder
       </h1>
       <p class="text-slate-300 mt-4 text-lg md:text-xl max-w-3xl">
-        Discover unlisted YouTube videos from any channel by searching through their public playlists.
-        Find hidden gems that aren't shown in regular uploads!
+        <strong>Discover hidden unlisted videos</strong> on any YouTube channel by scanning their public playlists.
+        Find exclusive content, early-access videos, and hidden gems that never appear on the main channel page — completely free, no login required.
       </p>
+      <!-- Trust Indicators -->
+      <div class="mt-6 flex flex-wrap items-center gap-4 text-sm text-slate-400">
+        <div class="flex items-center gap-2">
+          <svg class="w-5 h-5 text-purple-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+          <span>No signup required</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <svg class="w-5 h-5 text-purple-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+          <span>100% free tool</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <svg class="w-5 h-5 text-purple-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+          <span>Scans all public playlists instantly</span>
+        </div>
+      </div>
     </header>
 
     <section class="glass-effect border border-slate-700/50 rounded-3xl p-6 md:p-8 shadow-2xl">
@@ -140,6 +243,109 @@
 
     <section id="status" class="mt-6 hidden"></section>
     <section id="results" class="mt-6 space-y-4"></section>
+
+    <!-- How It Works -->
+    <section class="mt-16 pt-12 border-t border-slate-800/30">
+      <div class="text-center mb-10">
+        <h2 class="text-2xl md:text-3xl font-bold mb-3">How to Find Unlisted YouTube Videos</h2>
+        <p class="text-slate-400 max-w-2xl mx-auto">Our unlisted video finder scans a channel's public playlists in seconds — no guessing, no brute-forcing.</p>
+      </div>
+      <div class="grid md:grid-cols-3 gap-6">
+        <div class="glass-effect border border-slate-700/50 rounded-2xl p-6 text-center">
+          <div class="w-12 h-12 mx-auto mb-4 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center">
+            <span class="text-2xl font-bold text-purple-400">1</span>
+          </div>
+          <h3 class="font-semibold text-lg mb-2">Paste Any Channel URL</h3>
+          <p class="text-slate-400 text-sm">Enter a YouTube channel URL, @handle, or channel ID. All formats are supported.</p>
+        </div>
+        <div class="glass-effect border border-slate-700/50 rounded-2xl p-6 text-center">
+          <div class="w-12 h-12 mx-auto mb-4 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center">
+            <span class="text-2xl font-bold text-purple-400">2</span>
+          </div>
+          <h3 class="font-semibold text-lg mb-2">We Scan Their Playlists</h3>
+          <p class="text-slate-400 text-sm">We retrieve every public playlist and check each video's visibility status using the YouTube API.</p>
+        </div>
+        <div class="glass-effect border border-slate-700/50 rounded-2xl p-6 text-center">
+          <div class="w-12 h-12 mx-auto mb-4 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center">
+            <span class="text-2xl font-bold text-purple-400">3</span>
+          </div>
+          <h3 class="font-semibold text-lg mb-2">Unlisted Videos Revealed</h3>
+          <p class="text-slate-400 text-sm">Any unlisted video found in a public playlist is displayed with its title, thumbnail, publish date, and a direct watch link.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Use Cases -->
+    <section class="mt-14 pt-12 border-t border-slate-800/30">
+      <h2 class="text-2xl md:text-3xl font-bold mb-6 text-center">Why People Search for Unlisted YouTube Videos</h2>
+      <div class="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+        <div class="glass-effect border border-slate-700/50 rounded-2xl p-5">
+          <h3 class="font-semibold text-purple-300 mb-2">Fans & Superfans</h3>
+          <p class="text-slate-400 text-sm leading-relaxed">Discover early-access content, Patreon previews, and bonus videos your favorite creator never officially announced — hidden gems only true fans find.</p>
+        </div>
+        <div class="glass-effect border border-slate-700/50 rounded-2xl p-5">
+          <h3 class="font-semibold text-purple-300 mb-2">Researchers & Journalists</h3>
+          <p class="text-slate-400 text-sm leading-relaxed">Find archived interviews, deleted-but-accessible videos, or past statements a creator quietly removed from their public upload feed.</p>
+        </div>
+        <div class="glass-effect border border-slate-700/50 rounded-2xl p-5">
+          <h3 class="font-semibold text-purple-300 mb-2">Marketers & Brand Researchers</h3>
+          <p class="text-slate-400 text-sm leading-relaxed">Uncover brand deal preview videos, unlisted sponsor demos, and private pitch videos that reveal what products a creator is considering promoting.</p>
+        </div>
+        <div class="glass-effect border border-slate-700/50 rounded-2xl p-5">
+          <h3 class="font-semibold text-purple-300 mb-2">Content Creators</h3>
+          <p class="text-slate-400 text-sm leading-relaxed">Audit your own channel to verify which videos are accidentally unlisted, check that beta content is properly hidden, and ensure your archive is organized.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="mt-14 pt-12 border-t border-slate-800/30">
+      <h2 class="text-2xl md:text-3xl font-bold mb-8 text-center">Frequently Asked Questions</h2>
+      <div class="max-w-3xl mx-auto space-y-4">
+        <details class="glass-effect border border-slate-700/50 rounded-2xl p-5 group">
+          <summary class="font-semibold cursor-pointer list-none flex justify-between items-center gap-3">
+            What is an unlisted YouTube video?
+            <svg class="w-5 h-5 text-slate-400 flex-shrink-0 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </summary>
+          <p class="mt-3 text-slate-400 text-sm leading-relaxed">An unlisted YouTube video is a video that does not appear on the creator's public channel page or in YouTube search results. It can only be watched by someone who has the direct link. Creators use unlisted videos for private client reviews, early-access content, embedded tutorials on external websites, and archiving older videos without deleting them.</p>
+        </details>
+        <details class="glass-effect border border-slate-700/50 rounded-2xl p-5 group">
+          <summary class="font-semibold cursor-pointer list-none flex justify-between items-center gap-3">
+            Can I find unlisted YouTube videos without the link?
+            <svg class="w-5 h-5 text-slate-400 flex-shrink-0 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </summary>
+          <p class="mt-3 text-slate-400 text-sm leading-relaxed">Yes — if the creator has added the unlisted video to a public playlist. This tool finds those videos by scanning every public playlist on a channel and checking visibility status. Any unlisted video that was placed inside a public playlist becomes discoverable through this method.</p>
+        </details>
+        <details class="glass-effect border border-slate-700/50 rounded-2xl p-5 group">
+          <summary class="font-semibold cursor-pointer list-none flex justify-between items-center gap-3">
+            Does this tool work on any YouTube channel?
+            <svg class="w-5 h-5 text-slate-400 flex-shrink-0 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </summary>
+          <p class="mt-3 text-slate-400 text-sm leading-relaxed">Yes. It works with any YouTube channel that has public playlists. You can paste a full channel URL (youtube.com/channel/UC…), a handle (@ChannelName), or a channel ID. The tool automatically resolves whichever format you provide.</p>
+        </details>
+        <details class="glass-effect border border-slate-700/50 rounded-2xl p-5 group">
+          <summary class="font-semibold cursor-pointer list-none flex justify-between items-center gap-3">
+            Is the unlisted video finder completely free?
+            <svg class="w-5 h-5 text-slate-400 flex-shrink-0 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </summary>
+          <p class="mt-3 text-slate-400 text-sm leading-relaxed">Yes, 100% free. No account creation, no email signup, and no credit card. Just paste the channel URL and search.</p>
+        </details>
+        <details class="glass-effect border border-slate-700/50 rounded-2xl p-5 group">
+          <summary class="font-semibold cursor-pointer list-none flex justify-between items-center gap-3">
+            Why does a channel show no unlisted videos?
+            <svg class="w-5 h-5 text-slate-400 flex-shrink-0 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </summary>
+          <p class="mt-3 text-slate-400 text-sm leading-relaxed">A channel will show no unlisted videos if: (1) it has no public playlists, (2) no unlisted videos have been added to a public playlist, or (3) all their playlists are set to private. Many creators are careful to keep unlisted videos out of their public playlists.</p>
+        </details>
+        <details class="glass-effect border border-slate-700/50 rounded-2xl p-5 group">
+          <summary class="font-semibold cursor-pointer list-none flex justify-between items-center gap-3">
+            Is this tool safe and does it respect privacy?
+            <svg class="w-5 h-5 text-slate-400 flex-shrink-0 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </summary>
+          <p class="mt-3 text-slate-400 text-sm leading-relaxed">Yes. We only access data that YouTube's official API provides for public playlists. We never brute-force video IDs or attempt to access private or member-only content. Only videos that a creator chose to include in a public playlist are surfaced.</p>
+        </details>
+      </div>
+    </section>
 
     <footer class="pf-footer">
       <div class="flex flex-col sm:flex-row items-center justify-between gap-5 mb-6">

@@ -3,12 +3,36 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Link Checker - YouTube Promo Finder</title>
+  <title>YouTube Link Checker — Find Broken Links in Video Descriptions (Free)</title>
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="/styles.css">
-  <meta name="description" content="Check all links in your YouTube channel's video descriptions for broken or dead links. Ensure your affiliate links, sponsor links, and promotional URLs are working." />
+  <meta name="description" content="Free YouTube link checker tool. Scan any YouTube channel's video descriptions for broken, dead, or expired links. Protect your affiliate commissions and sponsor links from silently going offline." />
+  <meta name="keywords" content="YouTube link checker, broken link checker YouTube, dead links in YouTube descriptions, YouTube affiliate link audit, video description link scanner" />
+  <meta name="author" content="David J Woodbury" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://promofinder.4ourmedia.com/linkcheck" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="YouTube Link Checker — Find Broken Links in Video Descriptions" />
+  <meta property="og:description" content="Scan any YouTube channel for broken, dead, or expired links hiding in video descriptions. Free tool to protect affiliate commissions and sponsor links." />
+  <meta property="og:url" content="https://promofinder.4ourmedia.com/linkcheck" />
+  <meta property="og:site_name" content="YouTube Promo Finder" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="YouTube Link Checker — Free Broken Link Scanner" />
+  <meta name="twitter:description" content="Find broken and dead links in YouTube video descriptions. Free tool to audit affiliate and sponsor links." />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "YouTube Link Checker",
+    "url": "https://promofinder.4ourmedia.com/linkcheck",
+    "description": "Scan all video descriptions on a YouTube channel for broken, dead, or redirected links.",
+    "applicationCategory": "UtilityApplication",
+    "operatingSystem": "Web",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+  }
+  </script>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     .fade-in { animation: fadein 0.4s ease-out; }
@@ -202,6 +226,34 @@
       
       <div id="brokenResults" class="space-y-3"></div>
       <div id="workingResults" class="space-y-3 hidden"></div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="mt-16 pt-12 border-t border-slate-800/30">
+      <h2 class="text-2xl md:text-3xl font-bold mb-8 text-center">YouTube Link Checker — FAQ</h2>
+      <div class="max-w-3xl mx-auto space-y-4">
+        <details class="glass-effect border border-slate-700/50 rounded-2xl p-5 group">
+          <summary class="font-semibold cursor-pointer list-none flex justify-between items-center gap-3">
+            How do I check for broken links in YouTube descriptions?
+            <svg class="w-5 h-5 text-slate-400 flex-shrink-0 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </summary>
+          <p class="mt-3 text-slate-400 text-sm leading-relaxed">Enter any YouTube channel URL or handle and click Check Links. The tool fetches all recent video descriptions, extracts every URL found in them, and checks each one for a valid response — reporting which links are broken (4xx/5xx errors) and which are working.</p>
+        </details>
+        <details class="glass-effect border border-slate-700/50 rounded-2xl p-5 group">
+          <summary class="font-semibold cursor-pointer list-none flex justify-between items-center gap-3">
+            Why are broken links in YouTube descriptions a problem?
+            <svg class="w-5 h-5 text-slate-400 flex-shrink-0 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </summary>
+          <p class="mt-3 text-slate-400 text-sm leading-relaxed">Broken links in video descriptions mean lost affiliate commissions, lost sponsor conversions, and a poor viewer experience. Older videos often have links that no longer work because products were discontinued, websites changed their URL structure, or affiliate programs expired. Finding and fixing these can directly recover lost revenue.</p>
+        </details>
+        <details class="glass-effect border border-slate-700/50 rounded-2xl p-5 group">
+          <summary class="font-semibold cursor-pointer list-none flex justify-between items-center gap-3">
+            How often should I audit my YouTube video description links?
+            <svg class="w-5 h-5 text-slate-400 flex-shrink-0 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </summary>
+          <p class="mt-3 text-slate-400 text-sm leading-relaxed">Quarterly audits are a good baseline for active channels. If you have a large back catalogue or rely heavily on affiliate revenue from older videos, monthly checks are worth running. Links from affiliate networks change frequently, and sponsor websites often restructure their URLs without redirecting old paths.</p>
+        </details>
+      </div>
     </section>
 
     <footer class="pf-footer">

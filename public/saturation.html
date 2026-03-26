@@ -3,13 +3,36 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Sponsor Saturation Score - YouTube Channel Analysis</title>
+  <title>YouTube Sponsor Saturation Checker — Is a Channel Over-Sponsored? (Free)</title>
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="/styles.css">
-  <meta name="description" content="Check if a YouTube channel is over-saturated with sponsorships. Analyze sponsor frequency, audience fatigue risk, and brand deal ROI potential." />
-  <meta name="keywords" content="YouTube sponsorship saturation, influencer fatigue, sponsorship frequency, brand deal ROI, YouTube channel analysis" />
+  <meta name="description" content="Free YouTube sponsor saturation checker. Find out if a YouTube channel is over-saturated with sponsorships. Analyze ad frequency, audience fatigue risk, and brand deal ROI potential before investing in a creator." />
+  <meta name="keywords" content="YouTube sponsorship saturation, influencer ad fatigue, sponsorship frequency checker, brand deal ROI, YouTube channel over-sponsored, influencer sponsorship analysis" />
+  <meta name="author" content="David J Woodbury" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://promofinder.4ourmedia.com/saturation" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="YouTube Sponsor Saturation Checker — Is a Channel Over-Sponsored?" />
+  <meta property="og:description" content="Analyze how often a YouTube creator promotes sponsors and whether their audience is experiencing ad fatigue. Free tool for brands and marketers." />
+  <meta property="og:url" content="https://promofinder.4ourmedia.com/saturation" />
+  <meta property="og:site_name" content="YouTube Promo Finder" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="YouTube Sponsor Saturation Checker — Free Tool" />
+  <meta name="twitter:description" content="Check if a YouTube channel is over-saturated with sponsorships. Analyze audience fatigue risk before investing in a creator deal." />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "YouTube Sponsor Saturation Checker",
+    "url": "https://promofinder.4ourmedia.com/saturation",
+    "description": "Check how saturated a YouTube channel is with sponsorships and estimate audience fatigue risk.",
+    "applicationCategory": "UtilityApplication",
+    "operatingSystem": "Web",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+  }
+  </script>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     .fade-in { animation: fadein 0.4s ease-out; }
@@ -107,14 +130,35 @@
     <section id="status" class="mt-6 hidden"></section>
     <section id="results" class="mt-6 space-y-6"></section>
 
+    <!-- FAQ Section -->
+    <section class="mt-16 pt-12 border-t border-slate-800/30">
+      <h2 class="text-2xl md:text-3xl font-bold mb-8 text-center">YouTube Sponsor Saturation Checker — FAQ</h2>
+      <div class="max-w-3xl mx-auto space-y-4">
+        <details class="glass-effect border border-slate-700/50 rounded-2xl p-5 group">
+          <summary class="font-semibold cursor-pointer list-none flex justify-between items-center gap-3">
+            What is YouTube sponsorship saturation?
+            <svg class="w-5 h-5 text-slate-400 flex-shrink-0 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </summary>
+          <p class="mt-3 text-slate-400 text-sm leading-relaxed">Sponsorship saturation refers to how frequently a YouTube creator promotes paid sponsors relative to their total content output. A heavily saturated channel (sponsoring 70%+ of videos) risks audience fatigue — viewers become desensitized to the promotions and conversions drop. Brands investing in such channels typically see poor ROI compared to less-saturated channels.</p>
+        </details>
+        <details class="glass-effect border border-slate-700/50 rounded-2xl p-5 group">
+          <summary class="font-semibold cursor-pointer list-none flex justify-between items-center gap-3">
+            How do I know if a YouTuber has too many sponsorships?
+            <svg class="w-5 h-5 text-slate-400 flex-shrink-0 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </summary>
+          <p class="mt-3 text-slate-400 text-sm leading-relaxed">This tool analyzes the last 12 months of a creator's videos and calculates what percentage contain sponsorship mentions. Channels sponsoring over 60–70% of their videos are generally considered over-saturated. The tool also reports how many unique sponsors appeared, how frequently, and provides a saturation score for quick assessment.</p>
+        </details>
+        <details class="glass-effect border border-slate-700/50 rounded-2xl p-5 group">
+          <summary class="font-semibold cursor-pointer list-none flex justify-between items-center gap-3">
+            Does sponsorship saturation affect YouTube channel performance?
+            <svg class="w-5 h-5 text-slate-400 flex-shrink-0 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </summary>
+          <p class="mt-3 text-slate-400 text-sm leading-relaxed">Yes. Channels with very high sponsorship rates often see lower engagement and view retention on sponsored segments. Audience comments on high-saturation channels frequently complain about too many ads, which can also deter YouTube from algorithmically promoting those videos. Lower saturation channels tend to have higher trust — making each sponsorship more valuable.</p>
+        </details>
+      </div>
+    </section>
+
     <footer class="pf-footer">
-      <div class="flex flex-col sm:flex-row items-center justify-between gap-5 mb-6">
-        <a href="https://pay.4ourmedia.com/b/14AfZh1SU9M3arI5pQ8bS0o" target="_blank" rel="noopener" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-400 hover:to-rose-400 text-white font-medium text-sm transition-all shadow-lg hover:shadow-pink-500/25">
-          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/></svg>
-          Support the Project
-        </a>
-        <div class="text-xs text-slate-500 text-center sm:text-right leading-relaxed">
-          <p>Crafted by <a href="https://davidjwoodbury.com" target="_blank" rel="noopener" class="text-slate-400 hover:text-emerald-400 transition-colors font-medium">David J Woodbury</a></p>
           <p class="mt-0.5">&copy; <span id="year"></span> David J Woodbury. All rights reserved.</p>
         </div>
       </div>
