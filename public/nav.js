@@ -1,36 +1,69 @@
 (function () {
   'use strict';
 
-  // ─── Speakly promo bar ──────────────────────────────────────────────────────
   var PROMO_KEY = 'speakly_v1_dismissed';
 
+  // --- Color map for inline active styles ---
+  var COLOR = {
+    emerald: { color: '#34d399', bg: 'rgba(16,185,129,0.12)',  border: 'rgba(16,185,129,0.28)' },
+    orange:  { color: '#fb923c', bg: 'rgba(249,115,22,0.12)',  border: 'rgba(249,115,22,0.28)'  },
+    purple:  { color: '#c084fc', bg: 'rgba(168,85,247,0.12)',  border: 'rgba(168,85,247,0.28)'  },
+    blue:    { color: '#60a5fa', bg: 'rgba(59,130,246,0.12)',  border: 'rgba(59,130,246,0.28)'  },
+    amber:   { color: '#fbbf24', bg: 'rgba(245,158,11,0.12)',  border: 'rgba(245,158,11,0.28)'  },
+    pink:    { color: '#f472b6', bg: 'rgba(236,72,153,0.12)',  border: 'rgba(236,72,153,0.28)'  },
+    teal:    { color: '#2dd4bf', bg: 'rgba(20,184,166,0.12)',  border: 'rgba(20,184,166,0.28)'  },
+    rose:    { color: '#fb7185', bg: 'rgba(244,63,94,0.12)',   border: 'rgba(244,63,94,0.28)'   },
+    violet:  { color: '#a78bfa', bg: 'rgba(139,92,246,0.12)', border: 'rgba(139,92,246,0.28)'  },
+    lime:    { color: '#a3e635', bg: 'rgba(132,204,22,0.12)', border: 'rgba(132,204,22,0.28)'  },
+    cyan:    { color: '#22d3ee', bg: 'rgba(6,182,212,0.12)',  border: 'rgba(6,182,212,0.28)'   },
+    sky:     { color: '#38bdf8', bg: 'rgba(14,165,233,0.12)', border: 'rgba(14,165,233,0.28)'  }
+  };
+
+  // --- Speakly promo bar ---
   function injectPromoBar(nav) {
     var bar = document.createElement('div');
     bar.id = 'speakly-bar';
-    bar.className = 'speakly-bar';
-    bar.innerHTML =
-      '<a href="https://www.genspark.ai/speakly/invite/ZjEwYTVjYjdMZjA3ZkxlZjQ0TDc3OTNjOWIzMjVkYkw5ODJh"' +
-      ' target="_blank" rel="noopener sponsored" class="speakly-bar-link">' +
-        '<svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24">' +
-          '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>' +
-        '</svg>' +
-        '<span>I\u2019ve found <strong>Genspark Speakly</strong> incredibly smooth \u2014 it\u2019s doubled my work efficiency.</span>' +
-        '<span class="speakly-badge">Get free membership \u2192</span>' +
-      '</a>' +
-      '<button class="speakly-dismiss" aria-label="Dismiss announcement">' +
-        '<svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24">' +
-          '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>' +
-        '</svg>' +
-      '</button>';
+    bar.style.cssText = [
+      'display:flex','align-items:center','justify-content:center',
+      'padding:7px 40px 7px 12px',
+      'background:linear-gradient(90deg,rgba(109,40,217,0.08),rgba(139,92,246,0.06) 50%,rgba(109,40,217,0.08))',
+      'border-bottom:1px solid rgba(139,92,246,0.2)',
+      'font-size:0.72rem','font-family:inherit','color:#c4b5fd',
+      'position:relative','min-height:32px','box-sizing:border-box','width:100%'
+    ].join(';');
 
+    var link = document.createElement('a');
+    link.href = 'https://www.genspark.ai/speakly/invite/ZjEwYTVjYjdMZjA3ZkxlZjQ0TDc3OTNjOWIzMjVkYkw5ODJh';
+    link.target = '_blank';
+    link.rel = 'noopener sponsored';
+    link.style.cssText = 'display:inline-flex;align-items:center;gap:8px;text-decoration:none;color:inherit;flex-wrap:wrap;justify-content:center;line-height:1.4;text-align:center;';
+
+    var txt = document.createElement('span');
+    txt.innerHTML = 'I\u2019ve found <strong>Genspark Speakly</strong> incredibly smooth \u2014 doubled my work efficiency.';
+
+    var badge = document.createElement('span');
+    badge.textContent = 'Get free membership \u2192';
+    badge.style.cssText = 'display:inline-flex;align-items:center;padding:2px 9px;border-radius:100px;background:rgba(139,92,246,0.2);border:1px solid rgba(139,92,246,0.38);color:#a78bfa;font-weight:600;font-size:0.68rem;white-space:nowrap;flex-shrink:0;';
+
+    link.appendChild(txt);
+    link.appendChild(badge);
+
+    var dismiss = document.createElement('button');
+    dismiss.setAttribute('aria-label', 'Dismiss');
+    dismiss.style.cssText = 'position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:#7c3aed;cursor:pointer;width:26px;height:26px;display:flex;align-items:center;justify-content:center;border-radius:5px;padding:0;font-size:14px;line-height:1;font-family:inherit;';
+    dismiss.innerHTML = '&#x2715;';
+    dismiss.addEventListener('mouseenter', function () { this.style.color = '#c4b5fd'; });
+    dismiss.addEventListener('mouseleave', function () { this.style.color = '#7c3aed'; });
+
+    bar.appendChild(link);
+    bar.appendChild(dismiss);
     nav.insertBefore(bar, nav.firstChild);
 
-    bar.querySelector('.speakly-dismiss').addEventListener('click', function () {
+    dismiss.addEventListener('click', function () {
       try { localStorage.setItem(PROMO_KEY, '1'); } catch (e) {}
       bar.style.overflow = 'hidden';
       bar.style.maxHeight = bar.scrollHeight + 'px';
-      // Force reflow so the browser registers the starting max-height
-      bar.offsetHeight; // eslint-disable-line no-unused-expressions
+      bar.offsetHeight;
       bar.style.transition = 'max-height 0.28s ease, opacity 0.28s ease, padding 0.28s ease';
       requestAnimationFrame(function () {
         bar.style.maxHeight = '0';
@@ -42,7 +75,7 @@
     });
   }
 
-  // ─── Mobile hamburger menu ───────────────────────────────────────────────────
+  // --- Tools list ---
   var tools = [
     { href: '/',           label: 'Promo Finder',       color: 'emerald' },
     { href: '/domain',     label: 'Domain Search',      color: 'orange'  },
@@ -65,31 +98,71 @@
     return p || '/';
   }
 
+  function isMobile() { return window.innerWidth < 768; }
+
+  function applyMobileMode(toolStrip, btn) {
+    if (toolStrip) toolStrip.style.display = 'none';
+    btn.style.display = 'flex';
+  }
+
+  function applyDesktopMode(toolStrip, btn, menu) {
+    if (toolStrip) toolStrip.style.display = '';
+    btn.style.display = 'none';
+    menu.style.display = 'none';
+    btn.setAttribute('aria-expanded', 'false');
+    var bars = btn.querySelectorAll('span');
+    if (bars.length === 3) {
+      bars[0].style.transform = '';
+      bars[1].style.opacity = '1';
+      bars[2].style.transform = '';
+    }
+  }
+
   function injectHamburger(navTop, navInner) {
+    var toolStrip = navInner.querySelector('.tool-strip');
+
     var btn = document.createElement('button');
-    btn.className = 'nav-hamburger';
     btn.id = 'navHamburger';
     btn.setAttribute('aria-label', 'Toggle navigation menu');
     btn.setAttribute('aria-expanded', 'false');
-    btn.innerHTML = '<span></span><span></span><span></span>';
+    btn.style.cssText = 'display:none;flex-direction:column;justify-content:center;align-items:center;gap:4px;width:38px;height:38px;border-radius:8px;border:1px solid rgba(51,65,85,0.55);background:rgba(15,23,42,0.45);cursor:pointer;padding:0;flex-shrink:0;';
+    for (var i = 0; i < 3; i++) {
+      var barEl = document.createElement('span');
+      barEl.style.cssText = 'display:block;width:16px;height:1.5px;background:#94a3b8;border-radius:2px;transition:transform 0.22s,opacity 0.22s;';
+      btn.appendChild(barEl);
+    }
     navTop.appendChild(btn);
 
     var menu = document.createElement('div');
-    menu.className = 'nav-mobile-menu';
     menu.id = 'navMobileMenu';
+    menu.style.cssText = 'display:none;padding:10px 0 14px;border-top:1px solid rgba(51,65,85,0.3);';
 
     var grid = document.createElement('div');
-    grid.className = 'nav-mobile-grid';
+    grid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:6px;';
 
     var activePath = getActivePath();
     tools.forEach(function (t) {
       var isActive = (t.href === '/')
         ? (activePath === '/')
         : (activePath === t.href || activePath.indexOf(t.href + '/') === 0);
+      var c = COLOR[t.color] || COLOR.emerald;
       var a = document.createElement('a');
       a.href = t.href;
       a.textContent = t.label;
-      a.className = 'nav-mobile-chip' + (isActive ? ' active-' + t.color : '');
+      a.style.cssText = [
+        'display:flex','align-items:center','padding:9px 11px','border-radius:9px',
+        'font-size:0.78rem',
+        'font-weight:' + (isActive ? '600' : '500'),
+        'color:' + (isActive ? c.color : '#64748b'),
+        'background:' + (isActive ? c.bg : 'rgba(15,23,42,0.4)'),
+        'border:1px solid ' + (isActive ? c.border : 'rgba(51,65,85,0.4)'),
+        'text-decoration:none','white-space:nowrap','overflow:hidden','text-overflow:ellipsis',
+        'font-family:inherit','box-sizing:border-box'
+      ].join(';');
+      if (!isActive) {
+        a.addEventListener('mouseenter', function () { this.style.color = '#cbd5e1'; this.style.background = 'rgba(30,41,59,0.6)'; });
+        a.addEventListener('mouseleave', function () { this.style.color = '#64748b'; this.style.background = 'rgba(15,23,42,0.4)'; });
+      }
       grid.appendChild(a);
     });
 
@@ -97,32 +170,50 @@
     navInner.appendChild(menu);
 
     btn.addEventListener('click', function () {
-      var isOpen = menu.classList.toggle('open');
-      btn.classList.toggle('open', isOpen);
-      btn.setAttribute('aria-expanded', String(isOpen));
+      var isOpen = menu.style.display === 'block';
+      var bars = btn.querySelectorAll('span');
+      if (isOpen) {
+        menu.style.display = 'none';
+        btn.setAttribute('aria-expanded', 'false');
+        bars[0].style.transform = ''; bars[1].style.opacity = '1'; bars[2].style.transform = '';
+      } else {
+        menu.style.display = 'block';
+        btn.setAttribute('aria-expanded', 'true');
+        bars[0].style.transform = 'translateY(5.5px) rotate(45deg)';
+        bars[1].style.opacity = '0';
+        bars[2].style.transform = 'translateY(-5.5px) rotate(-45deg)';
+      }
     });
 
-    // Close menu when a link is tapped
     menu.addEventListener('click', function (e) {
       if (e.target.tagName === 'A') {
-        menu.classList.remove('open');
-        btn.classList.remove('open');
+        menu.style.display = 'none';
         btn.setAttribute('aria-expanded', 'false');
+        var bars = btn.querySelectorAll('span');
+        bars[0].style.transform = ''; bars[1].style.opacity = '1'; bars[2].style.transform = '';
       }
+    });
+
+    if (isMobile()) { applyMobileMode(toolStrip, btn); }
+    else            { applyDesktopMode(toolStrip, btn, menu); }
+
+    var resizeTimer;
+    window.addEventListener('resize', function () {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(function () {
+        if (isMobile()) { applyMobileMode(toolStrip, btn); }
+        else            { applyDesktopMode(toolStrip, btn, menu); }
+      }, 80);
     });
   }
 
-  // ─── Init ─────────────────────────────────────────────────────────────────────
-  var nav     = document.querySelector('.site-nav');
+  // --- Init ---
+  var siteNav  = document.querySelector('.site-nav');
   var navTop   = document.querySelector('.site-nav-top');
   var navInner = document.querySelector('.site-nav-inner');
 
-  if (nav) {
-    try {
-      if (!localStorage.getItem(PROMO_KEY)) {
-        injectPromoBar(nav);
-      }
-    } catch (e) {}
+  if (siteNav) {
+    try { if (!localStorage.getItem(PROMO_KEY)) injectPromoBar(siteNav); } catch (e) {}
   }
 
   if (navTop && navInner) {
