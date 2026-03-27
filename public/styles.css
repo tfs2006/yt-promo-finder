@@ -101,12 +101,78 @@ h1, h2, h3, h4, h5, h6 {
   display: flex;
   align-items: center;
   gap: 4px;
+  position: relative;
+  padding-right: 96px;
   padding-bottom: 10px;
   overflow-x: auto;
-  scrollbar-width: none;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(100, 116, 139, 0.75) transparent;
 }
 
-.tool-strip::-webkit-scrollbar { display: none; }
+.tool-strip::-webkit-scrollbar {
+  height: 6px;
+}
+
+.tool-strip::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.tool-strip::-webkit-scrollbar-thumb {
+  background: rgba(100, 116, 139, 0.75);
+  border-radius: 999px;
+}
+
+.tool-strip::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 10px;
+  width: 20px;
+  pointer-events: none;
+  background: linear-gradient(to right, rgba(8, 13, 24, 0.9), rgba(8, 13, 24, 0));
+}
+
+.tool-strip::after {
+  content: "Scroll tools ->";
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 10px 0 28px;
+  font-size: 0.64rem;
+  letter-spacing: 0.02em;
+  color: #94a3b8;
+  pointer-events: none;
+  border-radius: 999px;
+  background: linear-gradient(to right, rgba(8, 13, 24, 0), rgba(8, 13, 24, 0.95) 34%);
+  animation: scroll-hint-pulse 1.8s ease-in-out infinite;
+}
+
+.tool-strip:hover::after,
+.tool-strip:focus-within::after {
+  opacity: 0.38;
+  animation: none;
+}
+
+@keyframes scroll-hint-pulse {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 1; }
+}
+
+@media (min-width: 1280px) {
+  .tool-strip {
+    padding-right: 74px;
+  }
+
+  .tool-strip::after {
+    content: "More ->";
+    font-size: 0.6rem;
+  }
+}
 
 .tool-chip {
   flex-shrink: 0;
