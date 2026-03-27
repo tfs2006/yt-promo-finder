@@ -161,10 +161,9 @@ yt-promo-finder/
 │   ├── rate.js         # Sponsorship rate estimator endpoint
 │   ├── viral.js        # Viral video detector endpoint
 │   ├── saturation.js   # Sponsor saturation score endpoint
-│   ├── tiktok.js       # TikTok metadata endpoint
-│   ├── tiktok-video.js # TikTok video proxy download endpoint
-│   ├── tiktok-audio.js # TikTok audio proxy download endpoint
 │   └── quota.js        # API quota status endpoint
+├── lib/
+│   └── tiktokHandlers.js # Shared TikTok metadata and proxy handlers
 ├── public/
 │   ├── index.html      # Main promotion finder UI
 │   ├── domain.html     # Domain search UI

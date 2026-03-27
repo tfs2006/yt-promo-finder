@@ -14,6 +14,7 @@ import {
   validateChannelInput,
   initQuota
 } from "../utils.js";
+import { handleTikTokMeta, handleTikTokVideo, handleTikTokAudio } from "../lib/tiktokHandlers.js";
 
 // Parse ISO 8601 duration to seconds
 function parseDuration(duration) {
@@ -423,6 +424,17 @@ function predictVideoScore(title, durationSeconds, publishDay, publishHour, corr
 }
 
 export default async function handler(req, res) {
+  const pathname = new URL(req.url, "http://localhost").pathname;
+  if (pathname === "/api/tiktok") {
+    return handleTikTokMeta(req, res);
+  }
+  if (pathname === "/api/tiktok-video") {
+    return handleTikTokVideo(req, res);
+  }
+  if (pathname === "/api/tiktok-audio") {
+    return handleTikTokAudio(req, res);
+  }
+
   if (applyApiGuards(req, res, { rateKey: "predictor", maxRequests: 8, windowMs: 60_000 })) return;
 
   await initQuota();
