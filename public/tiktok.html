@@ -200,7 +200,7 @@
         success: 'glass-effect border-emerald-500/40 text-emerald-200'
       };
 
-      statusEl.className = `mt-6 rounded-2xl border p-5 fade-in ${styles[tone] || styles.info}`;
+      statusEl.className = `mt-6 rounded-2xl border p-4 sm:p-5 fade-in mobile-dense-card ${styles[tone] || styles.info}`;
       statusEl.innerHTML = `<p class="text-sm">${message}</p>`;
     }
 
@@ -278,22 +278,22 @@
       const hasAudio = Boolean(data.audioUrl);
 
       resultEl.innerHTML = `
-        <div class="glass-effect border border-slate-700/50 rounded-3xl p-5 md:p-6">
-          <div class="grid md:grid-cols-[220px,1fr] gap-6 items-start">
+        <div class="glass-effect border border-slate-700/50 rounded-3xl p-4 sm:p-5 md:p-6 mobile-dense-card">
+          <div class="grid md:grid-cols-[220px,1fr] gap-4 sm:gap-6 items-start">
             <div>
-              ${data.coverUrl ? `<img src="${data.coverUrl}" alt="TikTok cover" class="w-full rounded-2xl object-cover border border-slate-700/50" referrerpolicy="no-referrer" />` : `<div class="h-56 rounded-2xl bg-slate-800 border border-slate-700/50"></div>`}
+              ${data.coverUrl ? `<img src="${data.coverUrl}" alt="TikTok cover" class="w-full max-w-[280px] mx-auto md:mx-0 rounded-2xl object-cover border border-slate-700/50" referrerpolicy="no-referrer" />` : `<div class="h-56 rounded-2xl bg-slate-800 border border-slate-700/50"></div>`}
             </div>
             <div>
               <p class="text-xs uppercase tracking-widest text-rose-300 mb-2">Ready to Download</p>
-              <h2 class="text-xl md:text-2xl font-semibold leading-tight">${data.title || 'TikTok video'}</h2>
+              <h2 class="text-lg sm:text-xl md:text-2xl font-semibold leading-tight">${data.title || 'TikTok video'}</h2>
               <p class="text-slate-400 mt-2">by ${data.author || 'TikTok creator'}</p>
-              <p class="text-xs text-slate-500 mt-4 mono break-all">${data.sourceUrl || ''}</p>
+              <p class="text-[11px] sm:text-xs text-slate-500 mt-3 sm:mt-4 mono break-all">${data.sourceUrl || ''}</p>
 
-              <div class="mt-6 flex flex-col sm:flex-row gap-3">
-                <button id="downloadVideo" class="inline-flex items-center justify-center px-5 py-3 rounded-xl bg-gradient-to-r from-rose-500 to-orange-500 hover:from-rose-400 hover:to-orange-400 text-white font-semibold transition-all">
+              <div class="mt-5 sm:mt-6 flex flex-col sm:flex-row gap-2 sm:gap-3">
+                <button id="downloadVideo" class="w-full sm:w-auto inline-flex items-center justify-center px-5 py-3 rounded-xl bg-gradient-to-r from-rose-500 to-orange-500 hover:from-rose-400 hover:to-orange-400 text-white font-semibold transition-all">
                   Download Video
                 </button>
-                ${hasAudio ? `<button id="downloadAudio" class="inline-flex items-center justify-center px-5 py-3 rounded-xl border border-slate-600 hover:border-amber-400 bg-slate-900/70 text-slate-100 font-semibold transition-all">Download Audio</button>` : ''}
+                ${hasAudio ? `<button id="downloadAudio" class="w-full sm:w-auto inline-flex items-center justify-center px-5 py-3 rounded-xl border border-slate-600 hover:border-amber-400 bg-slate-900/70 text-slate-100 font-semibold transition-all">Download Audio</button>` : ''}
               </div>
             </div>
           </div>

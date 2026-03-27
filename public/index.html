@@ -593,7 +593,7 @@
   </a>
 
   <template id="promoRow">
-    <div class="fade-in glass-effect border border-slate-700/50 rounded-2xl p-5 md:p-6 hover:border-emerald-500/30 transition-all hover:shadow-lg hover:shadow-emerald-500/5">
+    <div class="fade-in glass-effect border border-slate-700/50 rounded-2xl p-4 md:p-6 mobile-dense-card hover:border-emerald-500/30 transition-all hover:shadow-lg hover:shadow-emerald-500/5">
       <div class="flex items-start justify-between gap-4 flex-wrap md:flex-nowrap">
         <div class="flex-1 min-w-0">
           <div class="flex items-start gap-3">
@@ -603,7 +603,7 @@
               </svg>
             </div>
             <div class="flex-1 min-w-0">
-              <h3 class="text-xl font-bold text-white mb-2"></h3>
+              <h3 class="text-base sm:text-lg md:text-xl font-bold text-white mb-1.5 md:mb-2"></h3>
               <div class="flex items-center gap-2 flex-wrap">
                 <a class="text-emerald-400 hover:text-emerald-300 mono text-sm break-all transition-colors" target="_blank" rel="noopener"></a>
                 <button class="copy-btn p-1.5 hover:bg-slate-800 rounded-lg transition-colors" title="Copy URL" aria-label="Copy URL">
@@ -612,7 +612,7 @@
                   </svg>
                 </button>
               </div>
-              <p class="text-xs text-slate-400 mt-2 font-medium"></p>
+              <p class="text-[11px] sm:text-xs text-slate-400 mt-1.5 md:mt-2 font-medium"></p>
             </div>
           </div>
         </div>
@@ -620,13 +620,13 @@
       </div>
       <div class="mt-4">
         <details class="group">
-          <summary class="cursor-pointer text-sm text-slate-300 hover:text-white transition-colors flex items-center gap-2 select-none py-2">
+          <summary class="cursor-pointer text-xs sm:text-sm text-slate-300 hover:text-white transition-colors flex items-center gap-2 select-none py-1.5 md:py-2">
             <svg class="w-4 h-4 transition-transform group-open:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
             </svg>
             <span class="font-medium">View videos featuring this promotion</span>
           </summary>
-          <ul class="mt-3 space-y-2 pl-6"></ul>
+          <ul class="mt-2 md:mt-3 space-y-1.5 md:space-y-2 pl-5 md:pl-6"></ul>
         </details>
       </div>
     </div>
@@ -903,18 +903,18 @@
       lastResults = data;
 
       const hdr = document.createElement('div');
-      hdr.className = "glass-effect border border-emerald-500/30 rounded-2xl p-5 mb-6 fade-in";
+      hdr.className = "glass-effect border border-emerald-500/30 rounded-2xl p-4 md:p-5 mb-4 md:mb-6 fade-in mobile-dense-card";
       hdr.innerHTML = `
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-4">
           <div class="flex items-center gap-3 flex-wrap">
-            <svg class="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-5 h-5 md:w-6 md:h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
             </svg>
-            <div class="text-slate-200">
-              <span class="font-semibold text-emerald-400 text-lg">${data.videoCount}</span> videos analyzed since 
+            <div class="text-slate-200 text-sm md:text-base">
+              <span class="font-semibold text-emerald-400 text-base md:text-lg">${data.videoCount}</span> videos analyzed since 
               <span class="mono font-medium">${new Date(data.sinceISO).toLocaleDateString()}</span>
               <span class="mx-2 text-slate-600">�</span>
-              <span class="font-semibold text-emerald-400 text-lg">${data.promotions.length}</span> unique ${data.promotions.length === 1 ? 'promotion' : 'promotions'} found
+              <span class="font-semibold text-emerald-400 text-base md:text-lg">${data.promotions.length}</span> unique ${data.promotions.length === 1 ? 'promotion' : 'promotions'} found
             </div>
           </div>
           ${data.promotions.length ? `
@@ -972,7 +972,7 @@
         p.videos.sort((a,b) => new Date(b.publishedAt) - new Date(a.publishedAt));
         for (const v of p.videos) {
           const li = document.createElement('li');
-          li.className = "text-sm flex items-start gap-2 slide-in";
+          li.className = "text-xs sm:text-sm flex items-start gap-1.5 sm:gap-2 slide-in";
           li.innerHTML = `
             <svg class="w-4 h-4 text-slate-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>

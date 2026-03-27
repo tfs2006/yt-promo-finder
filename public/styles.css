@@ -434,6 +434,14 @@ section[id] {
     outline: none;
   }
 
+  .mobile-dense-card {
+    border-radius: 0.95rem !important;
+  }
+
+  .mobile-dense-card .mono {
+    overflow-wrap: anywhere;
+  }
+
   input[type="text"],
   input[type="url"],
   input[type="search"],
