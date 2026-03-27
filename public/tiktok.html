@@ -209,6 +209,63 @@
       resultEl.innerHTML = '';
     }
 
+    async function startDownload(endpoint, mediaUrl, fallbackFilename, buttonEl) {
+      if (!mediaUrl) {
+        setStatus('Missing media URL. Please fetch the TikTok data again.', 'error');
+        return;
+      }
+
+      const previousText = buttonEl ? buttonEl.textContent : '';
+      if (buttonEl) {
+        buttonEl.disabled = true;
+        buttonEl.textContent = 'Preparing...';
+        buttonEl.classList.add('opacity-70', 'cursor-not-allowed');
+      }
+
+      setStatus('Preparing your download...', 'info');
+
+      try {
+        const response = await fetch(`${endpoint}?url=${encodeURIComponent(mediaUrl)}`);
+
+        if (!response.ok) {
+          let message = 'Download failed. Please try again.';
+          try {
+            const errorData = await response.json();
+            if (errorData && errorData.error) {
+              message = errorData.error;
+            }
+          } catch {
+            // Ignore JSON parse errors and keep fallback message.
+          }
+          throw new Error(message);
+        }
+
+        const blob = await response.blob();
+        if (!blob || !blob.size) {
+          throw new Error('No media data was returned. Please try another TikTok link.');
+        }
+
+        const objectUrl = URL.createObjectURL(blob);
+        const anchor = document.createElement('a');
+        anchor.href = objectUrl;
+        anchor.download = fallbackFilename;
+        document.body.appendChild(anchor);
+        anchor.click();
+        anchor.remove();
+
+        window.setTimeout(() => URL.revokeObjectURL(objectUrl), 15_000);
+        setStatus('Download started.', 'success');
+      } catch (error) {
+        setStatus(error.message || 'Download failed. Please try again.', 'error');
+      } finally {
+        if (buttonEl) {
+          buttonEl.disabled = false;
+          buttonEl.textContent = previousText;
+          buttonEl.classList.remove('opacity-70', 'cursor-not-allowed');
+        }
+      }
+    }
+
     function renderResult(data) {
       resultEl.classList.remove('hidden');
       resultEl.className = 'mt-6 fade-in';
@@ -240,13 +297,13 @@
 
       const videoBtn = document.getElementById('downloadVideo');
       videoBtn.addEventListener('click', () => {
-        window.location.href = `/api/tiktok-video?url=${encodeURIComponent(data.videoUrl)}`;
+        startDownload('/api/tiktok-video', data.videoUrl, 'tiktok-video.mp4', videoBtn);
       });
 
       if (hasAudio) {
         const audioBtn = document.getElementById('downloadAudio');
         audioBtn.addEventListener('click', () => {
-          window.location.href = `/api/tiktok-audio?url=${encodeURIComponent(data.audioUrl)}`;
+          startDownload('/api/tiktok-audio', data.audioUrl, 'tiktok-audio.mp3', audioBtn);
         });
       }
     }
