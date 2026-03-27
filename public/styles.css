@@ -455,3 +455,173 @@ section[id] {
     touch-action: manipulation;
   }
 }
+
+/* ─── Speakly affiliate announcement bar ──────────────────────────────────── */
+.speakly-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 42px 6px 12px;
+  background: linear-gradient(90deg, rgba(109,40,217,0.08) 0%, rgba(139,92,246,0.06) 50%, rgba(109,40,217,0.08) 100%);
+  border-bottom: 1px solid rgba(139,92,246,0.18);
+  font-size: 0.73rem;
+  color: #c4b5fd;
+  position: relative;
+  min-height: 34px;
+  overflow: hidden;
+}
+
+.speakly-bar-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  text-decoration: none;
+  color: inherit;
+  flex-wrap: wrap;
+  justify-content: center;
+  line-height: 1.35;
+}
+
+.speakly-bar-link:hover { color: #e9d5ff; }
+
+.speakly-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 9px;
+  border-radius: 100px;
+  background: rgba(139,92,246,0.2);
+  border: 1px solid rgba(139,92,246,0.35);
+  color: #a78bfa;
+  font-weight: 600;
+  font-size: 0.68rem;
+  white-space: nowrap;
+  letter-spacing: 0.01em;
+}
+
+.speakly-dismiss {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #7c3aed;
+  cursor: pointer;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 5px;
+  transition: color 0.15s, background 0.15s;
+  flex-shrink: 0;
+}
+
+.speakly-dismiss:hover {
+  color: #c4b5fd;
+  background: rgba(139,92,246,0.15);
+}
+
+/* ─── Hamburger nav button (mobile only) ──────────────────────────────────── */
+.nav-hamburger {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  border: 1px solid rgba(51,65,85,0.55);
+  background: rgba(15,23,42,0.45);
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.nav-hamburger:hover {
+  border-color: rgba(100,116,139,0.65);
+  background: rgba(30,41,59,0.55);
+}
+
+.nav-hamburger span {
+  display: block;
+  width: 16px;
+  height: 1.5px;
+  background: #94a3b8;
+  border-radius: 2px;
+  transition: transform 0.22s ease, opacity 0.22s ease;
+}
+
+.nav-hamburger.open span:nth-child(1) { transform: translateY(5.5px) rotate(45deg); }
+.nav-hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+.nav-hamburger.open span:nth-child(3) { transform: translateY(-5.5px) rotate(-45deg); }
+
+/* ─── Mobile nav dropdown menu ────────────────────────────────────────────── */
+.nav-mobile-menu {
+  display: none;
+  padding: 10px 0 14px;
+  border-top: 1px solid rgba(51,65,85,0.3);
+}
+
+.nav-mobile-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+}
+
+.nav-mobile-chip {
+  display: flex;
+  align-items: center;
+  padding: 9px 12px;
+  border-radius: 9px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: #64748b;
+  text-decoration: none;
+  background: rgba(15,23,42,0.4);
+  border: 1px solid rgba(51,65,85,0.4);
+  transition: color 0.15s, background 0.15s, border-color 0.15s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nav-mobile-chip:hover {
+  color: #cbd5e1;
+  background: rgba(30,41,59,0.6);
+  border-color: rgba(100,116,139,0.4);
+}
+
+.nav-mobile-chip.active-emerald { color: #34d399; background: rgba(16,185,129,0.1);  border-color: rgba(16,185,129,0.25); font-weight: 600; }
+.nav-mobile-chip.active-orange  { color: #fb923c; background: rgba(249,115,22,0.1);  border-color: rgba(249,115,22,0.25);  font-weight: 600; }
+.nav-mobile-chip.active-purple  { color: #c084fc; background: rgba(168,85,247,0.1);  border-color: rgba(168,85,247,0.25);  font-weight: 600; }
+.nav-mobile-chip.active-blue    { color: #60a5fa; background: rgba(59,130,246,0.1);   border-color: rgba(59,130,246,0.25);  font-weight: 600; }
+.nav-mobile-chip.active-amber   { color: #fbbf24; background: rgba(245,158,11,0.1);   border-color: rgba(245,158,11,0.25);  font-weight: 600; }
+.nav-mobile-chip.active-pink    { color: #f472b6; background: rgba(236,72,153,0.1);   border-color: rgba(236,72,153,0.25);  font-weight: 600; }
+.nav-mobile-chip.active-teal    { color: #2dd4bf; background: rgba(20,184,166,0.1);   border-color: rgba(20,184,166,0.25);  font-weight: 600; }
+.nav-mobile-chip.active-rose    { color: #fb7185; background: rgba(244,63,94,0.1);    border-color: rgba(244,63,94,0.25);   font-weight: 600; }
+.nav-mobile-chip.active-violet  { color: #a78bfa; background: rgba(139,92,246,0.1);   border-color: rgba(139,92,246,0.25);  font-weight: 600; }
+.nav-mobile-chip.active-lime    { color: #a3e635; background: rgba(132,204,22,0.1);   border-color: rgba(132,204,22,0.25);  font-weight: 600; }
+.nav-mobile-chip.active-cyan    { color: #22d3ee; background: rgba(6,182,212,0.1);    border-color: rgba(6,182,212,0.25);   font-weight: 600; }
+.nav-mobile-chip.active-sky     { color: #38bdf8; background: rgba(14,165,233,0.1);   border-color: rgba(14,165,233,0.25);  font-weight: 600; }
+
+/* Mobile: show hamburger & dropdown, hide scrollable strip */
+@media (max-width: 767px) {
+  .nav-hamburger { display: flex; }
+  .tool-strip { display: none !important; }
+  .nav-mobile-menu.open { display: block; animation: fadein 0.18s ease-out; }
+}
+
+/* Large desktop: wrap all chips so all tools are visible without scrolling */
+@media (min-width: 1280px) {
+  .tool-strip {
+    flex-wrap: wrap;
+    overflow: visible;
+    padding-right: 0;
+    scrollbar-width: none;
+  }
+  .tool-strip::after,
+  .tool-strip::before { display: none; }
+}
