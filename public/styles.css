@@ -335,6 +335,14 @@ details[open] summary ~ * { animation: slidein 0.3s ease-out; }
 .copy-btn { transition: all 0.2s ease; }
 .copy-btn:active { transform: scale(0.92); }
 
+section[id] {
+  scroll-margin-top: 88px;
+}
+
+.mobile-quick-jump {
+  display: none;
+}
+
 /* ─── Mobile usability improvements ─────────────────────────────────────── */
 @media (max-width: 768px) {
   body {
@@ -395,6 +403,35 @@ details[open] summary ~ * { animation: slidein 0.3s ease-out; }
   .pf-footer {
     margin-top: 3rem;
     padding-bottom: calc(0.75rem + env(safe-area-inset-bottom));
+  }
+
+  .mobile-quick-jump {
+    position: fixed;
+    right: 12px;
+    bottom: calc(14px + env(safe-area-inset-bottom));
+    z-index: 65;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 42px;
+    padding: 0 14px;
+    border-radius: 999px;
+    border: 1px solid rgba(16, 185, 129, 0.35);
+    background: rgba(8, 13, 24, 0.88);
+    backdrop-filter: blur(10px);
+    color: #d1fae5;
+    text-decoration: none;
+    font-size: 0.74rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    box-shadow: 0 10px 28px rgba(2, 6, 23, 0.52);
+  }
+
+  .mobile-quick-jump:hover,
+  .mobile-quick-jump:focus-visible {
+    color: #ecfeff;
+    border-color: rgba(34, 211, 238, 0.45);
+    outline: none;
   }
 
   input[type="text"],
