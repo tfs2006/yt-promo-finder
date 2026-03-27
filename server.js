@@ -12,6 +12,9 @@ import quotaHandler from "./api/quota.js";
 import compareHandler from "./api/compare.js";
 import revenueHandler from "./api/revenue.js";
 import predictorHandler from "./api/predictor.js";
+import tiktokHandler from "./api/tiktok.js";
+import tiktokVideoHandler from "./api/tiktok-video.js";
+import tiktokAudioHandler from "./api/tiktok-audio.js";
 
 dotenv.config();
 
@@ -68,6 +71,9 @@ app.get("/api/quota", quotaHandler);
 app.get("/api/compare", compareHandler);
 app.get("/api/revenue", revenueHandler);
 app.get("/api/predictor", predictorHandler);
+app.get("/api/tiktok", tiktokHandler);
+app.get("/api/tiktok-video", tiktokVideoHandler);
+app.get("/api/tiktok-audio", tiktokAudioHandler);
 
 app.use((err, req, res, next) => {
   console.error(JSON.stringify({

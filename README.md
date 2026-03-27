@@ -28,6 +28,11 @@ A comprehensive suite of YouTube channel analysis tools to discover sponsorships
 - Finds unlisted video URLs shared in other video descriptions
 - Useful for finding hidden content
 
+### 🎵 TikTok Downloader
+- Download TikTok videos from public URLs
+- Save no-watermark video when available
+- Export audio track as MP3-compatible download
+
 ### 📈 Growth Tracker
 - Analyze channel statistics and upload patterns
 - See posting schedules and upload frequency
@@ -156,6 +161,9 @@ yt-promo-finder/
 │   ├── rate.js         # Sponsorship rate estimator endpoint
 │   ├── viral.js        # Viral video detector endpoint
 │   ├── saturation.js   # Sponsor saturation score endpoint
+│   ├── tiktok.js       # TikTok metadata endpoint
+│   ├── tiktok-video.js # TikTok video proxy download endpoint
+│   ├── tiktok-audio.js # TikTok audio proxy download endpoint
 │   └── quota.js        # API quota status endpoint
 ├── public/
 │   ├── index.html      # Main promotion finder UI
@@ -167,6 +175,7 @@ yt-promo-finder/
 │   ├── rate.html       # Rate estimator UI
 │   ├── viral.html      # Viral detector UI
 │   ├── saturation.html # Saturation score UI
+│   ├── tiktok.html     # TikTok downloader UI
 │   ├── privacy.html    # Privacy policy
 │   ├── terms.html      # Terms of service
 │   └── disclaimer.html # Disclaimer
@@ -276,6 +285,24 @@ Returns current API quota status.
   "isExhausted": false
 }
 ```
+
+### `GET /api/tiktok`
+Fetches downloadable TikTok metadata from a public TikTok URL.
+
+**Query Parameters:**
+- `url` (required): TikTok video URL
+
+### `GET /api/tiktok-video`
+Proxies a downloadable TikTok video file.
+
+**Query Parameters:**
+- `url` (required): Video URL returned by `/api/tiktok`
+
+### `GET /api/tiktok-audio`
+Proxies a downloadable TikTok audio file.
+
+**Query Parameters:**
+- `url` (required): Audio URL returned by `/api/tiktok`
 
 ## ⚠️ Limitations
 
