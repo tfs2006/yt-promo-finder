@@ -302,11 +302,11 @@ h1, h2, h3, h4, h5, h6 {
 .pulse-ring { animation: pulse-ring 2.5s ease-out infinite; }
 
 /* ─── Form inputs ────────────────────────────────────────────────────────── */
-input[type="text"], input[type="search"] {
+input[type="text"], input[type="url"], input[type="search"] {
   transition: box-shadow 0.2s, border-color 0.2s;
 }
 
-input[type="text"]:focus, input[type="search"]:focus {
+input[type="text"]:focus, input[type="url"]:focus, input[type="search"]:focus {
   outline: none;
   box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
 }
@@ -334,3 +334,79 @@ input[type="text"]:focus, input[type="search"]:focus {
 details[open] summary ~ * { animation: slidein 0.3s ease-out; }
 .copy-btn { transition: all 0.2s ease; }
 .copy-btn:active { transform: scale(0.92); }
+
+/* ─── Mobile usability improvements ─────────────────────────────────────── */
+@media (max-width: 768px) {
+  body {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .site-nav-inner {
+    padding: 0 0.75rem;
+  }
+
+  .site-nav-top {
+    height: 52px;
+  }
+
+  .site-logo-mark {
+    width: 30px;
+    height: 30px;
+  }
+
+  .site-logo-text {
+    font-size: 0.98rem;
+  }
+
+  .site-nav-external {
+    display: none;
+  }
+
+  .tool-strip {
+    gap: 8px;
+    padding-right: 82px;
+    padding-bottom: 8px;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .tool-strip::before {
+    width: 14px;
+    bottom: 8px;
+  }
+
+  .tool-strip::after {
+    right: 2px;
+    height: 24px;
+    padding: 0 8px 0 20px;
+    font-size: 0.58rem;
+    letter-spacing: 0.01em;
+  }
+
+  .tool-chip {
+    display: inline-flex;
+    align-items: center;
+    min-height: 38px;
+    padding: 8px 14px;
+    font-size: 0.78rem;
+    scroll-snap-align: start;
+  }
+
+  .pf-footer {
+    margin-top: 3rem;
+    padding-bottom: calc(0.75rem + env(safe-area-inset-bottom));
+  }
+
+  input[type="text"],
+  input[type="url"],
+  input[type="search"],
+  select,
+  textarea,
+  button {
+    font-size: 16px;
+  }
+
+  button {
+    touch-action: manipulation;
+  }
+}
