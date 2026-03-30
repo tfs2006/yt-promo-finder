@@ -51,7 +51,11 @@
     { "source": "/buy-youtube-views", "destination": "/buy-youtube-views.html", "permanent": false },
     { "source": "/buy-youtube-views/", "destination": "/buy-youtube-views.html", "permanent": false },
     { "source": "/buy-tiktok-followers", "destination": "/buy-tiktok-followers.html", "permanent": false },
-    { "source": "/buy-tiktok-followers/", "destination": "/buy-tiktok-followers.html", "permanent": false }
+    { "source": "/buy-tiktok-followers/", "destination": "/buy-tiktok-followers.html", "permanent": false },
+    { "source": "/unlisted-video-finder-by-channel", "destination": "/unlisted-video-finder-by-channel.html", "permanent": false },
+    { "source": "/unlisted-video-finder-by-channel/", "destination": "/unlisted-video-finder-by-channel.html", "permanent": false },
+    { "source": "/youtube-unlisted-video-finder", "destination": "/youtube-unlisted-video-finder.html", "permanent": false },
+    { "source": "/youtube-unlisted-video-finder/", "destination": "/youtube-unlisted-video-finder.html", "permanent": false }
   ],
   "rewrites": [
     { "source": "/api/analyze", "destination": "/api/analyze.js" },
