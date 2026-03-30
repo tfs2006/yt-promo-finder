@@ -14,7 +14,144 @@ import {
   validateChannelInput,
   initQuota
 } from "../utils.js";
+import { readFile } from "node:fs/promises";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { handleTikTokMeta, handleTikTokVideo, handleTikTokAudio } from "../lib/tiktokHandlers.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const SMM_CURRENCY = (process.env.SMM_CURRENCY || "usd").toLowerCase();
+const SMM_CACHE_FILE = path.resolve(__dirname, "../cache_smm_services_v1.json");
+const SMM_MEMORY_TTL_MS = 10 * 60 * 1000;
+
+let smmServicesMemory = {
+  expiresAt: 0,
+  data: null
+};
+
+function getSmmTypeRule(type) {
+  const normalizedType = String(type || "").toLowerCase();
+
+  if (normalizedType.includes("custom comments")) {
+    return ["link", "quantity", "comments"];
+  }
+  if (normalizedType.includes("mentions with hashtags")) {
+    return ["link", "quantity", "usernames", "hashtags"];
+  }
+  if (normalizedType.includes("mentions custom list")) {
+    return ["link", "usernames"];
+  }
+  if (normalizedType.includes("subscriptions")) {
+    return ["username", "min", "max", "posts"];
+  }
+  if (normalizedType.includes("package")) {
+    return ["link"];
+  }
+
+  return ["link", "quantity"];
+}
+
+function toFiniteNumber(value, fallback = 0) {
+  const num = Number(value);
+  return Number.isFinite(num) ? num : fallback;
+}
+
+function toPositiveInt(value, fallback = null) {
+  const num = Number.parseInt(String(value), 10);
+  if (!Number.isFinite(num) || num <= 0) return fallback;
+  return num;
+}
+
+function computeSampleRetail(service) {
+  const rate = toFiniteNumber(service.rate, 0);
+  const sampleQty = service.min && service.min > 0 ? service.min : 100;
+  const isPackage = String(service.type || "").toLowerCase().includes("package")
+    || (service.min === 1 && service.max === 1);
+
+  if (isPackage) {
+    return Math.max(0, Number(rate.toFixed(2)));
+  }
+
+  const estimated = (sampleQty / 1000) * rate;
+  return Math.max(0, Number(estimated.toFixed(2)));
+}
+
+function normalizeSmmService(raw) {
+  const serviceId = toPositiveInt(raw?.serviceId, null);
+  if (!serviceId) return null;
+
+  const type = String(raw?.type || "").trim();
+  const min = toPositiveInt(raw?.min, null);
+  const max = toPositiveInt(raw?.max, null);
+
+  const service = {
+    serviceId,
+    name: String(raw?.name || "").trim(),
+    type,
+    category: String(raw?.category || "Uncategorized").trim() || "Uncategorized",
+    min,
+    max,
+    rate: toFiniteNumber(raw?.rate, 0),
+    requiredFields: getSmmTypeRule(type)
+  };
+
+  const sampleQuantity = min && min > 0 ? min : 100;
+
+  return {
+    ...service,
+    sampleQuantity,
+    sampleRetail: computeSampleRetail(service)
+  };
+}
+
+async function loadSmmServicesFromFile() {
+  const now = Date.now();
+  if (smmServicesMemory.data && now < smmServicesMemory.expiresAt) {
+    return smmServicesMemory.data;
+  }
+
+  const raw = await readFile(SMM_CACHE_FILE, "utf8");
+  const parsed = JSON.parse(raw);
+
+  if (!Array.isArray(parsed)) {
+    throw new Error("Invalid SMM services cache format.");
+  }
+
+  const normalized = parsed
+    .map(normalizeSmmService)
+    .filter((item) => item && item.name)
+    .sort((a, b) => a.name.localeCompare(b.name));
+
+  smmServicesMemory = {
+    expiresAt: now + SMM_MEMORY_TTL_MS,
+    data: normalized
+  };
+
+  return normalized;
+}
+
+async function handleSmmServices(req, res) {
+  if (applyApiGuards(req, res, { rateKey: "smm-services", maxRequests: 40, windowMs: 60_000 })) return;
+
+  if (req.method !== "GET") {
+    return res.status(405).json({ error: "Method not allowed" });
+  }
+
+  try {
+    const services = await loadSmmServicesFromFile();
+    return res.json({
+      services,
+      currency: SMM_CURRENCY,
+      pricing: {
+        source: "cache-file"
+      }
+    });
+  } catch (error) {
+    return handleApiError(res, error, req);
+  }
+}
 
 // Parse ISO 8601 duration to seconds
 function parseDuration(duration) {
@@ -425,6 +562,21 @@ function predictVideoScore(title, durationSeconds, publishDay, publishHour, corr
 
 export default async function handler(req, res) {
   const pathname = new URL(req.url, "http://localhost").pathname;
+  if (pathname === "/api/smm-services") {
+    return handleSmmServices(req, res);
+  }
+  if (pathname === "/api/smm-create-checkout") {
+    return res.status(503).json({ error: "Checkout is temporarily unavailable." });
+  }
+  if (pathname === "/api/stripe-webhook") {
+    return res.status(503).json({ error: "Stripe webhook is temporarily unavailable." });
+  }
+  if (pathname === "/api/smm-order-status") {
+    return res.status(503).json({ error: "Order status is temporarily unavailable." });
+  }
+  if (pathname === "/api/smm-profit-dashboard") {
+    return res.status(503).json({ error: "Profit dashboard is temporarily unavailable." });
+  }
   if (pathname === "/api/tiktok") {
     return handleTikTokMeta(req, res);
   }
