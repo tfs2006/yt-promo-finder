@@ -16,6 +16,12 @@ import {
 } from "../utils.js";
 import smmServicesSnapshot from "../lib/smmServicesSnapshot.js";
 import { handleTikTokMeta, handleTikTokVideo, handleTikTokAudio } from "../lib/tiktokHandlers.js";
+import {
+  handleSmmCreateCheckout,
+  handleStripeWebhook,
+  handleSmmOrderStatus,
+  handleSmmProfitDashboard
+} from "../lib/smmHandlers.js";
 
 const SMM_CURRENCY = (process.env.SMM_CURRENCY || "usd").toLowerCase();
 const SMM_MEMORY_TTL_MS = 10 * 60 * 1000;
@@ -559,16 +565,16 @@ export default async function handler(req, res) {
     return handleSmmServices(req, res);
   }
   if (pathname === "/api/smm-create-checkout") {
-    return res.status(503).json({ error: "Checkout is temporarily unavailable." });
+    return handleSmmCreateCheckout(req, res);
   }
   if (pathname === "/api/stripe-webhook") {
-    return res.status(503).json({ error: "Stripe webhook is temporarily unavailable." });
+    return handleStripeWebhook(req, res);
   }
   if (pathname === "/api/smm-order-status") {
-    return res.status(503).json({ error: "Order status is temporarily unavailable." });
+    return handleSmmOrderStatus(req, res);
   }
   if (pathname === "/api/smm-profit-dashboard") {
-    return res.status(503).json({ error: "Profit dashboard is temporarily unavailable." });
+    return handleSmmProfitDashboard(req, res);
   }
   if (pathname === "/api/tiktok") {
     return handleTikTokMeta(req, res);

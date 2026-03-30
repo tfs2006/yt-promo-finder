@@ -56,7 +56,7 @@ async function getRedisClient() {
 const LOCAL_STORAGE_DIR = process.cwd();
 const QUOTA_FILE = path.join(LOCAL_STORAGE_DIR, "quota.json");
 
-async function kvGet(key) {
+export async function kvGet(key) {
   const redis = await getRedisClient();
   if (redis) {
     try {
@@ -76,7 +76,7 @@ async function kvGet(key) {
   return null;
 }
 
-async function kvSet(key, value, options = {}) {
+export async function kvSet(key, value, options = {}) {
   const redis = await getRedisClient();
   if (redis) {
     try {
