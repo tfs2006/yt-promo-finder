@@ -20,7 +20,8 @@ import {
   handleSmmCreateCheckout,
   handleStripeWebhook,
   handleSmmOrderStatus,
-  handleSmmProfitDashboard
+  handleSmmProfitDashboard,
+  handleSmmOrderResubmit
 } from "../lib/smmHandlers.js";
 
 const SMM_CURRENCY = (process.env.SMM_CURRENCY || "usd").toLowerCase();
@@ -575,6 +576,9 @@ export default async function handler(req, res) {
   }
   if (pathname === "/api/smm-profit-dashboard") {
     return handleSmmProfitDashboard(req, res);
+  }
+  if (pathname === "/api/smm-order-resubmit") {
+    return handleSmmOrderResubmit(req, res);
   }
   if (pathname === "/api/tiktok") {
     return handleTikTokMeta(req, res);

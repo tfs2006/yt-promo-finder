@@ -105,8 +105,10 @@
             <tr>
               <th class="text-left py-2 pr-2">Time</th>
               <th class="text-left py-2 pr-2">Status</th>
+              <th class="text-left py-2 pr-2">Session</th>
               <th class="text-right py-2 pr-2">Retail</th>
               <th class="text-right py-2 pr-2">Net</th>
+              <th class="text-right py-2 pr-2">Actions</th>
             </tr>
           </thead>
           <tbody id="recentOrdersBody"></tbody>
@@ -132,6 +134,7 @@
   const statusRows = document.getElementById('statusRows');
   const topServicesBody = document.getElementById('topServicesBody');
   const recentOrdersBody = document.getElementById('recentOrdersBody');
+  const rowActionBusy = new Set();
 
   const STORE_KEY = 'smm_dashboard_key_v1';
 
@@ -143,6 +146,25 @@
   function fmtPct(n) {
     const value = Number.isFinite(Number(n)) ? Number(n) : 0;
     return `${value.toFixed(2)}%`;
+  }
+
+  function escapeHtml(value) {
+    return String(value || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+  function shortId(value, head = 10, tail = 6) {
+    const raw = String(value || '');
+    if (!raw) return '-';
+    if (raw.length <= head + tail + 2) return raw;
+    if (tail <= 0) {
+      return `${raw.slice(0, head)}...`;
+    }
+    return `${raw.slice(0, head)}...${raw.slice(-tail)}`;
   }
 
   function setStatus(kind, message) {
@@ -224,18 +246,46 @@
   function renderRecentOrders(rows) {
     const list = Array.isArray(rows) ? rows : [];
     if (!list.length) {
-      recentOrdersBody.innerHTML = '<tr><td colspan="4" class="py-3 text-sm text-slate-400">No recent orders in index.</td></tr>';
+      recentOrdersBody.innerHTML = '<tr><td colspan="6" class="py-3 text-sm text-slate-400">No recent orders in index.</td></tr>';
       return;
     }
 
     recentOrdersBody.innerHTML = list.map((row) => {
       const created = row.createdAt ? new Date(row.createdAt).toLocaleString() : '-';
+      const statusLabel = (row.status || '').replace(/_/g, ' ');
+      const sessionId = String(row.stripeSessionId || '');
+      const canRefresh = !!sessionId;
+      const canResubmit = !!sessionId && !!row.canResubmit;
+      const providerError = String(row.providerError || '').trim();
+
       return `
         <tr class="border-t border-slate-800">
           <td class="py-2 pr-2 text-slate-300">${created}</td>
-          <td class="py-2 pr-2 text-slate-300 capitalize">${(row.status || '').replace(/_/g, ' ')}</td>
+          <td class="py-2 pr-2 text-slate-300 capitalize">
+            <div>${escapeHtml(statusLabel)}</div>
+            ${providerError ? `<div class="text-[11px] text-rose-300 mt-1" title="${escapeHtml(providerError)}">${escapeHtml(shortId(providerError, 42, 0))}</div>` : ''}
+          </td>
+          <td class="py-2 pr-2 text-slate-300" title="${escapeHtml(sessionId)}">${escapeHtml(shortId(sessionId))}</td>
           <td class="py-2 pr-2 text-right text-slate-200">${fmtMoney(row.retailPrice)}</td>
           <td class="py-2 pr-2 text-right ${Number(row.netProfitEstimate) >= 0 ? 'text-emerald-300' : 'text-rose-300'}">${fmtMoney(row.netProfitEstimate)}</td>
+          <td class="py-2 pr-2 text-right">
+            <div class="flex items-center justify-end gap-2">
+              <button
+                type="button"
+                data-action="refresh"
+                data-session-id="${escapeHtml(sessionId)}"
+                ${canRefresh ? '' : 'disabled'}
+                class="rounded-md border border-slate-700 px-2 py-1 text-xs text-slate-200 hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed"
+              >Refresh</button>
+              <button
+                type="button"
+                data-action="resubmit"
+                data-session-id="${escapeHtml(sessionId)}"
+                ${canResubmit ? '' : 'disabled'}
+                class="rounded-md border border-amber-600/50 bg-amber-500/15 px-2 py-1 text-xs text-amber-200 hover:bg-amber-500/25 disabled:opacity-40 disabled:cursor-not-allowed"
+              >Resubmit</button>
+            </div>
+          </td>
         </tr>
       `;
     }).join('');
@@ -284,7 +334,77 @@
     }
   }
 
+  async function refreshOrderStatus(sessionId) {
+    const res = await fetch(`/api/smm-order-status?sessionId=${encodeURIComponent(sessionId)}&refresh=1`);
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.error || 'Failed to refresh order status');
+    }
+    return data.order || null;
+  }
+
+  async function resubmitOrder(sessionId) {
+    const key = dashboardKeyInput.value.trim();
+    if (!key) {
+      throw new Error('Enter dashboard key before resubmitting orders.');
+    }
+
+    const res = await fetch('/api/smm-order-resubmit', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-dashboard-key': key
+      },
+      body: JSON.stringify({ sessionId })
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.error || 'Failed to resubmit order');
+    }
+
+    return data.order || null;
+  }
+
   loadBtn.addEventListener('click', loadDashboard);
+
+  recentOrdersBody.addEventListener('click', async (event) => {
+    const btn = event.target.closest('button[data-action]');
+    if (!btn) return;
+
+    const action = String(btn.getAttribute('data-action') || '');
+    const sessionId = String(btn.getAttribute('data-session-id') || '').trim();
+
+    if (!sessionId) {
+      setStatus('warn', 'This order row does not have a Stripe session id.');
+      return;
+    }
+
+    const busyKey = `${action}:${sessionId}`;
+    if (rowActionBusy.has(busyKey)) return;
+
+    rowActionBusy.add(busyKey);
+    const previousText = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = action === 'resubmit' ? 'Resubmitting...' : 'Refreshing...';
+
+    try {
+      if (action === 'resubmit') {
+        const order = await resubmitOrder(sessionId);
+        await loadDashboard();
+        setStatus('success', `Order resubmitted. Provider order id: ${order && order.providerOrderId ? order.providerOrderId : 'pending'}.`);
+      } else {
+        const order = await refreshOrderStatus(sessionId);
+        await loadDashboard();
+        setStatus('success', `Order refreshed. Current status: ${(order && order.status) ? order.status : 'unknown'}.`);
+      }
+    } catch (error) {
+      setStatus('error', error.message || 'Order action failed');
+    } finally {
+      rowActionBusy.delete(busyKey);
+      btn.textContent = previousText;
+    }
+  });
 
   saveKeyBtn.addEventListener('click', () => {
     const key = dashboardKeyInput.value.trim();
@@ -292,11 +412,11 @@
       setStatus('warn', 'Enter a key before saving.');
       return;
     }
-    localStorage.setItem(STORE_KEY, key);
-    setStatus('success', 'Dashboard key saved in this browser.');
+    sessionStorage.setItem(STORE_KEY, key);
+    setStatus('success', 'Dashboard key saved for this tab session.');
   });
 
-  const stored = localStorage.getItem(STORE_KEY);
+  const stored = sessionStorage.getItem(STORE_KEY);
   if (stored) {
     dashboardKeyInput.value = stored;
   }

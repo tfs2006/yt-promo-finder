@@ -63,6 +63,7 @@
     { "source": "/api/stripe-webhook", "destination": "/api/predictor.js" },
     { "source": "/api/smm-order-status", "destination": "/api/predictor.js" },
     { "source": "/api/smm-profit-dashboard", "destination": "/api/predictor.js" },
+    { "source": "/api/smm-order-resubmit", "destination": "/api/predictor.js" },
     { "source": "/api/tiktok", "destination": "/api/predictor.js" },
     { "source": "/api/tiktok-video", "destination": "/api/predictor.js" },
     { "source": "/api/tiktok-audio", "destination": "/api/predictor.js" },
