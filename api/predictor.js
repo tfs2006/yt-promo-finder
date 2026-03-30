@@ -23,7 +23,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const SMM_CURRENCY = (process.env.SMM_CURRENCY || "usd").toLowerCase();
-const SMM_CACHE_FILE = path.resolve(__dirname, "../cache_smm_services_v1.json");
+const SMM_CACHE_FILE = path.resolve(__dirname, "./cache_smm_services_v1.json");
 const SMM_MEMORY_TTL_MS = 10 * 60 * 1000;
 
 let smmServicesMemory = {
