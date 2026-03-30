@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Merchant Profit Dashboard | Social Services</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/nav.js" defer></script>
+  <meta name="description" content="Private merchant dashboard for social services profit, margins, and order performance." />
+  <meta name="robots" content="noindex, nofollow" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .glass { background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(12px); }
+    .spin { animation: spin 1s linear infinite; }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-100 min-h-screen">
+<nav class="site-nav">
+  <div class="site-nav-inner">
+    <div class="site-nav-top">
+      <a href="/" class="site-logo">
+        <div class="site-logo-mark">
+          <svg width="17" height="17" viewBox="0 0 17 17" fill="none"><circle cx="6.5" cy="6.5" r="4.5" stroke="white" stroke-width="1.6"/><polygon points="4.5,4.5 4.5,8.5 8.5,6.5" fill="white"/><line x1="10" y1="10" x2="15" y2="15" stroke="white" stroke-width="1.6" stroke-linecap="round"/></svg>
+        </div>
+        <span class="site-logo-text">Promo<span>Finder</span></span>
+      </a>
+      <a href="/services" class="site-nav-external">Back to Services</a>
+    </div>
+  </div>
+</nav>
+
+<main class="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-8 md:py-10">
+  <header class="mb-6">
+    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-emerald-500/35 bg-emerald-500/10 text-emerald-200 text-xs uppercase tracking-wide">Private merchant analytics</div>
+    <h1 class="text-3xl sm:text-4xl font-bold mt-3">Social Services Profit Dashboard</h1>
+    <p class="text-slate-300 mt-2 text-sm sm:text-base">Track realized revenue, provider costs, and estimated net profit after Stripe fees.</p>
+  </header>
+
+  <section class="glass border border-slate-700/60 rounded-2xl p-4 sm:p-5 mb-5">
+    <div class="grid md:grid-cols-12 gap-3 items-end">
+      <label class="md:col-span-6 block">
+        <span class="text-xs uppercase tracking-wide text-slate-400">Dashboard key</span>
+        <input id="dashboardKey" type="password" placeholder="Enter SMM_DASHBOARD_KEY" class="mt-1 w-full rounded-lg bg-slate-900/80 border border-slate-700 px-3 py-2.5 outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/30" />
+      </label>
+      <label class="md:col-span-3 block">
+        <span class="text-xs uppercase tracking-wide text-slate-400">Order sample limit</span>
+        <select id="sampleLimit" class="mt-1 w-full rounded-lg bg-slate-900/80 border border-slate-700 px-3 py-2.5 outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/30">
+          <option value="100">100</option>
+          <option value="250">250</option>
+          <option value="500" selected>500</option>
+          <option value="1000">1000</option>
+        </select>
+      </label>
+      <div class="md:col-span-3 flex gap-2">
+        <button id="loadBtn" type="button" class="flex-1 rounded-lg bg-gradient-to-r from-sky-500 to-cyan-500 text-white font-semibold px-3 py-2.5">Load</button>
+        <button id="saveKeyBtn" type="button" class="rounded-lg border border-slate-700 px-3 py-2.5 text-sm hover:bg-slate-800">Save Key</button>
+      </div>
+    </div>
+    <p class="text-xs text-slate-400 mt-2">Key is sent only to your own API endpoint. Save stores it in this browser only.</p>
+    <div id="statusBox" class="hidden mt-3 rounded-xl px-4 py-3 text-sm"></div>
+  </section>
+
+  <section class="grid sm:grid-cols-2 xl:grid-cols-4 gap-3 mb-5" id="summaryCards">
+    <article class="glass border border-slate-700/60 rounded-2xl p-4"><p class="text-xs text-slate-400 uppercase">Gross Revenue</p><p id="kpiRevenue" class="text-2xl font-bold mt-1">-</p></article>
+    <article class="glass border border-slate-700/60 rounded-2xl p-4"><p class="text-xs text-slate-400 uppercase">Gross Profit</p><p id="kpiGross" class="text-2xl font-bold mt-1 text-emerald-300">-</p></article>
+    <article class="glass border border-slate-700/60 rounded-2xl p-4"><p class="text-xs text-slate-400 uppercase">Est. Net Profit</p><p id="kpiNet" class="text-2xl font-bold mt-1 text-cyan-300">-</p></article>
+    <article class="glass border border-slate-700/60 rounded-2xl p-4"><p class="text-xs text-slate-400 uppercase">Gross Margin %</p><p id="kpiMargin" class="text-2xl font-bold mt-1">-</p></article>
+  </section>
+
+  <section class="grid lg:grid-cols-12 gap-4 mb-5">
+    <article class="glass border border-slate-700/60 rounded-2xl p-4 lg:col-span-7">
+      <h2 class="font-semibold text-lg">Time Windows</h2>
+      <div class="grid md:grid-cols-3 gap-3 mt-3" id="windowCards"></div>
+    </article>
+    <article class="glass border border-slate-700/60 rounded-2xl p-4 lg:col-span-5">
+      <h2 class="font-semibold text-lg">Status Breakdown</h2>
+      <div id="statusRows" class="mt-3 space-y-2"></div>
+    </article>
+  </section>
+
+  <section class="grid lg:grid-cols-12 gap-4">
+    <article class="glass border border-slate-700/60 rounded-2xl p-4 lg:col-span-6">
+      <h2 class="font-semibold text-lg">Top Profitable Services</h2>
+      <div class="mt-3 overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead class="text-xs uppercase text-slate-400">
+            <tr>
+              <th class="text-left py-2 pr-2">Service</th>
+              <th class="text-right py-2 pr-2">Orders</th>
+              <th class="text-right py-2 pr-2">Net Profit</th>
+            </tr>
+          </thead>
+          <tbody id="topServicesBody"></tbody>
+        </table>
+      </div>
+    </article>
+
+    <article class="glass border border-slate-700/60 rounded-2xl p-4 lg:col-span-6">
+      <h2 class="font-semibold text-lg">Recent Orders</h2>
+      <div class="mt-3 overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead class="text-xs uppercase text-slate-400">
+            <tr>
+              <th class="text-left py-2 pr-2">Time</th>
+              <th class="text-left py-2 pr-2">Status</th>
+              <th class="text-right py-2 pr-2">Retail</th>
+              <th class="text-right py-2 pr-2">Net</th>
+            </tr>
+          </thead>
+          <tbody id="recentOrdersBody"></tbody>
+        </table>
+      </div>
+    </article>
+  </section>
+</main>
+
+<script>
+  const dashboardKeyInput = document.getElementById('dashboardKey');
+  const sampleLimitSelect = document.getElementById('sampleLimit');
+  const loadBtn = document.getElementById('loadBtn');
+  const saveKeyBtn = document.getElementById('saveKeyBtn');
+  const statusBox = document.getElementById('statusBox');
+
+  const kpiRevenue = document.getElementById('kpiRevenue');
+  const kpiGross = document.getElementById('kpiGross');
+  const kpiNet = document.getElementById('kpiNet');
+  const kpiMargin = document.getElementById('kpiMargin');
+
+  const windowCards = document.getElementById('windowCards');
+  const statusRows = document.getElementById('statusRows');
+  const topServicesBody = document.getElementById('topServicesBody');
+  const recentOrdersBody = document.getElementById('recentOrdersBody');
+
+  const STORE_KEY = 'smm_dashboard_key_v1';
+
+  function fmtMoney(n) {
+    const value = Number.isFinite(Number(n)) ? Number(n) : 0;
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value);
+  }
+
+  function fmtPct(n) {
+    const value = Number.isFinite(Number(n)) ? Number(n) : 0;
+    return `${value.toFixed(2)}%`;
+  }
+
+  function setStatus(kind, message) {
+    const styles = {
+      info: 'bg-slate-900/80 border border-slate-700 text-slate-200',
+      success: 'bg-emerald-950/50 border border-emerald-700/40 text-emerald-200',
+      warn: 'bg-amber-950/50 border border-amber-700/40 text-amber-200',
+      error: 'bg-rose-950/50 border border-rose-700/40 text-rose-200'
+    };
+    statusBox.className = `mt-3 rounded-xl px-4 py-3 text-sm ${styles[kind] || styles.info}`;
+    statusBox.textContent = message;
+    statusBox.classList.remove('hidden');
+  }
+
+  function clearStatus() {
+    statusBox.classList.add('hidden');
+    statusBox.textContent = '';
+  }
+
+  function setLoading(isLoading) {
+    loadBtn.disabled = isLoading;
+    loadBtn.textContent = isLoading ? 'Loading...' : 'Load';
+  }
+
+  function renderWindows(windows) {
+    const entries = [
+      { key: 'last24h', label: 'Last 24h' },
+      { key: 'last7d', label: 'Last 7 days' },
+      { key: 'last30d', label: 'Last 30 days' }
+    ];
+
+    windowCards.innerHTML = entries.map((entry) => {
+      const row = windows && windows[entry.key] ? windows[entry.key] : {};
+      return `
+        <div class="rounded-xl border border-slate-700/60 bg-slate-900/70 p-3">
+          <p class="text-xs uppercase text-slate-400">${entry.label}</p>
+          <p class="text-sm text-slate-200 mt-1">Revenue: <strong>${fmtMoney(row.grossRevenue)}</strong></p>
+          <p class="text-sm text-slate-300">Net: <strong>${fmtMoney(row.netProfitEstimate)}</strong></p>
+          <p class="text-xs text-slate-400 mt-1">Paid orders: ${row.paidOrderCount || 0}</p>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function renderStatusBreakdown(byStatus) {
+    const entries = Object.entries(byStatus || {}).sort((a, b) => b[1] - a[1]);
+    if (!entries.length) {
+      statusRows.innerHTML = '<p class="text-sm text-slate-400">No orders in indexed dataset yet.</p>';
+      return;
+    }
+
+    statusRows.innerHTML = entries.map(([status, count]) => `
+      <div class="flex items-center justify-between rounded-lg border border-slate-700/60 bg-slate-900/70 px-3 py-2">
+        <span class="text-sm text-slate-200 capitalize">${status.replace(/_/g, ' ')}</span>
+        <span class="text-xs rounded-full px-2 py-1 border border-slate-600 text-slate-300">${count}</span>
+      </div>
+    `).join('');
+  }
+
+  function renderTopServices(rows) {
+    const list = Array.isArray(rows) ? rows : [];
+    if (!list.length) {
+      topServicesBody.innerHTML = '<tr><td colspan="3" class="py-3 text-sm text-slate-400">No paid orders found.</td></tr>';
+      return;
+    }
+
+    topServicesBody.innerHTML = list.map((row) => `
+      <tr class="border-t border-slate-800">
+        <td class="py-2 pr-2 align-top">
+          <div class="text-slate-100">${row.serviceName || 'Unknown Service'}</div>
+          <div class="text-xs text-slate-400">ID ${row.serviceId || 'n/a'}</div>
+        </td>
+        <td class="py-2 pr-2 text-right text-slate-300">${row.orderCount || 0}</td>
+        <td class="py-2 pr-2 text-right text-emerald-300 font-medium">${fmtMoney(row.netProfitEstimate)}</td>
+      </tr>
+    `).join('');
+  }
+
+  function renderRecentOrders(rows) {
+    const list = Array.isArray(rows) ? rows : [];
+    if (!list.length) {
+      recentOrdersBody.innerHTML = '<tr><td colspan="4" class="py-3 text-sm text-slate-400">No recent orders in index.</td></tr>';
+      return;
+    }
+
+    recentOrdersBody.innerHTML = list.map((row) => {
+      const created = row.createdAt ? new Date(row.createdAt).toLocaleString() : '-';
+      return `
+        <tr class="border-t border-slate-800">
+          <td class="py-2 pr-2 text-slate-300">${created}</td>
+          <td class="py-2 pr-2 text-slate-300 capitalize">${(row.status || '').replace(/_/g, ' ')}</td>
+          <td class="py-2 pr-2 text-right text-slate-200">${fmtMoney(row.retailPrice)}</td>
+          <td class="py-2 pr-2 text-right ${Number(row.netProfitEstimate) >= 0 ? 'text-emerald-300' : 'text-rose-300'}">${fmtMoney(row.netProfitEstimate)}</td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  function renderDashboard(data) {
+    const summary = data && data.summary ? data.summary : {};
+    kpiRevenue.textContent = fmtMoney(summary.grossRevenue);
+    kpiGross.textContent = fmtMoney(summary.grossProfit);
+    kpiNet.textContent = fmtMoney(summary.netProfitEstimate);
+    kpiMargin.textContent = fmtPct(summary.grossMarginPct);
+
+    renderWindows(data.windows || {});
+    renderStatusBreakdown(data.byStatus || {});
+    renderTopServices(data.topServices || []);
+    renderRecentOrders(data.recentOrders || []);
+
+    const generated = data.generatedAt ? new Date(data.generatedAt).toLocaleString() : 'now';
+    const coverage = Number.isFinite(Number(data.exactProfitCoveragePct)) ? Number(data.exactProfitCoveragePct).toFixed(2) : '0.00';
+    setStatus('success', `Dashboard loaded. Source: ${data.dataSource || 'unknown'}. Orders used: ${data.mergedOrderCount || data.indexedOrderCount || 0}. Exact profit coverage: ${coverage}%. Generated: ${generated}.`);
+  }
+
+  async function loadDashboard() {
+    clearStatus();
+    const key = dashboardKeyInput.value.trim();
+    if (!key) {
+      setStatus('warn', 'Enter your dashboard key first.');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const limit = Number(sampleLimitSelect.value) || 500;
+      const res = await fetch(`/api/smm-profit-dashboard?limit=${limit}&includeRecent=1`, {
+        headers: { 'x-dashboard-key': key }
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to load dashboard');
+      }
+      renderDashboard(data);
+    } catch (error) {
+      setStatus('error', error.message || 'Failed to load dashboard');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  loadBtn.addEventListener('click', loadDashboard);
+
+  saveKeyBtn.addEventListener('click', () => {
+    const key = dashboardKeyInput.value.trim();
+    if (!key) {
+      setStatus('warn', 'Enter a key before saving.');
+      return;
+    }
+    localStorage.setItem(STORE_KEY, key);
+    setStatus('success', 'Dashboard key saved in this browser.');
+  });
+
+  const stored = localStorage.getItem(STORE_KEY);
+  if (stored) {
+    dashboardKeyInput.value = stored;
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Payment Received | Social Services</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/nav.js" defer></script>
+  <meta name="robots" content="noindex, nofollow" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .spin { animation: spin 1s linear infinite; }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    .glass-effect { background: rgba(15, 23, 42, 0.62); backdrop-filter: blur(12px); }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-100 min-h-screen">
+  <main class="max-w-3xl mx-auto px-4 py-12">
+    <section class="glass-effect border border-emerald-700/40 rounded-2xl p-6 sm:p-8">
+      <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs uppercase tracking-wide mb-4">
+        Payment received
+      </div>
+      <h1 class="text-3xl font-bold">Thanks. Your payment went through.</h1>
+      <p class="text-slate-300 mt-3">
+        We are now processing your order and submitting it to fulfillment.
+      </p>
+
+      <div id="statusBox" class="mt-5 rounded-xl bg-slate-900/70 border border-slate-700 p-4 text-sm">
+        <div class="flex items-center gap-2 text-slate-300">
+          <svg class="w-4 h-4 spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.4 0 0 5.4 0 12h4z"></path>
+          </svg>
+          Checking order status...
+        </div>
+      </div>
+
+      <div class="mt-6 grid sm:grid-cols-2 gap-3 text-sm">
+        <a href="/services" class="rounded-lg border border-slate-700 px-4 py-2.5 text-center hover:bg-slate-800 transition">Back to services</a>
+        <a id="refreshLink" href="#" class="rounded-lg bg-slate-200 text-slate-900 px-4 py-2.5 text-center font-medium hover:bg-white transition">Refresh status</a>
+      </div>
+
+      <p class="text-xs text-slate-400 mt-5">If processing is delayed, keep this page open and it will refresh automatically.</p>
+    </section>
+  </main>
+
+  <script>
+    const statusBox = document.getElementById('statusBox');
+    const refreshLink = document.getElementById('refreshLink');
+
+    const params = new URLSearchParams(window.location.search);
+    const sessionId = params.get('session_id');
+
+    function escapeHtml(value) {
+      return String(value || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function renderStatus(order) {
+      const status = String(order.status || 'pending').toLowerCase();
+      const isHealthy = ['submitted', 'in_progress', 'completed', 'partial'].includes(status);
+      const failed = ['paid_submission_failed', 'failed', 'canceled'].includes(status);
+
+      let tone = 'border-slate-700 text-slate-200 bg-slate-900/70';
+      if (isHealthy) tone = 'border-emerald-700/40 text-emerald-100 bg-emerald-950/20';
+      if (failed) tone = 'border-rose-700/40 text-rose-100 bg-rose-950/20';
+
+      statusBox.className = `mt-5 rounded-xl border p-4 text-sm ${tone}`;
+      statusBox.innerHTML = `
+        <div class="font-medium">Status: ${escapeHtml(order.status || 'pending')}</div>
+        <div class="mt-2 text-xs opacity-90">Service: ${escapeHtml(order.serviceName || '-')}</div>
+        <div class="text-xs opacity-90">Session: ${escapeHtml(order.stripeSessionId || '-')}</div>
+        <div class="text-xs opacity-90">Provider order: ${escapeHtml(order.providerOrderId || 'Pending submission')}</div>
+        ${order.providerError ? `<div class="mt-2 text-xs">Provider note: ${escapeHtml(order.providerError)}</div>` : ''}
+      `;
+    }
+
+    async function refreshStatus() {
+      if (!sessionId) {
+        statusBox.className = 'mt-5 rounded-xl border border-rose-700/40 bg-rose-950/20 p-4 text-sm text-rose-100';
+        statusBox.textContent = 'Missing Stripe session id in URL.';
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/smm-order-status?sessionId=${encodeURIComponent(sessionId)}&refresh=1`);
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.error || 'Unable to load order status.');
+        }
+
+        renderStatus(data.order || {});
+
+        const status = String(data.order?.status || '').toLowerCase();
+        const done = ['completed', 'partial', 'canceled', 'failed'].includes(status);
+        if (!done) {
+          window.setTimeout(refreshStatus, 12000);
+        }
+      } catch (error) {
+        statusBox.className = 'mt-5 rounded-xl border border-rose-700/40 bg-rose-950/20 p-4 text-sm text-rose-100';
+        statusBox.textContent = error.message || 'Status check failed.';
+        window.setTimeout(refreshStatus, 15000);
+      }
+    }
+
+    refreshLink.addEventListener('click', function (event) {
+      event.preventDefault();
+      refreshStatus();
+    });
+
+    refreshStatus();
+  </script>
+</body>
+</html>

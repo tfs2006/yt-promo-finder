@@ -89,8 +89,29 @@
     { href: '/revenue',    label: 'Revenue Calculator', color: 'lime'    },
     { href: '/predictor',  label: 'Perf. Predictor',    color: 'cyan'    },
     { href: '/tiktok',     label: 'TikTok Downloader',  color: 'rose'    },
+    { href: '/services',   label: 'Social Services',    color: 'sky'     },
     { href: '/linkcheck',  label: 'Link Checker',       color: 'sky'     }
   ];
+
+  function ensureDesktopServicesLink(navInner) {
+    var strip = navInner ? navInner.querySelector('.tool-strip') : null;
+    if (!strip) return;
+
+    var existing = strip.querySelector('a[href="/services"]');
+    if (existing) return;
+
+    var activePath = getActivePath();
+    var link = document.createElement('a');
+    link.href = '/services';
+    link.className = (activePath === '/services' || activePath.indexOf('/services-') === 0)
+      ? 'tool-chip chip-active-sky'
+      : 'tool-chip';
+    link.textContent = 'Social Services';
+
+    var before = strip.querySelector('a[href="/linkcheck"]');
+    if (before) strip.insertBefore(link, before);
+    else strip.appendChild(link);
+  }
 
   function getActivePath() {
     var p = window.location.pathname;
@@ -217,6 +238,7 @@
   }
 
   if (navTop && navInner) {
+    ensureDesktopServicesLink(navInner);
     injectHamburger(navTop, navInner);
   }
 }());
