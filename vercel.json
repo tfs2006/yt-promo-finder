@@ -35,6 +35,16 @@
       ]
     }
   ],
+  "redirects": [
+    { "source": "/services", "destination": "/services.html", "permanent": false },
+    { "source": "/services/", "destination": "/services.html", "permanent": false },
+    { "source": "/services-profit", "destination": "/services-profit.html", "permanent": false },
+    { "source": "/services-profit/", "destination": "/services-profit.html", "permanent": false },
+    { "source": "/services-success", "destination": "/services-success.html", "permanent": false },
+    { "source": "/services-success/", "destination": "/services-success.html", "permanent": false },
+    { "source": "/services-cancel", "destination": "/services-cancel.html", "permanent": false },
+    { "source": "/services-cancel/", "destination": "/services-cancel.html", "permanent": false }
+  ],
   "rewrites": [
     { "source": "/api/analyze", "destination": "/api/analyze.js" },
     { "source": "/api/collab", "destination": "/api/collab.js" },
