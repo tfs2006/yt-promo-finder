@@ -17,6 +17,31 @@
   <meta name="description" content="Buy real social media growth services for YouTube, Instagram, TikTok, Facebook, X & more. Followers, likes, views, subscribers — secure Stripe checkout, fast delivery, no account required." />
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="https://promofinder.4ourmedia.com/services" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebPage",
+        "@id": "https://promofinder.4ourmedia.com/services#webpage",
+        "url": "https://promofinder.4ourmedia.com/services",
+        "name": "Buy Social Media Followers, Likes and Views | PromoFinder",
+        "description": "Buy social media growth services with secure Stripe checkout, clear setup steps, and live fulfillment tracking.",
+        "isPartOf": { "@id": "https://promofinder.4ourmedia.com/#website" },
+        "primaryImageOfPage": { "@id": "https://promofinder.4ourmedia.com/services#checkout-flow-image" }
+      },
+      {
+        "@type": "ImageObject",
+        "@id": "https://promofinder.4ourmedia.com/services#checkout-flow-image",
+        "name": "Social services checkout and fulfillment flow",
+        "description": "Inline SVG diagram showing service selection, secure Stripe payment, provider fulfillment, and status tracking.",
+        "contentUrl": "https://promofinder.4ourmedia.com/services#checkout-flow"
+      }
+    ]
+  }
+  </script>
+
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     .spin { animation: spin 1s linear infinite; }
@@ -80,7 +105,10 @@
         Hundreds of real social media growth services for YouTube, Instagram, TikTok, Facebook, X, and Telegram. Pick a service, enter your link, and pay securely — most orders start within minutes.
       </p>
 
-      <figure class="mt-6 svg-feature-card p-4 md:p-5 max-w-4xl">
+      <figure id="checkout-flow" class="mt-6 svg-feature-card p-4 md:p-5 max-w-4xl" itemscope itemtype="https://schema.org/ImageObject">
+        <meta itemprop="name" content="Social services checkout and fulfillment flow" />
+        <meta itemprop="description" content="Inline SVG diagram showing service selection, secure Stripe payment, provider fulfillment, and status tracking." />
+        <meta itemprop="contentUrl" content="https://promofinder.4ourmedia.com/services#checkout-flow" />
         <svg
           viewBox="0 0 860 220"
           class="w-full h-auto"
@@ -127,7 +155,7 @@
           <polygon points="331,102 345,108 331,114" fill="#38bdf8"/>
           <polygon points="623,102 637,108 623,114" fill="#34d399"/>
         </svg>
-        <figcaption class="svg-feature-caption mt-2">
+        <figcaption class="svg-feature-caption mt-2" itemprop="caption">
           Service purchase flow: discover products, complete secure checkout, and monitor fulfillment status from one dashboard.
         </figcaption>
       </figure>

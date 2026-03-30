@@ -42,19 +42,38 @@
     "@graph": [
       {
         "@type": "WebSite",
+        "@id": "https://promofinder.4ourmedia.com/#website",
         "name": "YouTube Promo Finder",
         "url": "https://promofinder.4ourmedia.com/",
         "description": "Free YouTube channel analysis tools � find sponsorships, unlisted videos, revenue estimates, and more."
       },
       {
         "@type": "WebApplication",
+        "@id": "https://promofinder.4ourmedia.com/#app",
         "name": "YouTube Sponsorship Finder",
         "url": "https://promofinder.4ourmedia.com/",
         "description": "Analyze any YouTube channel and uncover every sponsorship, affiliate link, and brand partnership from the last 12 months.",
         "applicationCategory": "UtilityApplication",
         "operatingSystem": "Web",
+        "isPartOf": { "@id": "https://promofinder.4ourmedia.com/#website" },
         "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
         "featureList": ["Find all sponsorships on any channel", "Detect affiliate links", "12 months of video analysis", "Export to CSV/JSON", "No login required"]
+      },
+      {
+        "@type": "WebPage",
+        "@id": "https://promofinder.4ourmedia.com/#webpage",
+        "url": "https://promofinder.4ourmedia.com/",
+        "name": "YouTube Sponsorship Finder - Discover Brand Deals and Affiliate Links on Any Channel",
+        "description": "Free YouTube sponsorship finder that maps brand deals, affiliate links, and promotion patterns across the last 12 months of videos.",
+        "isPartOf": { "@id": "https://promofinder.4ourmedia.com/#website" },
+        "primaryImageOfPage": { "@id": "https://promofinder.4ourmedia.com/#promo-signal-map-image" }
+      },
+      {
+        "@type": "ImageObject",
+        "@id": "https://promofinder.4ourmedia.com/#promo-signal-map-image",
+        "name": "YouTube sponsorship signal map illustration",
+        "description": "Inline SVG graph that visualizes videos, sponsor mentions, affiliate links, promo codes, and brand clusters.",
+        "contentUrl": "https://promofinder.4ourmedia.com/#promo-signal-map"
       },
       {
         "@type": "FAQPage",
@@ -180,7 +199,10 @@
         </div>
       </div>
 
-      <figure class="mt-7 svg-feature-card p-4 md:p-5 max-w-3xl">
+      <figure id="promo-signal-map" class="mt-7 svg-feature-card p-4 md:p-5 max-w-3xl" itemscope itemtype="https://schema.org/ImageObject">
+        <meta itemprop="name" content="YouTube sponsorship signal map illustration" />
+        <meta itemprop="description" content="Inline SVG graph that visualizes videos, sponsor mentions, affiliate links, promo codes, and brand clusters." />
+        <meta itemprop="contentUrl" content="https://promofinder.4ourmedia.com/#promo-signal-map" />
         <svg
           viewBox="0 0 760 250"
           class="w-full h-auto"
@@ -232,7 +254,7 @@
             <text x="14" y="60" fill="#94a3b8" font-size="10" font-family="Inter, sans-serif">Time window: last 12 months</text>
           </g>
         </svg>
-        <figcaption class="svg-feature-caption mt-2">
+        <figcaption class="svg-feature-caption mt-2" itemprop="caption">
           Visual sponsorship graph for SEO context: videos, brand mentions, affiliate links, and promo patterns analyzed together.
         </figcaption>
       </figure>
@@ -405,12 +427,12 @@
               What You'll Find
             </h3>
             <ul class="space-y-2 text-slate-300 text-sm">
-              <li class="flex items-start gap-2"><span class="text-emerald-400">�</span> Affiliate links (Amazon Associates, Impact, ShareASale, etc.)</li>
-              <li class="flex items-start gap-2"><span class="text-emerald-400">�</span> Sponsored product links with tracking codes</li>
-              <li class="flex items-start gap-2"><span class="text-emerald-400">�</span> Recurring brand partnerships (NordVPN, Squarespace, etc.)</li>
-              <li class="flex items-start gap-2"><span class="text-emerald-400">�</span> Creator discount codes and referral links</li>
-              <li class="flex items-start gap-2"><span class="text-emerald-400">�</span> Equipment and gear recommendations</li>
-              <li class="flex items-start gap-2"><span class="text-emerald-400">�</span> Podcast and social media cross-promotions</li>
+              <li class="flex items-start gap-2"><svg class="w-4 h-4 mt-0.5 text-emerald-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg><span>Affiliate links (Amazon Associates, Impact, ShareASale, etc.)</span></li>
+              <li class="flex items-start gap-2"><svg class="w-4 h-4 mt-0.5 text-emerald-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg><span>Sponsored product links with tracking codes</span></li>
+              <li class="flex items-start gap-2"><svg class="w-4 h-4 mt-0.5 text-emerald-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg><span>Recurring brand partnerships (NordVPN, Squarespace, etc.)</span></li>
+              <li class="flex items-start gap-2"><svg class="w-4 h-4 mt-0.5 text-emerald-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg><span>Creator discount codes and referral links</span></li>
+              <li class="flex items-start gap-2"><svg class="w-4 h-4 mt-0.5 text-emerald-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg><span>Equipment and gear recommendations</span></li>
+              <li class="flex items-start gap-2"><svg class="w-4 h-4 mt-0.5 text-emerald-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg><span>Podcast and social media cross-promotions</span></li>
             </ul>
           </div>
           <div>
