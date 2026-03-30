@@ -165,6 +165,9 @@
 
         <div id="servicesStatus" class="hidden rounded-xl px-4 py-3 text-sm"></div>
         <div id="servicesGrid" class="space-y-4"></div>
+        <div class="mt-4">
+          <button id="loadMoreServices" type="button" class="hidden w-full rounded-xl border border-slate-700 px-4 py-3 text-sm font-medium text-slate-200 hover:bg-slate-800 transition"></button>
+        </div>
       </div>
 
       <div class="lg:col-span-5" id="checkoutPanel">
@@ -260,6 +263,7 @@
   <script>
     const servicesGrid = document.getElementById('servicesGrid');
     const servicesStatus = document.getElementById('servicesStatus');
+    const loadMoreServices = document.getElementById('loadMoreServices');
     const serviceSearch = document.getElementById('serviceSearch');
     const categoryFilter = document.getElementById('categoryFilter');
     const reloadServices = document.getElementById('reloadServices');
@@ -288,8 +292,13 @@
       currency: 'usd',
       quickPlatform: 'all',
       quickDifficulty: 'all',
-      showAdvancedFields: false
+      showAdvancedFields: false,
+      visibleCount: 0
     };
+
+    const INITIAL_RENDER_LIMIT_MOBILE = 100;
+    const INITIAL_RENDER_LIMIT_DESKTOP = 220;
+    const LOAD_MORE_STEP = 120;
 
     const FIELD_CONFIG = {
       link: {
@@ -370,6 +379,35 @@
     const OPTIONAL_FIELDS = ['runs', 'interval'];
     const NUMERIC_FIELDS = ['quantity', 'runs', 'interval', 'min', 'max', 'posts', 'delay', 'expiry'];
     const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    function debounce(fn, delay) {
+      let timer = null;
+      return (...args) => {
+        clearTimeout(timer);
+        timer = setTimeout(() => fn(...args), delay);
+      };
+    }
+
+    function getInitialRenderLimit() {
+      return window.innerWidth < 768 ? INITIAL_RENDER_LIMIT_MOBILE : INITIAL_RENDER_LIMIT_DESKTOP;
+    }
+
+    function resetVisibleCount() {
+      state.visibleCount = Math.min(getInitialRenderLimit(), state.filtered.length);
+    }
+
+    function updateLoadMoreButton(totalCount) {
+      if (!totalCount || state.visibleCount >= totalCount) {
+        loadMoreServices.classList.add('hidden');
+        loadMoreServices.textContent = '';
+        return;
+      }
+
+      const remaining = totalCount - state.visibleCount;
+      const nextChunk = Math.min(LOAD_MORE_STEP, remaining);
+      loadMoreServices.textContent = `Load ${nextChunk} more services (${remaining} left)`;
+      loadMoreServices.classList.remove('hidden');
+    }
 
     function normalizeListValue(value, options = {}) {
       const text = String(value || '');
@@ -1033,9 +1071,11 @@
       `;
     }
 
-    function selectService(serviceId) {
+    function selectService(serviceId, options = {}) {
       const service = state.services.find((item) => item.serviceId === serviceId);
       if (!service) return;
+
+      const shouldScroll = options.scrollIntoView !== false;
 
       state.selected = service;
       state.showAdvancedFields = false;
@@ -1057,18 +1097,22 @@
         active.classList.add('border-sky-500/70', 'bg-slate-800/80', 'ring-1', 'ring-sky-400/30');
       }
 
-      if (window.innerWidth < 1024) {
+      if (shouldScroll && window.innerWidth < 1024) {
         checkoutPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
     }
 
     function renderServices() {
-      if (!state.filtered.length) {
+      const totalMatched = state.filtered.length;
+      const visible = state.filtered.slice(0, state.visibleCount || getInitialRenderLimit());
+
+      if (!totalMatched) {
         servicesGrid.innerHTML = '<div class="glass-effect border border-slate-700/50 rounded-2xl p-6 text-slate-300">No services matched your search. Try a broader keyword.</div>';
+        updateLoadMoreButton(totalMatched);
         return;
       }
 
-      const grouped = state.filtered.reduce((acc, service) => {
+      const grouped = visible.reduce((acc, service) => {
         const key = service.category || 'Uncategorized';
         if (!acc[key]) acc[key] = [];
         acc[key].push(service);
@@ -1128,7 +1172,16 @@
         `);
       }
 
+      if (visible.length < totalMatched) {
+        chunks.unshift(`
+          <div class="rounded-2xl border border-slate-700/60 bg-slate-900/60 px-4 py-3 text-sm text-slate-300">
+            Showing ${visible.length} of ${totalMatched} matching services.
+          </div>
+        `);
+      }
+
       servicesGrid.innerHTML = chunks.join('');
+      updateLoadMoreButton(totalMatched);
 
       for (const card of document.querySelectorAll('[data-service-card]')) {
         card.addEventListener('click', () => {
@@ -1165,6 +1218,8 @@
         state.filtered = state.filtered.filter((service) => getDifficultyKey(service) === state.quickDifficulty);
       }
 
+      resetVisibleCount();
+
       renderServices();
       if (state.selected) {
         const selectedStillVisible = state.filtered.some((item) => item.serviceId === state.selected.serviceId);
@@ -1199,12 +1254,14 @@
         state.filtered = [...state.services];
         state.currency = (data.currency || 'usd').toLowerCase();
 
+        resetVisibleCount();
+
         updateCategoryFilterOptions();
         renderQuickFilters();
         renderServices();
 
         if (state.services.length) {
-          selectService(state.services[0].serviceId);
+          selectService(state.services[0].serviceId, { scrollIntoView: false });
         } else {
           renderSelectedService(null);
           renderServiceSetupGuide(null);
@@ -1215,6 +1272,7 @@
         setMessage(servicesStatus, `Loaded ${state.services.length} products across ${categoryCount} categories.`, 'success');
       } catch (error) {
         servicesGrid.innerHTML = '';
+        updateLoadMoreButton(0);
         setMessage(servicesStatus, error.message || 'Could not load services.', 'error');
       }
     }
@@ -1355,9 +1413,17 @@
       }
     });
 
-    serviceSearch.addEventListener('input', filterServices);
+    const debouncedFilterServices = debounce(filterServices, 140);
+
+    serviceSearch.addEventListener('input', debouncedFilterServices);
     categoryFilter.addEventListener('change', filterServices);
     reloadServices.addEventListener('click', loadServices);
+    loadMoreServices.addEventListener('click', () => {
+      const next = Math.min(state.filtered.length, state.visibleCount + LOAD_MORE_STEP);
+      if (next === state.visibleCount) return;
+      state.visibleCount = next;
+      renderServices();
+    });
     customerEmailInput.addEventListener('input', updateEmailStatus);
     customerEmailInput.addEventListener('blur', updateEmailStatus);
     advancedFieldsToggle.addEventListener('click', () => {
