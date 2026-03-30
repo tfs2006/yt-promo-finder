@@ -10,11 +10,6 @@
       "use": "@vercel/static"
     }
   ],
-  "functions": {
-    "api/predictor.js": {
-      "includeFiles": "cache_smm_services_v1.json"
-    }
-  },
   "headers": [
     {
       "source": "/(.*)",
