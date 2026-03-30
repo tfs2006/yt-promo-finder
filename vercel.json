@@ -43,7 +43,11 @@
     { "source": "/services-success", "destination": "/services-success.html", "permanent": false },
     { "source": "/services-success/", "destination": "/services-success.html", "permanent": false },
     { "source": "/services-cancel", "destination": "/services-cancel.html", "permanent": false },
-    { "source": "/services-cancel/", "destination": "/services-cancel.html", "permanent": false }
+    { "source": "/services-cancel/", "destination": "/services-cancel.html", "permanent": false },
+    { "source": "/buy-youtube-subscribers", "destination": "/buy-youtube-subscribers.html", "permanent": false },
+    { "source": "/buy-youtube-subscribers/", "destination": "/buy-youtube-subscribers.html", "permanent": false },
+    { "source": "/buy-instagram-likes", "destination": "/buy-instagram-likes.html", "permanent": false },
+    { "source": "/buy-instagram-likes/", "destination": "/buy-instagram-likes.html", "permanent": false }
   ],
   "rewrites": [
     { "source": "/api/analyze", "destination": "/api/analyze.js" },
