@@ -14,16 +14,13 @@ import {
   validateChannelInput,
   initQuota
 } from "../utils.js";
-import { readFile } from "node:fs/promises";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { createRequire } from "node:module";
 import { handleTikTokMeta, handleTikTokVideo, handleTikTokAudio } from "../lib/tiktokHandlers.js";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const require = createRequire(import.meta.url);
+const smmServicesSnapshot = require("../cache_smm_services_v1.json");
 
 const SMM_CURRENCY = (process.env.SMM_CURRENCY || "usd").toLowerCase();
-const SMM_CACHE_FILE = path.resolve(__dirname, "./cache_smm_services_v1.json");
 const SMM_MEMORY_TTL_MS = 10 * 60 * 1000;
 
 let smmServicesMemory = {
@@ -112,8 +109,7 @@ async function loadSmmServicesFromFile() {
     return smmServicesMemory.data;
   }
 
-  const raw = await readFile(SMM_CACHE_FILE, "utf8");
-  const parsed = JSON.parse(raw);
+  const parsed = smmServicesSnapshot;
 
   if (!Array.isArray(parsed)) {
     throw new Error("Invalid SMM services cache format.");
