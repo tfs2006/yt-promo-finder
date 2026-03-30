@@ -14,11 +14,8 @@ import {
   validateChannelInput,
   initQuota
 } from "../utils.js";
-import { createRequire } from "node:module";
+import smmServicesSnapshot from "../lib/smmServicesSnapshot.js";
 import { handleTikTokMeta, handleTikTokVideo, handleTikTokAudio } from "../lib/tiktokHandlers.js";
-
-const require = createRequire(import.meta.url);
-const smmServicesSnapshot = require("../cache_smm_services_v1.json");
 
 const SMM_CURRENCY = (process.env.SMM_CURRENCY || "usd").toLowerCase();
 const SMM_MEMORY_TTL_MS = 10 * 60 * 1000;
