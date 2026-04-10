@@ -284,8 +284,10 @@
       resultEl.classList.remove('hidden');
       resultEl.className = 'mt-6 fade-in';
 
-      const hasAudio = Boolean(data.hasAudioDownload);
+      const canDownload = data.downloadable !== false;
+      const hasAudio = canDownload && Boolean(data.hasAudioDownload);
       const duration = formatDuration(data.durationSeconds);
+      const warning = String(data.warning || '').trim();
 
       resultEl.innerHTML = `
         <div class="glass-effect border border-slate-700/50 rounded-3xl p-4 sm:p-5 md:p-6 mobile-dense-card">
@@ -298,17 +300,24 @@
               <h2 class="text-lg sm:text-xl md:text-2xl font-semibold leading-tight">${data.title || 'YouTube video'}</h2>
               <p class="text-slate-400 mt-2">by ${data.author || 'YouTube creator'}${duration ? ` • ${duration}` : ''}</p>
               <p class="text-[11px] sm:text-xs text-slate-500 mt-3 sm:mt-4 mono break-all">${data.sourceUrl || ''}</p>
+              ${warning ? `<p class="mt-3 text-xs sm:text-sm text-amber-200 border border-amber-500/35 bg-amber-500/10 rounded-lg px-3 py-2">${warning}</p>` : ''}
 
-              <div class="mt-5 sm:mt-6 flex flex-col sm:flex-row gap-2 sm:gap-3">
-                <button id="downloadVideo" class="w-full sm:w-auto inline-flex items-center justify-center px-5 py-3 rounded-xl bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-400 hover:to-orange-400 text-white font-semibold transition-all">
-                  Download Video
-                </button>
-                ${hasAudio ? `<button id="downloadAudio" class="w-full sm:w-auto inline-flex items-center justify-center px-5 py-3 rounded-xl border border-slate-600 hover:border-amber-400 bg-slate-900/70 text-slate-100 font-semibold transition-all">Download Audio</button>` : ''}
-              </div>
+              ${canDownload ? `
+                <div class="mt-5 sm:mt-6 flex flex-col sm:flex-row gap-2 sm:gap-3">
+                  <button id="downloadVideo" class="w-full sm:w-auto inline-flex items-center justify-center px-5 py-3 rounded-xl bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-400 hover:to-orange-400 text-white font-semibold transition-all">
+                    Download Video
+                  </button>
+                  ${hasAudio ? `<button id="downloadAudio" class="w-full sm:w-auto inline-flex items-center justify-center px-5 py-3 rounded-xl border border-slate-600 hover:border-amber-400 bg-slate-900/70 text-slate-100 font-semibold transition-all">Download Audio</button>` : ''}
+                </div>
+              ` : ''}
             </div>
           </div>
         </div>
       `;
+
+      if (!canDownload) {
+        return;
+      }
 
       const videoBtn = document.getElementById('downloadVideo');
       videoBtn.addEventListener('click', () => {
@@ -346,7 +355,11 @@
         }
 
         clearStatus();
-        setStatus('Media found. Choose what you want to download.', 'success');
+        if (data.downloadable === false) {
+          setStatus('Video loaded, but downloadable streams were blocked for this request.', 'info');
+        } else {
+          setStatus('Media found. Choose what you want to download.', 'success');
+        }
         renderResult(data);
       } catch (error) {
         setStatus(error.message || 'Request failed. Please try again.', 'error');
