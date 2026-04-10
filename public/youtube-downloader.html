@@ -200,7 +200,31 @@
       };
 
       statusEl.className = `mt-6 rounded-2xl border p-4 sm:p-5 fade-in mobile-dense-card ${styles[tone] || styles.info}`;
-      statusEl.innerHTML = `<p class="text-sm">${message}</p>`;
+      statusEl.innerHTML = '<p class="text-sm"></p>';
+      const statusText = statusEl.querySelector('p');
+      if (statusText) statusText.textContent = String(message || '');
+    }
+
+    function escapeHtml(value) {
+      return String(value || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function safeHttpUrl(value) {
+      if (!value) return '';
+      try {
+        const parsed = new URL(String(value));
+        if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
+          return parsed.toString();
+        }
+      } catch {
+        // Ignore URL parsing errors and return empty fallback.
+      }
+      return '';
     }
 
     function clearStatus() {
@@ -288,19 +312,24 @@
       const hasAudio = canDownload && Boolean(data.hasAudioDownload);
       const duration = formatDuration(data.durationSeconds);
       const warning = String(data.warning || '').trim();
+      const title = escapeHtml(data.title || 'YouTube video');
+      const author = escapeHtml(data.author || 'YouTube creator');
+      const sourceUrl = escapeHtml(data.sourceUrl || '');
+      const warningText = escapeHtml(warning);
+      const coverUrl = safeHttpUrl(data.coverUrl);
 
       resultEl.innerHTML = `
         <div class="glass-effect border border-slate-700/50 rounded-3xl p-4 sm:p-5 md:p-6 mobile-dense-card">
           <div class="grid md:grid-cols-[220px,1fr] gap-4 sm:gap-6 items-start">
             <div>
-              ${data.coverUrl ? `<img src="${data.coverUrl}" alt="YouTube thumbnail" class="w-full max-w-[320px] mx-auto md:mx-0 rounded-2xl object-cover border border-slate-700/50" referrerpolicy="no-referrer" />` : `<div class="h-56 rounded-2xl bg-slate-800 border border-slate-700/50"></div>`}
+              ${coverUrl ? `<img src="${coverUrl}" alt="YouTube thumbnail" class="w-full max-w-[320px] mx-auto md:mx-0 rounded-2xl object-cover border border-slate-700/50" referrerpolicy="no-referrer" />` : `<div class="h-56 rounded-2xl bg-slate-800 border border-slate-700/50"></div>`}
             </div>
             <div>
               <p class="text-xs uppercase tracking-widest text-red-300 mb-2">Ready to Download</p>
-              <h2 class="text-lg sm:text-xl md:text-2xl font-semibold leading-tight">${data.title || 'YouTube video'}</h2>
-              <p class="text-slate-400 mt-2">by ${data.author || 'YouTube creator'}${duration ? ` • ${duration}` : ''}</p>
-              <p class="text-[11px] sm:text-xs text-slate-500 mt-3 sm:mt-4 mono break-all">${data.sourceUrl || ''}</p>
-              ${warning ? `<p class="mt-3 text-xs sm:text-sm text-amber-200 border border-amber-500/35 bg-amber-500/10 rounded-lg px-3 py-2">${warning}</p>` : ''}
+              <h2 class="text-lg sm:text-xl md:text-2xl font-semibold leading-tight">${title}</h2>
+              <p class="text-slate-400 mt-2">by ${author}${duration ? ` • ${duration}` : ''}</p>
+              <p class="text-[11px] sm:text-xs text-slate-500 mt-3 sm:mt-4 mono break-all">${sourceUrl}</p>
+              ${warning ? `<p class="mt-3 text-xs sm:text-sm text-amber-200 border border-amber-500/35 bg-amber-500/10 rounded-lg px-3 py-2">${warningText}</p>` : ''}
 
               ${canDownload ? `
                 <div class="mt-5 sm:mt-6 flex flex-col sm:flex-row gap-2 sm:gap-3">
