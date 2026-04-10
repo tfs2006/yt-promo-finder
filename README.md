@@ -100,11 +100,19 @@ A comprehensive suite of YouTube channel analysis tools to discover sponsorships
    npm install
    ```
 
-3. **Set up environment variables**
+3. **Build Tailwind CSS (production local stylesheet)**
+   ```bash
+   npm run build:css
+   ```
+
+4. **Set up environment variables**
    
    Create a `.env` file in the root directory:
    ```env
    YOUTUBE_API_KEY=your_youtube_api_key_here
+   # Optional YouTube downloader auth hints
+   YOUTUBE_PO_TOKEN=
+   YOUTUBE_VISITOR_DATA=
    PORT=3000
    ```
 
@@ -115,12 +123,12 @@ A comprehensive suite of YouTube channel analysis tools to discover sponsorships
    - Create credentials (API Key)
    - Copy the API key to your `.env` file
 
-4. **Start the server**
+5. **Start the server**
    ```bash
    npm start
    ```
 
-5. **Open your browser**
+6. **Open your browser**
    
    Navigate to `http://localhost:3000`
 
@@ -219,6 +227,8 @@ See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed instructions for Render, Railway
 | Variable | Description | Required |
 |----------|-------------|----------|
 | `YOUTUBE_API_KEY` | Your YouTube Data API v3 key | Yes |
+| `YOUTUBE_PO_TOKEN` | Optional PoToken to improve YouTube downloader extraction reliability | No |
+| `YOUTUBE_VISITOR_DATA` | Optional visitorData paired with `YOUTUBE_PO_TOKEN` | No |
 | `PORT` | Server port (default: 3000) | No |
 
 ## 📝 API Endpoints
