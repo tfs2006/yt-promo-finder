@@ -33,6 +33,11 @@ A comprehensive suite of YouTube channel analysis tools to discover sponsorships
 - Save no-watermark video when available
 - Export audio track as MP3-compatible download
 
+### ▶️ YouTube Downloader
+- Fetch downloadable YouTube streams from public video URLs
+- Download progressive video (audio+video) when available
+- Export audio-only tracks for offline listening
+
 ### 📈 Growth Tracker
 - Analyze channel statistics and upload patterns
 - See posting schedules and upload frequency
@@ -163,7 +168,8 @@ yt-promo-finder/
 │   ├── saturation.js   # Sponsor saturation score endpoint
 │   └── quota.js        # API quota status endpoint
 ├── lib/
-│   └── tiktokHandlers.js # Shared TikTok metadata and proxy handlers
+│   ├── tiktokHandlers.js # Shared TikTok metadata and proxy handlers
+│   └── youtubeHandlers.js # Shared YouTube metadata and proxy handlers
 ├── public/
 │   ├── index.html      # Main promotion finder UI
 │   ├── domain.html     # Domain search UI
@@ -175,6 +181,7 @@ yt-promo-finder/
 │   ├── viral.html      # Viral detector UI
 │   ├── saturation.html # Saturation score UI
 │   ├── tiktok.html     # TikTok downloader UI
+│   ├── youtube-downloader.html # YouTube downloader UI
 │   ├── privacy.html    # Privacy policy
 │   ├── terms.html      # Terms of service
 │   └── disclaimer.html # Disclaimer

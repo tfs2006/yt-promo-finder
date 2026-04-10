@@ -16,6 +16,7 @@ import {
 } from "../utils.js";
 import smmServicesSnapshot from "../lib/smmServicesSnapshot.js";
 import { handleTikTokMeta, handleTikTokVideo, handleTikTokAudio } from "../lib/tiktokHandlers.js";
+import { handleYouTubeMeta, handleYouTubeVideo, handleYouTubeAudio } from "../lib/youtubeHandlers.js";
 import {
   handleSmmCreateCheckout,
   handleStripeWebhook,
@@ -588,6 +589,15 @@ export default async function handler(req, res) {
   }
   if (pathname === "/api/tiktok-audio") {
     return handleTikTokAudio(req, res);
+  }
+  if (pathname === "/api/youtube") {
+    return handleYouTubeMeta(req, res);
+  }
+  if (pathname === "/api/youtube-video") {
+    return handleYouTubeVideo(req, res);
+  }
+  if (pathname === "/api/youtube-audio") {
+    return handleYouTubeAudio(req, res);
   }
 
   if (applyApiGuards(req, res, { rateKey: "predictor", maxRequests: 8, windowMs: 60_000 })) return;

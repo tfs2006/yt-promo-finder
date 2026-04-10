@@ -55,7 +55,9 @@
     { "source": "/unlisted-video-finder-by-channel", "destination": "/unlisted-video-finder-by-channel.html", "permanent": false },
     { "source": "/unlisted-video-finder-by-channel/", "destination": "/unlisted-video-finder-by-channel.html", "permanent": false },
     { "source": "/youtube-unlisted-video-finder", "destination": "/youtube-unlisted-video-finder.html", "permanent": false },
-    { "source": "/youtube-unlisted-video-finder/", "destination": "/youtube-unlisted-video-finder.html", "permanent": false }
+    { "source": "/youtube-unlisted-video-finder/", "destination": "/youtube-unlisted-video-finder.html", "permanent": false },
+    { "source": "/youtube-downloader", "destination": "/youtube-downloader.html", "permanent": false },
+    { "source": "/youtube-downloader/", "destination": "/youtube-downloader.html", "permanent": false }
   ],
   "rewrites": [
     { "source": "/api/analyze", "destination": "/api/analyze.js" },
@@ -79,9 +81,13 @@
     { "source": "/api/tiktok", "destination": "/api/predictor.js" },
     { "source": "/api/tiktok-video", "destination": "/api/predictor.js" },
     { "source": "/api/tiktok-audio", "destination": "/api/predictor.js" },
+    { "source": "/api/youtube", "destination": "/api/predictor.js" },
+    { "source": "/api/youtube-video", "destination": "/api/predictor.js" },
+    { "source": "/api/youtube-audio", "destination": "/api/predictor.js" },
     { "source": "/compare", "destination": "/public/compare.html" },
     { "source": "/linkcheck", "destination": "/public/linkcheck.html" },
     { "source": "/tiktok", "destination": "/public/tiktok.html" },
+    { "source": "/youtube-downloader", "destination": "/public/youtube-downloader.html" },
     { "source": "/rate", "destination": "/public/rate.html" },
     { "source": "/viral", "destination": "/public/viral.html" },
     { "source": "/saturation", "destination": "/public/saturation.html" },

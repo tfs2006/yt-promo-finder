@@ -89,9 +89,30 @@
     { href: '/revenue',    label: 'Revenue Calculator', color: 'lime'    },
     { href: '/predictor',  label: 'Perf. Predictor',    color: 'cyan'    },
     { href: '/tiktok',     label: 'TikTok Downloader',  color: 'rose'    },
+    { href: '/youtube-downloader', label: 'YouTube Downloader', color: 'orange' },
     { href: '/services',   label: 'Social Services',    color: 'sky'     },
     { href: '/linkcheck',  label: 'Link Checker',       color: 'sky'     }
   ];
+
+  function ensureDesktopYouTubeDownloaderLink(navInner) {
+    var strip = navInner ? navInner.querySelector('.tool-strip') : null;
+    if (!strip) return;
+
+    var existing = strip.querySelector('a[href="/youtube-downloader"]');
+    if (existing) return;
+
+    var activePath = getActivePath();
+    var link = document.createElement('a');
+    link.href = '/youtube-downloader';
+    link.className = activePath === '/youtube-downloader'
+      ? 'tool-chip chip-active-amber'
+      : 'tool-chip';
+    link.textContent = 'YouTube Downloader';
+
+    var before = strip.querySelector('a[href="/services"]');
+    if (before) strip.insertBefore(link, before);
+    else strip.appendChild(link);
+  }
 
   function ensureDesktopServicesLink(navInner) {
     var strip = navInner ? navInner.querySelector('.tool-strip') : null;
@@ -238,6 +259,7 @@
   }
 
   if (navTop && navInner) {
+    ensureDesktopYouTubeDownloaderLink(navInner);
     ensureDesktopServicesLink(navInner);
     injectHamburger(navTop, navInner);
   }
