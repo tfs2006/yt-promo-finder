@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  var PROMO_KEY = 'speakly_v1_dismissed';
+  var PROMO_KEY = 'botworld_v1_dismissed';
 
   // --- Color map for inline active styles ---
   var COLOR = {
@@ -19,41 +19,41 @@
     sky:     { color: '#38bdf8', bg: 'rgba(14,165,233,0.12)', border: 'rgba(14,165,233,0.28)'  }
   };
 
-  // --- Speakly promo bar ---
+  // --- Bot World promo bar ---
   function injectPromoBar(nav) {
     var bar = document.createElement('div');
     bar.id = 'speakly-bar';
     bar.style.cssText = [
       'display:flex','align-items:center','justify-content:center',
       'padding:7px 40px 7px 12px',
-      'background:linear-gradient(90deg,rgba(109,40,217,0.08),rgba(139,92,246,0.06) 50%,rgba(109,40,217,0.08))',
-      'border-bottom:1px solid rgba(139,92,246,0.2)',
-      'font-size:0.72rem','font-family:inherit','color:#c4b5fd',
+      'background:linear-gradient(90deg,rgba(6,182,212,0.10),rgba(45,212,191,0.08) 50%,rgba(6,182,212,0.10))',
+      'border-bottom:1px solid rgba(45,212,191,0.28)',
+      'font-size:0.72rem','font-family:inherit','color:#99f6e4',
       'position:relative','min-height:32px','box-sizing:border-box','width:100%'
     ].join(';');
 
     var link = document.createElement('a');
-    link.href = 'https://www.genspark.ai/speakly/invite/ZjEwYTVjYjdMZjA3ZkxlZjQ0TDc3OTNjOWIzMjVkYkw5ODJh';
+    link.href = 'https://bots.davidjwoodbury.com/bot-world.html';
     link.target = '_blank';
-    link.rel = 'noopener sponsored';
+    link.rel = 'noopener';
     link.style.cssText = 'display:inline-flex;align-items:center;gap:8px;text-decoration:none;color:inherit;flex-wrap:wrap;justify-content:center;line-height:1.4;text-align:center;';
 
     var txt = document.createElement('span');
-    txt.innerHTML = 'I\u2019ve found <strong>Genspark Speakly</strong> incredibly smooth \u2014 doubled my work efficiency.';
+    txt.innerHTML = 'Explore <strong>Bot World</strong>: four autonomous bots, live telemetry, and 24/7 paper-trading experiments in public.';
 
     var badge = document.createElement('span');
-    badge.textContent = 'Get free membership \u2192';
-    badge.style.cssText = 'display:inline-flex;align-items:center;padding:2px 9px;border-radius:100px;background:rgba(139,92,246,0.2);border:1px solid rgba(139,92,246,0.38);color:#a78bfa;font-weight:600;font-size:0.68rem;white-space:nowrap;flex-shrink:0;';
+    badge.textContent = 'Enter Bot World \u2192';
+    badge.style.cssText = 'display:inline-flex;align-items:center;padding:2px 9px;border-radius:100px;background:rgba(20,184,166,0.22);border:1px solid rgba(45,212,191,0.4);color:#5eead4;font-weight:600;font-size:0.68rem;white-space:nowrap;flex-shrink:0;';
 
     link.appendChild(txt);
     link.appendChild(badge);
 
     var dismiss = document.createElement('button');
     dismiss.setAttribute('aria-label', 'Dismiss');
-    dismiss.style.cssText = 'position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:#7c3aed;cursor:pointer;width:26px;height:26px;display:flex;align-items:center;justify-content:center;border-radius:5px;padding:0;font-size:14px;line-height:1;font-family:inherit;';
+    dismiss.style.cssText = 'position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:#0f766e;cursor:pointer;width:26px;height:26px;display:flex;align-items:center;justify-content:center;border-radius:5px;padding:0;font-size:14px;line-height:1;font-family:inherit;';
     dismiss.innerHTML = '&#x2715;';
-    dismiss.addEventListener('mouseenter', function () { this.style.color = '#c4b5fd'; });
-    dismiss.addEventListener('mouseleave', function () { this.style.color = '#7c3aed'; });
+    dismiss.addEventListener('mouseenter', function () { this.style.color = '#99f6e4'; });
+    dismiss.addEventListener('mouseleave', function () { this.style.color = '#0f766e'; });
 
     bar.appendChild(link);
     bar.appendChild(dismiss);
