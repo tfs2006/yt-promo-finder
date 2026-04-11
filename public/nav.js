@@ -90,9 +90,30 @@
     { href: '/predictor',  label: 'Perf. Predictor',    color: 'cyan'    },
     { href: '/tiktok',     label: 'TikTok Downloader',  color: 'rose'    },
     { href: '/youtube-downloader', label: 'YouTube Downloader', color: 'orange' },
+    { href: '/ad-library-finder', label: 'Ad Library Finder', color: 'sky' },
     { href: '/services',   label: 'Social Services',    color: 'sky'     },
     { href: '/linkcheck',  label: 'Link Checker',       color: 'sky'     }
   ];
+
+  function ensureDesktopAdLibraryLink(navInner) {
+    var strip = navInner ? navInner.querySelector('.tool-strip') : null;
+    if (!strip) return;
+
+    var existing = strip.querySelector('a[href="/ad-library-finder"]');
+    if (existing) return;
+
+    var activePath = getActivePath();
+    var link = document.createElement('a');
+    link.href = '/ad-library-finder';
+    link.className = activePath === '/ad-library-finder'
+      ? 'tool-chip chip-active-sky'
+      : 'tool-chip';
+    link.textContent = 'Ad Library Finder';
+
+    var before = strip.querySelector('a[href="/services"]');
+    if (before) strip.insertBefore(link, before);
+    else strip.appendChild(link);
+  }
 
   function ensureDesktopYouTubeDownloaderLink(navInner) {
     var strip = navInner ? navInner.querySelector('.tool-strip') : null;
@@ -259,6 +280,7 @@
   }
 
   if (navTop && navInner) {
+    ensureDesktopAdLibraryLink(navInner);
     ensureDesktopYouTubeDownloaderLink(navInner);
     ensureDesktopServicesLink(navInner);
     injectHamburger(navTop, navInner);

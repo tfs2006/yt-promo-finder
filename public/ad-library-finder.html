@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-4Y4X38W3FZ"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-4Y4X38W3FZ');
+  </script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ad Library Finder - Search Meta, Google, TikTok, LinkedIn Ads</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/nav.js" defer></script>
+  <meta name="description" content="Search ads across public ad libraries from one tool. Launch searches for Meta Ad Library, Google Ads Transparency, TikTok Creative Center, LinkedIn, and more." />
+  <meta name="keywords" content="ad library finder, facebook ad library search, google ads transparency search, tiktok ad library, linkedin ad library" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://promofinder.4ourmedia.com/ad-library-finder" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Ad Library Finder - Multi-Platform Ad Research Tool" />
+  <meta property="og:description" content="Run one search and open matching ad searches across major public ad libraries." />
+  <meta property="og:url" content="https://promofinder.4ourmedia.com/ad-library-finder" />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Ad Library Finder" />
+  <meta name="twitter:description" content="Search Meta, Google, TikTok, LinkedIn, and Reddit ad libraries from one place." />
+
+  <link rel="stylesheet" href="/tailwind.css">
+  <style>
+    .glass-effect { background: rgba(15, 23, 42, 0.62); backdrop-filter: blur(12px); }
+    .fade-in { animation: fadein 0.35s ease-out; }
+    @keyframes fadein { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-100 min-h-screen">
+<nav class="site-nav">
+  <div class="site-nav-inner">
+    <div class="site-nav-top">
+      <a href="/" class="site-logo">
+        <div class="site-logo-mark">
+          <svg width="17" height="17" viewBox="0 0 17 17" fill="none"><circle cx="6.5" cy="6.5" r="4.5" stroke="white" stroke-width="1.6"/><polygon points="4.5,4.5 4.5,8.5 8.5,6.5" fill="white"/><line x1="10" y1="10" x2="15" y2="15" stroke="white" stroke-width="1.6" stroke-linecap="round"/></svg>
+        </div>
+        <span class="site-logo-text">Promo<span>Finder</span></span>
+      </a>
+      <a href="https://4ourmedia.com" target="_blank" rel="noopener" class="site-nav-external">4ourmedia.com</a>
+    </div>
+    <div class="tool-strip">
+      <a href="/" class="tool-chip">Promo Finder</a>
+      <a href="/unlisted" class="tool-chip">Unlisted Videos</a>
+      <a href="/youtube-downloader" class="tool-chip">YouTube Downloader</a>
+      <a href="/ad-library-finder" class="tool-chip chip-active-sky">Ad Library Finder</a>
+      <a href="/services" class="tool-chip">Social Services</a>
+    </div>
+  </div>
+</nav>
+
+<main class="max-w-6xl mx-auto px-4 py-10 md:py-14">
+  <header class="mb-8">
+    <p class="inline-flex px-3 py-1 rounded-full border border-sky-500/30 bg-sky-500/10 text-sky-200 text-xs uppercase tracking-wide">Cross-platform ad research</p>
+    <h1 class="text-3xl md:text-5xl font-bold mt-3">Ad Library Finder</h1>
+    <p class="mt-4 text-slate-300 max-w-3xl text-lg">Search one keyword, brand, or domain and instantly open ad searches across major public ad libraries from one dashboard.</p>
+  </header>
+
+  <section class="glass-effect border border-slate-700/50 rounded-3xl p-5 md:p-7">
+    <form id="searchForm" class="grid gap-3 md:grid-cols-[1fr,150px,auto]">
+      <input id="queryInput" type="text" required maxlength="140" placeholder="nike, openai, example.com" class="w-full rounded-xl bg-slate-900/80 border border-slate-700 px-4 py-3.5 outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500" aria-label="Search query" />
+      <select id="regionInput" class="rounded-xl bg-slate-900/80 border border-slate-700 px-4 py-3.5 outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500" aria-label="Region">
+        <option value="US">US</option>
+        <option value="CA">CA</option>
+        <option value="GB">GB</option>
+        <option value="AU">AU</option>
+      </select>
+      <button id="submitBtn" type="submit" class="rounded-xl bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-400 hover:to-cyan-400 text-white font-semibold px-6 py-3.5 transition">Find Ads</button>
+    </form>
+    <p class="mt-4 text-xs text-slate-400">Tip: search by advertiser brand name first, then try exact domain for tighter ad matches.</p>
+  </section>
+
+  <section id="status" class="mt-5 hidden"></section>
+
+  <section id="results" class="mt-6 hidden">
+    <div class="flex flex-wrap gap-3 items-center justify-between mb-4">
+      <h2 class="text-xl md:text-2xl font-bold">Available Ad Libraries</h2>
+      <button id="openAllBtn" class="rounded-lg border border-sky-400/35 bg-sky-500/10 text-sky-200 px-4 py-2 text-sm font-semibold hover:bg-sky-500/20 transition">Open All</button>
+    </div>
+    <div id="cards" class="grid gap-4 md:grid-cols-2 xl:grid-cols-3"></div>
+    <div id="notes" class="mt-5 text-sm text-slate-300"></div>
+  </section>
+
+  <section class="mt-10 grid gap-4 md:grid-cols-3">
+    <article class="glass-effect border border-slate-700/50 rounded-2xl p-5">
+      <h3 class="font-semibold text-sky-200">Research Competitors</h3>
+      <p class="mt-2 text-sm text-slate-300">Track how competitors position offers, hooks, and creative angles across networks.</p>
+    </article>
+    <article class="glass-effect border border-slate-700/50 rounded-2xl p-5">
+      <h3 class="font-semibold text-cyan-200">Find Winning Creatives</h3>
+      <p class="mt-2 text-sm text-slate-300">Spot recurring ad messaging and creative formats that appear across multiple libraries.</p>
+    </article>
+    <article class="glass-effect border border-slate-700/50 rounded-2xl p-5">
+      <h3 class="font-semibold text-emerald-200">Validate Offer Messaging</h3>
+      <p class="mt-2 text-sm text-slate-300">Compare ad claims, headlines, and CTA language before launching your next campaign.</p>
+    </article>
+  </section>
+</main>
+
+<script>
+  const form = document.getElementById('searchForm');
+  const queryInput = document.getElementById('queryInput');
+  const regionInput = document.getElementById('regionInput');
+  const statusEl = document.getElementById('status');
+  const resultsEl = document.getElementById('results');
+  const cardsEl = document.getElementById('cards');
+  const notesEl = document.getElementById('notes');
+  const openAllBtn = document.getElementById('openAllBtn');
+
+  let currentLibraries = [];
+
+  function setStatus(message, tone = 'info') {
+    const map = {
+      info: 'glass-effect border-slate-700/50 text-slate-200',
+      success: 'glass-effect border-emerald-500/40 text-emerald-200',
+      error: 'glass-effect border-rose-500/40 text-rose-200'
+    };
+    statusEl.className = `mt-5 rounded-2xl border p-4 fade-in ${map[tone] || map.info}`;
+    statusEl.textContent = message;
+    statusEl.classList.remove('hidden');
+  }
+
+  function clearStatus() {
+    statusEl.classList.add('hidden');
+    statusEl.textContent = '';
+  }
+
+  function renderResults(data) {
+    currentLibraries = Array.isArray(data.libraries) ? data.libraries : [];
+    cardsEl.innerHTML = '';
+
+    for (const lib of currentLibraries) {
+      const card = document.createElement('article');
+      card.className = 'glass-effect border border-slate-700/50 rounded-2xl p-5 fade-in';
+      card.innerHTML = `
+        <p class="text-xs uppercase tracking-wide text-sky-200">${lib.network || 'Ad network'}</p>
+        <h3 class="mt-1 text-lg font-semibold">${lib.name || 'Ad Library'}</h3>
+        <p class="mt-2 text-sm text-slate-300">${lib.description || ''}</p>
+        <a href="${lib.url}" target="_blank" rel="noopener" class="mt-4 inline-flex items-center rounded-lg bg-sky-500/15 border border-sky-400/35 text-sky-200 px-4 py-2 text-sm font-semibold hover:bg-sky-500/25 transition">Open Search</a>
+      `;
+      cardsEl.appendChild(card);
+    }
+
+    const notes = Array.isArray(data.notes) ? data.notes : [];
+    notesEl.innerHTML = notes.length
+      ? `<p class="font-semibold mb-2 text-slate-200">Search notes</p><ul class="list-disc list-inside space-y-1">${notes.map((n) => `<li>${String(n)}</li>`).join('')}</ul>`
+      : '';
+
+    resultsEl.classList.remove('hidden');
+  }
+
+  openAllBtn.addEventListener('click', () => {
+    if (!currentLibraries.length) return;
+    currentLibraries.forEach((lib) => {
+      if (lib && lib.url) window.open(lib.url, '_blank', 'noopener');
+    });
+  });
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+
+    const query = queryInput.value.trim();
+    const region = regionInput.value;
+
+    if (!query) {
+      setStatus('Enter a keyword, brand, or domain first.', 'error');
+      return;
+    }
+
+    clearStatus();
+    setStatus('Building ad library searches...', 'info');
+
+    try {
+      const response = await fetch(`/api/ad-libraries?query=${encodeURIComponent(query)}&region=${encodeURIComponent(region)}`);
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Unable to build ad library links.');
+      }
+
+      renderResults(data);
+      setStatus(`Loaded ${data.libraries.length} ad libraries for "${data.query}".`, 'success');
+    } catch (error) {
+      setStatus(error.message || 'Request failed. Please try again.', 'error');
+      resultsEl.classList.add('hidden');
+    }
+  });
+</script>
+</body>
+</html>
