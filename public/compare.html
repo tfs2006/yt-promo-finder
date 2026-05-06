@@ -11,35 +11,81 @@
   </script>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>YouTube Sponsor Comparison Tool � Compare Brand Deals Between Two Channels (Free)</title>
+  <title>Compare YouTube Sponsors Between Channels | Sponsor Comparison Tool</title>
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="/styles.css">
   <script src="/nav.js" defer></script>
-  <meta name="description" content="Compare sponsorships between any two YouTube channels. Find shared brands, unique sponsors, and partnership overlap. Free tool for influencer marketing research and competitive analysis." />
-  <meta name="keywords" content="YouTube sponsor comparison, compare YouTube channels, sponsorship overlap tool, influencer competitive analysis, shared YouTube sponsors, brand deal comparison" />
+  <meta name="description" content="Compare two YouTube channels to find shared sponsors, unique brand deals, and overlap in affiliate or sponsorship patterns." />
   <meta name="author" content="David J Woodbury" />
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="https://promofinder.4ourmedia.com/compare" />
   <meta property="og:type" content="website" />
-  <meta property="og:title" content="YouTube Sponsor Comparison � Compare Brand Deals Between Two Channels" />
-  <meta property="og:description" content="Find shared sponsors and brand deal overlaps between any two YouTube channels. Free competitive analysis tool." />
+  <meta property="og:title" content="Compare YouTube Sponsors Between Channels | Sponsor Comparison Tool" />
+  <meta property="og:description" content="Find shared sponsors, unique brand deals, and partnership overlap between any two YouTube channels." />
   <meta property="og:url" content="https://promofinder.4ourmedia.com/compare" />
   <meta property="og:site_name" content="YouTube Promo Finder" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="YouTube Sponsor Comparison Tool � Free Competitive Analysis" />
-  <meta name="twitter:description" content="Compare sponsorships between any two YouTube channels and find shared brand deals. Free tool." />
+  <meta name="twitter:title" content="Compare YouTube Sponsors Between Channels" />
+  <meta name="twitter:description" content="Compare sponsor overlap, shared brands, and unique deals between two YouTube channels." />
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
-    "@type": "WebApplication",
-    "name": "YouTube Sponsor Comparison Tool",
-    "url": "https://promofinder.4ourmedia.com/compare",
-    "description": "Compare brand deals and sponsorships between two YouTube channels to find shared partnerships and competitive insights.",
-    "applicationCategory": "UtilityApplication",
-    "operatingSystem": "Web",
-    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": "https://promofinder.4ourmedia.com/#website",
+        "name": "PromoFinder",
+        "url": "https://promofinder.4ourmedia.com/",
+        "publisher": { "@id": "https://promofinder.4ourmedia.com/#organization" }
+      },
+      {
+        "@type": "Organization",
+        "@id": "https://promofinder.4ourmedia.com/#organization",
+        "name": "PromoFinder",
+        "url": "https://promofinder.4ourmedia.com/",
+        "logo": { "@type": "ImageObject", "url": "https://promofinder.4ourmedia.com/favicon.svg" }
+      },
+      {
+        "@type": "WebApplication",
+        "@id": "https://promofinder.4ourmedia.com/compare#app",
+        "name": "Compare YouTube Sponsors Between Channels",
+        "url": "https://promofinder.4ourmedia.com/compare",
+        "description": "Compare two YouTube channels to find shared sponsors, unique brand deals, and overlap in recurring partnerships.",
+        "applicationCategory": "UtilityApplication",
+        "operatingSystem": "Web",
+        "isPartOf": { "@id": "https://promofinder.4ourmedia.com/#website" },
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://promofinder.4ourmedia.com/" },
+          { "@type": "ListItem", "position": 2, "name": "Compare YouTube Sponsors Between Channels", "item": "https://promofinder.4ourmedia.com/compare" }
+        ]
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "How do I compare sponsors between two YouTube channels?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Enter two YouTube channel URLs and click Compare. The tool analyzes sponsorship data from both channels, then shows shared sponsors, unique sponsors, and overall partnership overlap." }
+          },
+          {
+            "@type": "Question",
+            "name": "Why would I compare YouTube sponsorships competitively?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Comparing sponsorships helps brands see which creators share sponsors with competitors, and helps creators benchmark who is active in their niche." }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I find brands that sponsor multiple YouTube channels in my niche?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Yes. Shared sponsors across multiple channels are strong signals that a brand is actively buying creator partnerships in that niche." }
+          }
+        ]
+      }
+    ]
   }
   </script>
   <link rel="stylesheet" href="/tailwind.css">
@@ -83,17 +129,8 @@
         <a href="/" class="tool-chip">Promo Finder</a>
         <a href="/domain" class="tool-chip">Domain Search</a>
         <a href="/unlisted" class="tool-chip">Unlisted Videos</a>
-        <a href="/growth" class="tool-chip">Growth Tracker</a>
         <a href="/collab" class="tool-chip">Collaborations</a>
         <a href="/compare" class="tool-chip chip-active-pink">Compare Sponsors</a>
-        <a href="/rate" class="tool-chip">Rate Estimator</a>
-        <a href="/viral" class="tool-chip">Viral Detector</a>
-        <a href="/saturation" class="tool-chip">Saturation Score</a>
-        <a href="/revenue" class="tool-chip">Revenue Calculator</a>
-        <a href="/predictor" class="tool-chip">Performance Predictor</a>
-        <a href="/tiktok" class="tool-chip">TikTok Downloader</a>
-        <a href="/services" class="tool-chip">Social Services</a>
-        <a href="/linkcheck" class="tool-chip">Link Checker</a>
     </div>
   </div>
 </nav>
@@ -106,11 +143,11 @@
         <span class="text-sm font-medium text-pink-400">Side-by-Side Analysis</span>
       </div>
       <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
-        <span class="gradient-text">Sponsor</span> Comparison
+        Compare Creator <span class="gradient-text">Sponsors</span>
       </h1>
       <p class="text-slate-300 mt-4 text-lg md:text-xl max-w-3xl">
-        Compare two YouTube channels to discover shared sponsors, unique partnerships, and sponsorship overlap.
-        Perfect for brands seeking influencers or creators benchmarking competitors.
+        Compare two YouTube channels to find shared sponsors, unique brand deals, and overlap in recurring partnerships.
+        Useful for influencer research, brand prospecting, and creator benchmarking.
       </p>
     </header>
 
@@ -193,16 +230,34 @@
     <section id="status" class="mt-6 hidden"></section>
     <section id="results" class="mt-6 space-y-6"></section>
 
+    <section class="mt-14 pt-12 border-t border-slate-800/30">
+      <h2 class="text-2xl md:text-3xl font-bold mb-6 text-center">Related Research Tools</h2>
+      <div class="grid md:grid-cols-3 gap-4 max-w-5xl mx-auto">
+        <a href="/" class="glass-effect border border-emerald-500/25 rounded-2xl p-5 hover:border-emerald-400/45 transition">
+          <p class="font-semibold text-emerald-200">Find YouTube Sponsors</p>
+          <p class="text-sm text-slate-400 mt-2">Run a single-channel sponsor scan before you compare overlap against a second creator.</p>
+        </a>
+        <a href="/domain" class="glass-effect border border-orange-500/25 rounded-2xl p-5 hover:border-orange-400/45 transition">
+          <p class="font-semibold text-orange-200">Find Videos Promoting a Brand</p>
+          <p class="text-sm text-slate-400 mt-2">Search a brand domain to validate whether overlap is tied to the same advertiser or affiliate program.</p>
+        </a>
+        <a href="/collab" class="glass-effect border border-amber-500/25 rounded-2xl p-5 hover:border-amber-400/45 transition">
+          <p class="font-semibold text-amber-200">Find Collaborations</p>
+          <p class="text-sm text-slate-400 mt-2">Check whether sponsor overlap also lines up with shared collaboration networks or channel relationships.</p>
+        </a>
+      </div>
+    </section>
+
     <!-- FAQ Section -->
     <section class="mt-16 pt-12 border-t border-slate-800/30">
-      <h2 class="text-2xl md:text-3xl font-bold mb-8 text-center">YouTube Sponsor Comparison � FAQ</h2>
+      <h2 class="text-2xl md:text-3xl font-bold mb-8 text-center">YouTube Sponsor Comparison FAQ</h2>
       <div class="max-w-3xl mx-auto space-y-4">
         <details class="glass-effect border border-slate-700/50 rounded-2xl p-5 group">
           <summary class="font-semibold cursor-pointer list-none flex justify-between items-center gap-3">
             How do I compare sponsors between two YouTube channels?
             <svg class="w-5 h-5 text-slate-400 flex-shrink-0 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
           </summary>
-          <p class="mt-3 text-slate-400 text-sm leading-relaxed">Enter the URLs of two YouTube channels and click Compare. The tool analyzes sponsorship data from both channels, then shows you shared sponsors (brands that appear on both), sponsors unique to each channel, and the percentage overlap � useful for spotting brands actively investing in a niche.</p>
+          <p class="mt-3 text-slate-400 text-sm leading-relaxed">Enter the URLs of two YouTube channels and click Compare. The tool analyzes sponsorship data from both channels, then shows shared sponsors, sponsors unique to each channel, and the percentage overlap.</p>
         </details>
         <details class="glass-effect border border-slate-700/50 rounded-2xl p-5 group">
           <summary class="font-semibold cursor-pointer list-none flex justify-between items-center gap-3">
@@ -216,7 +271,7 @@
             Can I find brands that sponsor multiple YouTube channels in my niche?
             <svg class="w-5 h-5 text-slate-400 flex-shrink-0 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
           </summary>
-          <p class="mt-3 text-slate-400 text-sm leading-relaxed">Yes. By comparing several channels in your niche, you can identify brands that appear frequently across multiple creators � these are likely active sponsors with ongoing influencer marketing budgets who might be receptive to outreach from your channel too.</p>
+          <p class="mt-3 text-slate-400 text-sm leading-relaxed">Yes. By comparing several channels in your niche, you can identify brands that appear frequently across multiple creators. Those brands are more likely to be active buyers with ongoing influencer marketing budgets.</p>
         </details>
       </div>
     </section>
@@ -334,7 +389,7 @@
               <img src="${data.channel1.thumbnail}" class="w-16 h-16 rounded-full" alt="${data.channel1.name}" />
               <div class="flex-1">
                 <h3 class="text-xl font-bold text-white">${data.channel1.name}</h3>
-                <a href="${channelUrl(data.channel1.id)}" target="_blank" class="text-sm text-pink-400 hover:text-pink-300">View Channel ?</a>
+                <a href="${channelUrl(data.channel1.id)}" target="_blank" class="text-sm text-pink-400 hover:text-pink-300">View Channel -></a>
               </div>
             </div>
             <div class="mt-4 grid grid-cols-2 gap-3 text-center">
@@ -353,7 +408,7 @@
               <img src="${data.channel2.thumbnail}" class="w-16 h-16 rounded-full" alt="${data.channel2.name}" />
               <div class="flex-1">
                 <h3 class="text-xl font-bold text-white">${data.channel2.name}</h3>
-                <a href="${channelUrl(data.channel2.id)}" target="_blank" class="text-sm text-purple-400 hover:text-purple-300">View Channel ?</a>
+                <a href="${channelUrl(data.channel2.id)}" target="_blank" class="text-sm text-purple-400 hover:text-purple-300">View Channel -></a>
               </div>
             </div>
             <div class="mt-4 grid grid-cols-2 gap-3 text-center">
@@ -429,8 +484,8 @@
                 </div>
               </div>
               <div class="flex items-center gap-4 text-sm">
-                <span class="px-2 py-1 bg-pink-500/10 border border-pink-500/20 rounded-lg text-pink-400">${s.channel1.occurrences}�</span>
-                <span class="px-2 py-1 bg-purple-500/10 border border-purple-500/20 rounded-lg text-purple-400">${s.channel2.occurrences}�</span>
+                <span class="px-2 py-1 bg-pink-500/10 border border-pink-500/20 rounded-lg text-pink-400">${s.channel1.occurrences}x</span>
+                <span class="px-2 py-1 bg-purple-500/10 border border-purple-500/20 rounded-lg text-purple-400">${s.channel2.occurrences}x</span>
               </div>
             </div>
           `;
@@ -455,7 +510,7 @@
           unique1Html += `
             <a href="${s.url}" target="_blank" class="inline-flex items-center gap-2 px-3 py-2 bg-pink-500/10 border border-pink-500/20 rounded-lg hover:border-pink-500/40 transition-colors">
               <span class="text-white font-medium">${s.productName || s.domain}</span>
-              <span class="text-xs text-pink-400">${s.occurrences}�</span>
+              <span class="text-xs text-pink-400">${s.occurrences}x</span>
             </a>
           `;
         }
@@ -479,7 +534,7 @@
           unique2Html += `
             <a href="${s.url}" target="_blank" class="inline-flex items-center gap-2 px-3 py-2 bg-purple-500/10 border border-purple-500/20 rounded-lg hover:border-purple-500/40 transition-colors">
               <span class="text-white font-medium">${s.productName || s.domain}</span>
-              <span class="text-xs text-purple-400">${s.occurrences}�</span>
+              <span class="text-xs text-purple-400">${s.occurrences}x</span>
             </a>
           `;
         }

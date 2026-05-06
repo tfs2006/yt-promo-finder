@@ -1,8 +1,6 @@
 (function () {
   'use strict';
 
-  var PROMO_KEY = 'botworld_v1_dismissed';
-
   // --- Color map for inline active styles ---
   var COLOR = {
     emerald: { color: '#34d399', bg: 'rgba(16,185,129,0.12)',  border: 'rgba(16,185,129,0.28)' },
@@ -19,141 +17,14 @@
     sky:     { color: '#38bdf8', bg: 'rgba(14,165,233,0.12)', border: 'rgba(14,165,233,0.28)'  }
   };
 
-  // --- Bot World promo bar ---
-  function injectPromoBar(nav) {
-    var bar = document.createElement('div');
-    bar.id = 'speakly-bar';
-    bar.style.cssText = [
-      'display:flex','align-items:center','justify-content:center',
-      'padding:7px 40px 7px 12px',
-      'background:linear-gradient(90deg,rgba(6,182,212,0.10),rgba(45,212,191,0.08) 50%,rgba(6,182,212,0.10))',
-      'border-bottom:1px solid rgba(45,212,191,0.28)',
-      'font-size:0.72rem','font-family:inherit','color:#99f6e4',
-      'position:relative','min-height:32px','box-sizing:border-box','width:100%'
-    ].join(';');
-
-    var link = document.createElement('a');
-    link.href = 'https://bots.davidjwoodbury.com/bot-world.html';
-    link.target = '_blank';
-    link.rel = 'noopener';
-    link.style.cssText = 'display:inline-flex;align-items:center;gap:8px;text-decoration:none;color:inherit;flex-wrap:wrap;justify-content:center;line-height:1.4;text-align:center;';
-
-    var txt = document.createElement('span');
-    txt.innerHTML = 'Explore <strong>Bot World</strong>: four autonomous bots, live telemetry, and 24/7 paper-trading experiments in public.';
-
-    var badge = document.createElement('span');
-    badge.textContent = 'Enter Bot World \u2192';
-    badge.style.cssText = 'display:inline-flex;align-items:center;padding:2px 9px;border-radius:100px;background:rgba(20,184,166,0.22);border:1px solid rgba(45,212,191,0.4);color:#5eead4;font-weight:600;font-size:0.68rem;white-space:nowrap;flex-shrink:0;';
-
-    link.appendChild(txt);
-    link.appendChild(badge);
-
-    var dismiss = document.createElement('button');
-    dismiss.setAttribute('aria-label', 'Dismiss');
-    dismiss.style.cssText = 'position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:#0f766e;cursor:pointer;width:26px;height:26px;display:flex;align-items:center;justify-content:center;border-radius:5px;padding:0;font-size:14px;line-height:1;font-family:inherit;';
-    dismiss.innerHTML = '&#x2715;';
-    dismiss.addEventListener('mouseenter', function () { this.style.color = '#99f6e4'; });
-    dismiss.addEventListener('mouseleave', function () { this.style.color = '#0f766e'; });
-
-    bar.appendChild(link);
-    bar.appendChild(dismiss);
-    nav.insertBefore(bar, nav.firstChild);
-
-    dismiss.addEventListener('click', function () {
-      try { localStorage.setItem(PROMO_KEY, '1'); } catch (e) {}
-      bar.style.overflow = 'hidden';
-      bar.style.maxHeight = bar.scrollHeight + 'px';
-      bar.offsetHeight;
-      bar.style.transition = 'max-height 0.28s ease, opacity 0.28s ease, padding 0.28s ease';
-      requestAnimationFrame(function () {
-        bar.style.maxHeight = '0';
-        bar.style.paddingTop = '0';
-        bar.style.paddingBottom = '0';
-        bar.style.opacity = '0';
-      });
-      setTimeout(function () { if (bar.parentNode) bar.parentNode.removeChild(bar); }, 300);
-    });
-  }
-
   // --- Tools list ---
   var tools = [
     { href: '/',           label: 'Promo Finder',       color: 'emerald' },
     { href: '/domain',     label: 'Domain Search',      color: 'orange'  },
     { href: '/unlisted',   label: 'Unlisted Videos',    color: 'purple'  },
-    { href: '/growth',     label: 'Growth Tracker',     color: 'blue'    },
     { href: '/collab',     label: 'Collaborations',     color: 'amber'   },
-    { href: '/compare',    label: 'Compare Sponsors',   color: 'pink'    },
-    { href: '/rate',       label: 'Rate Estimator',     color: 'teal'    },
-    { href: '/viral',      label: 'Viral Detector',     color: 'rose'    },
-    { href: '/saturation', label: 'Saturation Score',   color: 'violet'  },
-    { href: '/revenue',    label: 'Revenue Calculator', color: 'lime'    },
-    { href: '/predictor',  label: 'Perf. Predictor',    color: 'cyan'    },
-    { href: '/tiktok',     label: 'TikTok Downloader',  color: 'rose'    },
-    { href: '/youtube-downloader', label: 'YouTube Downloader', color: 'orange' },
-    { href: '/ad-library-finder', label: 'Ad Library Finder', color: 'sky' },
-    { href: '/services',   label: 'Social Services',    color: 'sky'     },
-    { href: '/linkcheck',  label: 'Link Checker',       color: 'sky'     }
+    { href: '/compare',    label: 'Compare Sponsors',   color: 'pink'    }
   ];
-
-  function ensureDesktopAdLibraryLink(navInner) {
-    var strip = navInner ? navInner.querySelector('.tool-strip') : null;
-    if (!strip) return;
-
-    var existing = strip.querySelector('a[href="/ad-library-finder"]');
-    if (existing) return;
-
-    var activePath = getActivePath();
-    var link = document.createElement('a');
-    link.href = '/ad-library-finder';
-    link.className = activePath === '/ad-library-finder'
-      ? 'tool-chip chip-active-sky'
-      : 'tool-chip';
-    link.textContent = 'Ad Library Finder';
-
-    var before = strip.querySelector('a[href="/services"]');
-    if (before) strip.insertBefore(link, before);
-    else strip.appendChild(link);
-  }
-
-  function ensureDesktopYouTubeDownloaderLink(navInner) {
-    var strip = navInner ? navInner.querySelector('.tool-strip') : null;
-    if (!strip) return;
-
-    var existing = strip.querySelector('a[href="/youtube-downloader"]');
-    if (existing) return;
-
-    var activePath = getActivePath();
-    var link = document.createElement('a');
-    link.href = '/youtube-downloader';
-    link.className = activePath === '/youtube-downloader'
-      ? 'tool-chip chip-active-amber'
-      : 'tool-chip';
-    link.textContent = 'YouTube Downloader';
-
-    var before = strip.querySelector('a[href="/services"]');
-    if (before) strip.insertBefore(link, before);
-    else strip.appendChild(link);
-  }
-
-  function ensureDesktopServicesLink(navInner) {
-    var strip = navInner ? navInner.querySelector('.tool-strip') : null;
-    if (!strip) return;
-
-    var existing = strip.querySelector('a[href="/services"]');
-    if (existing) return;
-
-    var activePath = getActivePath();
-    var link = document.createElement('a');
-    link.href = '/services';
-    link.className = (activePath === '/services' || activePath.indexOf('/services-') === 0)
-      ? 'tool-chip chip-active-sky'
-      : 'tool-chip';
-    link.textContent = 'Social Services';
-
-    var before = strip.querySelector('a[href="/linkcheck"]');
-    if (before) strip.insertBefore(link, before);
-    else strip.appendChild(link);
-  }
 
   function getActivePath() {
     var p = window.location.pathname;
@@ -275,14 +146,7 @@
   var navTop   = document.querySelector('.site-nav-top');
   var navInner = document.querySelector('.site-nav-inner');
 
-  if (siteNav) {
-    try { if (!localStorage.getItem(PROMO_KEY)) injectPromoBar(siteNav); } catch (e) {}
-  }
-
   if (navTop && navInner) {
-    ensureDesktopAdLibraryLink(navInner);
-    ensureDesktopYouTubeDownloaderLink(navInner);
-    ensureDesktopServicesLink(navInner);
     injectHamburger(navTop, navInner);
   }
 }());

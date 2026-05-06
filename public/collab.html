@@ -11,35 +11,81 @@
   </script>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>YouTube Collaboration Finder � Discover Which Channels Work Together (Free)</title>
+  <title>YouTube Collaboration Finder by Channel | Find Creator Collaborations Free</title>
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="/styles.css">
   <script src="/nav.js" defer></script>
-  <meta name="description" content="Free YouTube collaboration finder. Discover which channels a creator has collaborated with by scanning their video descriptions and mentions. Instant results, no signup." />
-  <meta name="keywords" content="YouTube collaboration finder, YouTube collab checker, find YouTube collaborations, which YouTubers collaborate, channel collaboration tool, YouTube partner finder" />
+  <meta name="description" content="Find YouTube collaborations by channel by scanning public descriptions and creator mentions. See which channels collaborate, shout out, or repeatedly appear together." />
   <meta name="author" content="David J Woodbury" />
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="https://promofinder.4ourmedia.com/collab" />
   <meta property="og:type" content="website" />
-  <meta property="og:title" content="YouTube Collaboration Finder � Discover Which Channels Work Together" />
-  <meta property="og:description" content="Find every YouTube collaboration a creator has done by scanning their videos. Free tool with instant results." />
+  <meta property="og:title" content="YouTube Collaboration Finder by Channel | Find Creator Collaborations" />
+  <meta property="og:description" content="Analyze public YouTube descriptions to find creator mentions, repeat collaborators, and channel partnership patterns." />
   <meta property="og:url" content="https://promofinder.4ourmedia.com/collab" />
   <meta property="og:site_name" content="YouTube Promo Finder" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="YouTube Collaboration Finder � Free Tool" />
-  <meta name="twitter:description" content="Discover which YouTube channels a creator has collaborated with. Free, instant results." />
+  <meta name="twitter:title" content="YouTube Collaboration Finder by Channel" />
+  <meta name="twitter:description" content="Find creator mentions and repeat collaboration patterns from public YouTube descriptions." />
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
-    "@type": "WebApplication",
-    "name": "YouTube Collaboration Finder",
-    "url": "https://promofinder.4ourmedia.com/collab",
-    "description": "Free tool to find all YouTube collaborations a creator has done.",
-    "applicationCategory": "UtilityApplication",
-    "operatingSystem": "Web",
-    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": "https://promofinder.4ourmedia.com/#website",
+        "name": "PromoFinder",
+        "url": "https://promofinder.4ourmedia.com/",
+        "publisher": { "@id": "https://promofinder.4ourmedia.com/#organization" }
+      },
+      {
+        "@type": "Organization",
+        "@id": "https://promofinder.4ourmedia.com/#organization",
+        "name": "PromoFinder",
+        "url": "https://promofinder.4ourmedia.com/",
+        "logo": { "@type": "ImageObject", "url": "https://promofinder.4ourmedia.com/favicon.svg" }
+      },
+      {
+        "@type": "WebApplication",
+        "@id": "https://promofinder.4ourmedia.com/collab#app",
+        "name": "YouTube Collaboration Finder by Channel",
+        "url": "https://promofinder.4ourmedia.com/collab",
+        "description": "Free tool to find creator mentions and collaboration patterns from public YouTube video descriptions.",
+        "applicationCategory": "UtilityApplication",
+        "operatingSystem": "Web",
+        "isPartOf": { "@id": "https://promofinder.4ourmedia.com/#website" },
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://promofinder.4ourmedia.com/" },
+          { "@type": "ListItem", "position": 2, "name": "YouTube Collaboration Finder by Channel", "item": "https://promofinder.4ourmedia.com/collab" }
+        ]
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "How do I find YouTube collaborations for a channel?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Paste a YouTube channel URL or handle into the search box. The tool scans public video titles and descriptions for creator mentions, handles, and featured channel references to identify collaboration patterns." }
+          },
+          {
+            "@type": "Question",
+            "name": "Why are collaboration patterns useful?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Collaboration patterns help brands, agencies, and creators understand who appears together, which channels repeatedly partner, and where audience overlap or outreach opportunities may exist." }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I use this for collaboration outreach research?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Yes. Analyze channels in your niche to find creators they repeatedly mention or collaborate with, then use those patterns to shortlist realistic outreach targets." }
+          }
+        ]
+      }
+    ]
   }
   </script>
   <link rel="stylesheet" href="/tailwind.css">
@@ -71,26 +117,23 @@
         <a href="/" class="tool-chip">Promo Finder</a>
         <a href="/domain" class="tool-chip">Domain Search</a>
         <a href="/unlisted" class="tool-chip">Unlisted Videos</a>
-        <a href="/growth" class="tool-chip">Growth Tracker</a>
         <a href="/collab" class="tool-chip chip-active-amber">Collaborations</a>
         <a href="/compare" class="tool-chip">Compare Sponsors</a>
-        <a href="/rate" class="tool-chip">Rate Estimator</a>
-        <a href="/viral" class="tool-chip">Viral Detector</a>
-        <a href="/saturation" class="tool-chip">Saturation Score</a>
-        <a href="/revenue" class="tool-chip">Revenue Calculator</a>
-        <a href="/predictor" class="tool-chip">Performance Predictor</a>
-        <a href="/tiktok" class="tool-chip">TikTok Downloader</a>
-        <a href="/services" class="tool-chip">Social Services</a>
-        <a href="/linkcheck" class="tool-chip">Link Checker</a>
     </div>
   </div>
 </nav>
   <div class="max-w-6xl mx-auto px-4 py-12">
     <header class="mb-10">
+      <div class="inline-flex items-center gap-2 mb-4 px-4 py-2 rounded-full glass-effect border border-amber-500/20">
+        <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"></path>
+        </svg>
+        <span class="text-sm font-medium text-amber-400">Creator network research</span>
+      </div>
       <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
-        <span class="gradient-text">Collaboration</span> Finder
+        YouTube <span class="gradient-text">Collaboration</span> Finder by Channel
       </h1>
-      <p class="text-slate-300 mt-4 text-lg">Discover channel networks and collaboration patterns by analyzing video descriptions.</p>
+      <p class="text-slate-300 mt-4 text-lg max-w-3xl">Analyze a channel's public video descriptions to find creator mentions, repeat collaborators, and likely partnership patterns for outreach, sponsorship research, or competitive analysis.</p>
     </header>
     <section class="glass-effect border border-slate-700/50 rounded-3xl p-6 md:p-8 shadow-2xl">
       <!-- Quota Status Banner -->
@@ -121,12 +164,36 @@
         </div>
       </form>
     </section>
+    <div class="mt-4 flex flex-wrap items-center gap-2 text-xs text-slate-400">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+      <span>Uses public titles and descriptions to find creator mentions and channel references. Results are research aids, not platform-private data.</span>
+    </div>
     <section id="status" class="mt-6 hidden"></section>
     <section id="results" class="mt-6 space-y-4"></section>
 
+    <section class="mt-14 pt-12 border-t border-slate-800/30">
+      <h2 class="text-2xl md:text-3xl font-bold mb-6 text-center">Related Research Tools</h2>
+      <div class="grid md:grid-cols-3 gap-4 max-w-5xl mx-auto">
+        <a href="/" class="glass-effect border border-emerald-500/25 rounded-2xl p-5 hover:border-emerald-400/45 transition">
+          <p class="font-semibold text-emerald-200">Find YouTube Sponsors</p>
+          <p class="text-sm text-slate-400 mt-2">Check which brands and affiliate programs show up in the same channel's public descriptions.</p>
+        </a>
+        <a href="/compare" class="glass-effect border border-pink-500/25 rounded-2xl p-5 hover:border-pink-400/45 transition">
+          <p class="font-semibold text-pink-200">Compare Creator Sponsors</p>
+          <p class="text-sm text-slate-400 mt-2">See whether two channels share sponsors or have distinct brand deal patterns.</p>
+        </a>
+        <a href="/domain" class="glass-effect border border-orange-500/25 rounded-2xl p-5 hover:border-orange-400/45 transition">
+          <p class="font-semibold text-orange-200">Find Videos Promoting a Brand</p>
+          <p class="text-sm text-slate-400 mt-2">Search a website or brand domain to find public YouTube promotions tied to that company.</p>
+        </a>
+      </div>
+    </section>
+
     <!-- FAQ Section -->
     <section class="mt-16 pt-12 border-t border-slate-800/30">
-      <h2 class="text-2xl md:text-3xl font-bold mb-8 text-center">YouTube Collaboration Finder � FAQ</h2>
+      <h2 class="text-2xl md:text-3xl font-bold mb-8 text-center">YouTube Collaboration Finder FAQ</h2>
       <div class="max-w-3xl mx-auto space-y-4">
         <details class="glass-effect border border-slate-700/50 rounded-2xl p-5 group">
           <summary class="font-semibold cursor-pointer list-none flex justify-between items-center gap-3">
@@ -147,7 +214,7 @@
             Can I use this to find collab opportunities for my own channel?
             <svg class="w-5 h-5 text-slate-400 flex-shrink-0 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
           </summary>
-          <p class="mt-3 text-slate-400 text-sm leading-relaxed">Yes. Analyze channels in your niche to see who they've collaborated with � those partners are likely open to more collabs and are already proven collaborators. It's also useful for finding channels that have overlapping audiences but aren't direct competitors.</p>
+          <p class="mt-3 text-slate-400 text-sm leading-relaxed">Yes. Analyze channels in your niche to see who they've collaborated with. Those partners are more likely to be open to future collaborations and can help you find realistic outreach targets with overlapping audiences.</p>
         </details>
       </div>
     </section>
@@ -245,7 +312,7 @@
       
       resultsEl.innerHTML = "";
       setLoading(true);
-      setStatus('<div class="flex items-center gap-3"><svg class="w-5 h-5 spin text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><span>Analyzing channel mentions...</span></div>');
+      setStatus('<div class="flex items-center gap-3"><svg class="w-5 h-5 spin text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><span>Scanning public video descriptions for creator mentions...</span></div>');
       
       const r = await fetch(`/api/collab?url=${encodeURIComponent(u)}`);
       setLoading(false);
@@ -266,13 +333,13 @@
       clearStatus();
 
       if (!data.collaborations.length) {
-        setStatus('<div><div class="font-semibold text-lg">No collaborations found</div><div class="text-sm mt-1">No channel mentions detected in recent videos.</div></div>', "info");
+        setStatus('<div><div class="font-semibold text-lg">No clear collaboration signals found</div><div class="text-sm mt-1">No repeated channel mentions or creator references were detected in recent public descriptions. Try another channel or compare sponsor activity instead.</div></div>', "info");
         return;
       }
 
       const hdr = document.createElement('div');
       hdr.className = "glass-effect border border-amber-500/30 rounded-2xl p-5 mb-6 fade-in";
-      hdr.innerHTML = `<div class="text-slate-200">Analyzed <span class="font-semibold text-amber-400">${data.videosAnalyzed}</span> videos � Found <span class="font-semibold text-amber-400">${data.collaborations.length}</span> collaborations</div>`;
+      hdr.innerHTML = `<div class="text-slate-200">Analyzed <span class="font-semibold text-amber-400">${data.videosAnalyzed}</span> videos - Found <span class="font-semibold text-amber-400">${data.collaborations.length}</span> collaboration signals</div>`;
       resultsEl.appendChild(hdr);
 
       for (const c of data.collaborations) {
