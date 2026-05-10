@@ -25,6 +25,12 @@ import {
   handleSmmProfitDashboard,
   handleSmmOrderResubmit
 } from "../lib/smmHandlers.js";
+import {
+  claimCreditsSession,
+  createCreditsCheckoutSession,
+  getBalancesForTokens,
+  getCreditsCatalog
+} from "../lib/credits.js";
 
 const SMM_CURRENCY = (process.env.SMM_CURRENCY || "usd").toLowerCase();
 const SMM_MEMORY_TTL_MS = 10 * 60 * 1000;
@@ -153,6 +159,45 @@ async function handleSmmServices(req, res) {
   } catch (error) {
     return handleApiError(res, error, req);
   }
+}
+
+function getCreditsAction(req) {
+  return String(req?.query?.action || req?.body?.action || "plans").trim().toLowerCase();
+}
+
+async function handleCredits(req, res) {
+  if (applyApiGuards(req, res, { rateKey: "credits", maxRequests: 30, windowMs: 60_000 })) return;
+
+  const action = getCreditsAction(req);
+
+  if (req.method === "GET") {
+    if (action === "plans") {
+      return res.json(getCreditsCatalog());
+    }
+
+    if (action === "claim") {
+      const sessionId = String(req.query.sessionId || "");
+      return res.json(await claimCreditsSession(sessionId));
+    }
+
+    if (action === "balance") {
+      const tokens = String(req.query.tokens || req.query.creditToken || "");
+      return res.json(await getBalancesForTokens(tokens));
+    }
+
+    return res.status(400).json({ error: "Invalid credits action." });
+  }
+
+  if (req.method === "POST") {
+    if (action === "checkout") {
+      const planId = String(req.body?.planId || req.query?.planId || "");
+      return res.json(await createCreditsCheckoutSession(planId, req));
+    }
+
+    return res.status(400).json({ error: "Invalid credits action." });
+  }
+
+  return res.status(405).json({ error: "Method not allowed." });
 }
 
 // Parse ISO 8601 duration to seconds
@@ -602,6 +647,13 @@ export default async function handler(req, res) {
   }
   if (pathname === "/api/ad-libraries") {
     return handleAdLibrariesSearch(req, res);
+  }
+  if (pathname === "/api/credits") {
+    try {
+      return await handleCredits(req, res);
+    } catch (err) {
+      return handleApiError(res, err, req);
+    }
   }
 
   if (applyApiGuards(req, res, { rateKey: "predictor", maxRequests: 8, windowMs: 60_000 })) return;

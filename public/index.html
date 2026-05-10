@@ -17,6 +17,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="/styles.css">
   <script src="/nav.js" defer></script>
+  <script src="/credits.js"></script>
   <meta name="description" content="Analyze any YouTube channel to find sponsors, affiliate links, brand deals, and recurring promotions from public video descriptions. Free, fast, and privacy-safe." />
   <meta name="author" content="David J Woodbury" />
   <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
@@ -955,7 +956,7 @@
         </div>
       `);
       
-      const r = await fetch(`/api/analyze?url=${encodeURIComponent(u)}`);
+      const r = await fetch(window.PFCredits ? window.PFCredits.buildApiUrl('/api/analyze', { url: u }) : `/api/analyze?url=${encodeURIComponent(u)}`);
       setLoading(false);
       
       // Refresh quota status after request
@@ -965,8 +966,16 @@
         const msg = await r.json().catch(() => ({error: 'Unexpected error'}));
         
         // Handle quota exceeded error specifically
-        if (r.status === 429 || msg.code === 'QUOTA_EXCEEDED') {
+        if (msg.code === 'QUOTA_EXCEEDED') {
           showQuotaExceededError(msg.quotaStatus);
+          return;
+        }
+        if (msg.code === 'RATE_LIMITED') {
+          setStatus(window.PFCredits ? window.PFCredits.getRateLimitedMarkup() : '<div><div class="font-semibold text-lg">Too many requests right now</div><div class="text-sm mt-1">Wait a minute and try again.</div></div>', "error");
+          return;
+        }
+        if (msg.code === 'PAYMENT_REQUIRED') {
+          setStatus(window.PFCredits ? window.PFCredits.getPaymentRequiredMarkup(msg, { toolLabel: 'Sponsor Finder' }) : `<div><div class="font-semibold text-lg">Credits required</div><div class="text-sm mt-1">${msg.error || 'Buy credits to continue.'}</div></div>`, "error");
           return;
         }
         
@@ -985,6 +994,9 @@
       }
       
       const data = await r.json();
+      if (window.PFCredits && data.access) {
+        window.PFCredits.syncAccess(data.access);
+      }
       clearStatus();
       
       // Store results for export

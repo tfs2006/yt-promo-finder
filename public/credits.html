@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>PromoFinder Credits</title>
+  <meta name="robots" content="noindex,follow" />
+  <meta name="description" content="Buy PromoFinder credits for sponsor research, domain discovery, collaboration scans, and unlisted video searches." />
+  <link rel="stylesheet" href="/tailwind.css" />
+  <link rel="stylesheet" href="/styles.css" />
+  <script src="/nav.js" defer></script>
+</head>
+<body class="text-slate-100 min-h-screen bg-slate-950">
+  <div class="bg-[radial-gradient(circle_at_top,rgba(14,165,233,0.16),transparent_35%),radial-gradient(circle_at_bottom_right,rgba(236,72,153,0.14),transparent_28%),linear-gradient(180deg,#020617_0%,#0f172a_100%)] min-h-screen">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6">
+      <nav class="site-nav mb-10">
+        <div class="site-nav-inner">
+          <div class="site-nav-top">
+            <a href="/" class="site-nav-brand">PromoFinder</a>
+          </div>
+          <div class="tool-strip"></div>
+        </div>
+      </nav>
+
+      <section class="max-w-5xl mx-auto text-center">
+        <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-sky-500/30 bg-sky-500/10 text-sky-200 text-xs uppercase tracking-[0.22em]">Stripe Checkout Enabled</span>
+        <h1 class="text-4xl md:text-6xl font-black mt-5 tracking-tight">PromoFinder Credits</h1>
+        <p class="max-w-3xl mx-auto mt-4 text-slate-300 text-base md:text-lg leading-relaxed">Each browser gets one free research search. After that, credits unlock sponsor scans, domain discovery, collaboration research, sponsor overlap comparisons, and unlisted video discovery.</p>
+        <div class="mt-6 flex flex-wrap items-center justify-center gap-3 text-sm text-slate-300">
+          <span class="px-3 py-1.5 rounded-full bg-slate-900/70 border border-slate-700">Only successful fresh scans consume credits</span>
+          <span class="px-3 py-1.5 rounded-full bg-slate-900/70 border border-slate-700">Cached repeat lookups do not spend credits</span>
+          <span class="px-3 py-1.5 rounded-full bg-slate-900/70 border border-slate-700">Balances are stored in Stripe-backed packs</span>
+        </div>
+      </section>
+
+      <section class="max-w-6xl mx-auto mt-10 grid md:grid-cols-3 gap-5">
+        <div class="glass-effect border border-emerald-500/25 rounded-2xl p-5">
+          <div class="text-xs uppercase tracking-[0.18em] text-emerald-300">Fastest Start</div>
+          <div class="mt-2 text-2xl font-bold text-white">One free search, then pay only when it works</div>
+          <p class="mt-3 text-sm text-slate-400">New visitors still get a free preview. Paid packs are only consumed on successful fresh scans, not on cached reloads or failed requests.</p>
+        </div>
+        <div class="glass-effect border border-sky-500/25 rounded-2xl p-5">
+          <div class="text-xs uppercase tracking-[0.18em] text-sky-300">Best For Buyers</div>
+          <div class="mt-2 text-2xl font-bold text-white">Brand research, creator outreach, and sponsor sourcing</div>
+          <p class="mt-3 text-sm text-slate-400">Use the sponsor finder for prospecting, domain search for advertiser validation, compare for overlap, and unlisted discovery for deeper channel intelligence.</p>
+        </div>
+        <div class="glass-effect border border-pink-500/25 rounded-2xl p-5">
+          <div class="text-xs uppercase tracking-[0.18em] text-pink-300">No Subscription</div>
+          <div class="mt-2 text-2xl font-bold text-white">Buy a pack once and keep the balance</div>
+          <p class="mt-3 text-sm text-slate-400">This is metered access, not a monthly plan. You can buy credits when you need them and keep your browser-saved balance available for later.</p>
+        </div>
+      </section>
+
+      <section id="creditsStatus" class="max-w-5xl mx-auto mt-10 hidden"></section>
+
+      <section class="max-w-6xl mx-auto mt-10">
+        <div class="glass-effect border border-slate-700/50 rounded-3xl p-6 md:p-8">
+          <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-8">
+            <div>
+              <h2 class="text-2xl md:text-3xl font-bold">Choose a credit pack</h2>
+              <p class="text-slate-400 mt-2">One-time purchase. No subscription. Your balance stays attached to your saved browser token.</p>
+            </div>
+            <div class="text-sm text-slate-400">Powered by Stripe Checkout for payment processing.</div>
+          </div>
+          <div id="planGrid" class="grid md:grid-cols-3 gap-5"></div>
+        </div>
+      </section>
+
+      <section class="max-w-6xl mx-auto mt-10 grid lg:grid-cols-[1.3fr_0.7fr] gap-6">
+        <div class="glass-effect border border-slate-700/50 rounded-3xl p-6 md:p-8">
+          <h2 class="text-2xl font-bold">Tool credit costs</h2>
+          <p class="text-slate-400 mt-2">Heavier YouTube API workflows cost more credits so pricing stays aligned with actual platform load.</p>
+          <div id="toolCosts" class="mt-6 grid sm:grid-cols-2 gap-4"></div>
+        </div>
+        <div class="glass-effect border border-slate-700/50 rounded-3xl p-6 md:p-8">
+          <h2 class="text-2xl font-bold">Saved balances</h2>
+          <p class="text-slate-400 mt-2">Any completed pack that has been claimed in this browser appears below.</p>
+          <div id="savedBalances" class="mt-6 space-y-3 text-sm text-slate-300"></div>
+        </div>
+      </section>
+
+      <section class="max-w-6xl mx-auto mt-10 mb-16 grid md:grid-cols-3 gap-5">
+        <div class="glass-effect border border-slate-700/50 rounded-2xl p-5">
+          <h3 class="font-semibold text-white">How checkout works</h3>
+          <p class="text-sm text-slate-400 mt-2">Buy a pack, return to this page, and the completed Stripe session is saved automatically as a browser token.</p>
+        </div>
+        <div class="glass-effect border border-slate-700/50 rounded-2xl p-5">
+          <h3 class="font-semibold text-white">How credits are used</h3>
+          <p class="text-sm text-slate-400 mt-2">Credits are deducted only after a successful fresh result set is produced by the tool, not before the scan starts.</p>
+        </div>
+        <div class="glass-effect border border-slate-700/50 rounded-2xl p-5">
+          <h3 class="font-semibold text-white">What stays free</h3>
+          <p class="text-sm text-slate-400 mt-2">One free browser search is still included so new users can test the workflow before buying.</p>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script src="/credits.js"></script>
+  <script>
+    const statusEl = document.getElementById('creditsStatus');
+    const planGrid = document.getElementById('planGrid');
+    const toolCostsEl = document.getElementById('toolCosts');
+    const savedBalancesEl = document.getElementById('savedBalances');
+
+    function setStatus(html, tone = 'info') {
+      statusEl.classList.remove('hidden');
+      const tones = {
+        info: 'border-sky-500/35 text-slate-100',
+        success: 'border-emerald-500/35 text-emerald-100',
+        error: 'border-rose-500/35 text-rose-100'
+      };
+      statusEl.className = `max-w-5xl mx-auto mt-10 rounded-3xl border p-6 glass-effect ${tones[tone] || tones.info}`;
+      statusEl.innerHTML = html;
+    }
+
+    function formatPlanCard(plan) {
+      const isFeatured = plan.id === 'pro';
+      const estimateLine = plan.usageExamples || 'Flexible mix of sponsor, domain, comparison, and unlisted scans.';
+      return `
+        <article class="rounded-3xl border ${isFeatured ? 'border-sky-400/50 bg-sky-500/10' : 'border-slate-700/70 bg-slate-900/45'} p-6 flex flex-col">
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <h3 class="text-2xl font-bold text-white">${plan.name}</h3>
+              <p class="text-slate-400 mt-2 text-sm leading-relaxed">${plan.description}</p>
+            </div>
+            ${isFeatured ? '<span class="px-2.5 py-1 rounded-full bg-sky-400 text-slate-950 text-xs font-bold uppercase tracking-wide">Best Value</span>' : ''}
+          </div>
+          <div class="mt-6 flex items-end gap-2">
+            <span class="text-4xl font-black text-white">${plan.priceLabel}</span>
+            <span class="text-slate-400 pb-1">one-time</span>
+          </div>
+          <div class="mt-3 text-sky-200 font-semibold">${plan.credits} credits</div>
+          <div class="mt-2 text-sm text-slate-400">${plan.highlight}</div>
+          <div class="mt-4 rounded-2xl border border-slate-700/70 bg-slate-950/45 p-4 text-sm text-slate-300">${estimateLine}</div>
+          <button data-plan-id="${plan.id}" class="mt-6 inline-flex items-center justify-center rounded-2xl bg-white text-slate-950 font-semibold px-4 py-3 hover:bg-slate-200 transition-colors">Buy ${plan.name}</button>
+        </article>
+      `;
+    }
+
+    function addUsageExamples(plans, toolCosts) {
+      return plans.map((plan) => {
+        const sponsorScans = Math.max(1, Math.floor(plan.credits / (toolCosts.analyze || 1)));
+        const compareScans = Math.max(1, Math.floor(plan.credits / (toolCosts.compare || 1)));
+        const unlistedScans = Math.max(1, Math.floor(plan.credits / (toolCosts.unlisted || 1)));
+        return {
+          ...plan,
+          usageExamples: `About ${sponsorScans} sponsor scans, ${compareScans} compare scans, or ${unlistedScans} unlisted scans.`
+        };
+      });
+    }
+
+    function renderToolCosts(toolCosts) {
+      const labels = {
+        analyze: 'Sponsor Finder',
+        collab: 'Collaboration Finder',
+        domain: 'Domain Search',
+        compare: 'Compare Sponsors',
+        unlisted: 'Unlisted Finder'
+      };
+      toolCostsEl.innerHTML = Object.entries(toolCosts).map(([key, cost]) => `
+        <div class="rounded-2xl border border-slate-700/60 bg-slate-900/45 p-4 flex items-center justify-between gap-4">
+          <div>
+            <div class="font-semibold text-white">${labels[key] || key}</div>
+            <div class="text-xs text-slate-400 mt-1">${key}</div>
+          </div>
+          <div class="text-right">
+            <div class="text-2xl font-black text-sky-300">${cost}</div>
+            <div class="text-xs uppercase tracking-[0.18em] text-slate-500">credits</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderSavedBalances(data) {
+      if (!data.balances || !data.balances.length) {
+        savedBalancesEl.innerHTML = '<div class="rounded-2xl border border-dashed border-slate-700 p-4 text-slate-400">No saved credit packs found in this browser yet.</div>';
+        return;
+      }
+      savedBalancesEl.innerHTML = data.balances.map((balance) => `
+        <div class="rounded-2xl border border-slate-700/60 bg-slate-900/45 p-4">
+          <div class="flex items-center justify-between gap-4">
+            <div>
+              <div class="font-semibold text-white">${balance.planName}</div>
+              <div class="text-xs text-slate-500 mt-1">${balance.creditsTotal} total credits</div>
+            </div>
+            <div class="text-right">
+              <div class="text-2xl font-black text-emerald-300">${balance.creditsRemaining}</div>
+              <div class="text-xs uppercase tracking-[0.18em] text-slate-500">remaining</div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function refreshBalances() {
+      const balances = await window.PFCredits.fetchBalances();
+      renderSavedBalances(balances);
+      return balances;
+    }
+
+    async function initializePage() {
+      try {
+        const catalog = await window.PFCredits.fetchCatalog();
+        const enrichedPlans = addUsageExamples(catalog.plans, catalog.toolCosts || {});
+        planGrid.innerHTML = enrichedPlans.map(formatPlanCard).join('');
+        renderToolCosts(catalog.toolCosts || {});
+      } catch (err) {
+        setStatus(`<div><div class="font-semibold text-lg">Credits page unavailable</div><div class="text-sm mt-2">${err.message || 'Unable to load pricing right now.'}</div></div>`, 'error');
+      }
+
+      try {
+        await refreshBalances();
+      } catch (err) {
+        renderSavedBalances({ balances: [] });
+      }
+
+      const params = new URLSearchParams(window.location.search);
+      const sessionId = params.get('session_id');
+      const canceled = params.get('canceled');
+
+      if (sessionId) {
+        setStatus('<div><div class="font-semibold text-lg">Activating your purchase</div><div class="text-sm mt-2">We detected a completed Stripe checkout and are saving that credit pack to this browser.</div></div>');
+        try {
+          const claimed = await window.PFCredits.claimSession(sessionId);
+          setStatus(`<div><div class="font-semibold text-lg">Credits added</div><div class="text-sm mt-2">${claimed.balance.planName} is now saved in this browser with <span class="font-semibold">${claimed.balance.creditsRemaining} credits</span> remaining.</div></div>`, 'success');
+          await refreshBalances();
+          window.history.replaceState({}, '', '/credits');
+        } catch (err) {
+          setStatus(`<div><div class="font-semibold text-lg">Purchase detected but not claimed</div><div class="text-sm mt-2">${err.message || 'We could not verify the completed Stripe session yet.'}</div></div>`, 'error');
+        }
+      } else if (canceled) {
+        setStatus('<div><div class="font-semibold text-lg">Checkout canceled</div><div class="text-sm mt-2">No charges were made. You can choose a different pack any time.</div></div>', 'info');
+        window.history.replaceState({}, '', '/credits');
+      }
+    }
+
+    planGrid.addEventListener('click', async (event) => {
+      const button = event.target.closest('[data-plan-id]');
+      if (!button) return;
+      const planId = button.getAttribute('data-plan-id');
+      const originalText = button.textContent;
+      button.disabled = true;
+      button.textContent = 'Redirecting...';
+
+      try {
+        const session = await window.PFCredits.createCheckout(planId);
+        window.location.href = session.checkoutUrl;
+      } catch (err) {
+        button.disabled = false;
+        button.textContent = originalText;
+        setStatus(`<div><div class="font-semibold text-lg">Checkout unavailable</div><div class="text-sm mt-2">${err.message || 'Unable to start Stripe checkout right now.'}</div></div>`, 'error');
+      }
+    });
+
+    initializePage();
+  </script>
+</body>
+</html>

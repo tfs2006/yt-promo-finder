@@ -10,6 +10,11 @@ import {
   validateDomainInput,
   initQuota
 } from "../utils.js";
+import {
+  buildPaymentRequiredResponse,
+  finalizeToolAccess,
+  getToolAccessState
+} from "../lib/credits.js";
 
 export default async function handler(req, res) {
   if (applyApiGuards(req, res, { rateKey: "domain", maxRequests: 8, windowMs: 60_000 })) return;
@@ -29,6 +34,11 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: "YouTube API key not configured." });
     }
 
+    const accessState = await getToolAccessState(req, 'domain');
+    if (!accessState.allowed) {
+      return res.status(402).json(buildPaymentRequiredResponse(accessState));
+    }
+
     // Check quota before starting (domain search uses 500+ units)
     const quotaCheck = checkQuota(600);
     if (!quotaCheck.allowed) {
@@ -42,7 +52,13 @@ export default async function handler(req, res) {
     // Check cache
     const cacheKey = `domain::${domain}`;
     const cached = getCache(cacheKey);
-    if (cached) return res.json({ fromCache: true, ...cached });
+    if (cached) {
+      const finalized = await finalizeToolAccess(req, res, accessState, { chargeCredits: false });
+      if (!finalized.ok) {
+        return res.status(402).json(finalized.payload);
+      }
+      return res.json({ fromCache: true, ...cached, access: finalized.access });
+    }
 
     // Search YouTube for videos mentioning this domain
     const videos = [];
@@ -116,7 +132,11 @@ export default async function handler(req, res) {
     };
 
     setCache(cacheKey, payload);
-    res.json(payload);
+    const finalized = await finalizeToolAccess(req, res, accessState, { chargeCredits: true });
+    if (!finalized.ok) {
+      return res.status(402).json(finalized.payload);
+    }
+    return res.json({ ...payload, access: finalized.access });
   } catch (err) {
     return handleApiError(res, err);
   }

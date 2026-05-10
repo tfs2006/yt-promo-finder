@@ -17,6 +17,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="/styles.css">
   <script src="/nav.js" defer></script>
+  <script src="/credits.js"></script>
   <meta name="description" content="Find YouTube collaborations by channel by scanning public descriptions and creator mentions. See which channels collaborate, shout out, or repeatedly appear together." />
   <meta name="author" content="David J Woodbury" />
   <meta name="robots" content="index, follow" />
@@ -276,13 +277,13 @@
       if (status.isExhausted) {
         quotaBanner.className = 'mb-4 rounded-xl p-4 border bg-rose-500/10 border-rose-500/50';
         quotaBar.className = 'h-full transition-all duration-500 bg-rose-500';
-        quotaMessage.textContent = '?? Daily API limit reached. Please try again tomorrow.';
+        quotaMessage.textContent = 'Daily API limit reached. Please try again tomorrow.';
         quotaMessage.className = 'text-sm font-medium text-rose-300';
         submitBtn.disabled = true;
       } else if (status.isLow) {
         quotaBanner.className = 'mb-4 rounded-xl p-4 border bg-amber-500/10 border-amber-500/50';
         quotaBar.className = 'h-full transition-all duration-500 bg-amber-500';
-        quotaMessage.textContent = `?? API quota running low (${status.usableRemaining.toLocaleString()} units left).`;
+        quotaMessage.textContent = `API quota running low (${status.usableRemaining.toLocaleString()} units left).`;
         quotaMessage.className = 'text-sm font-medium text-amber-300';
       } else {
         quotaBanner.classList.add('hidden');
@@ -314,15 +315,23 @@
       setLoading(true);
       setStatus('<div class="flex items-center gap-3"><svg class="w-5 h-5 spin text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><span>Scanning public video descriptions for creator mentions...</span></div>');
       
-      const r = await fetch(`/api/collab?url=${encodeURIComponent(u)}`);
+      const r = await fetch(window.PFCredits ? window.PFCredits.buildApiUrl('/api/collab', { url: u }) : `/api/collab?url=${encodeURIComponent(u)}`);
       setLoading(false);
       checkQuotaStatus();
       
       if (!r.ok) {
         const msg = await r.json().catch(() => ({error: 'Unexpected error'}));
-        if (r.status === 429 || msg.code === 'QUOTA_EXCEEDED') {
+        if (msg.code === 'QUOTA_EXCEEDED') {
           setStatus('<div><div class="font-semibold text-lg">Daily API Limit Reached</div><div class="text-sm mt-1">Please try again tomorrow when the quota resets at midnight PT.</div></div>', "error");
           if (msg.quotaStatus) updateQuotaBanner(msg.quotaStatus);
+          return;
+        }
+        if (msg.code === 'RATE_LIMITED') {
+          setStatus(window.PFCredits ? window.PFCredits.getRateLimitedMarkup() : '<div><div class="font-semibold text-lg">Too many requests right now</div><div class="text-sm mt-1">Wait a minute and try again.</div></div>', "error");
+          return;
+        }
+        if (msg.code === 'PAYMENT_REQUIRED') {
+          setStatus(window.PFCredits ? window.PFCredits.getPaymentRequiredMarkup(msg, { toolLabel: 'Collaboration Finder' }) : `<div><div class="font-semibold text-lg">Credits required</div><div class="text-sm mt-1">${msg.error || 'Buy credits to continue.'}</div></div>`, "error");
           return;
         }
         setStatus(`<div><div class="font-semibold text-lg">Error</div><div class="text-sm mt-1">${msg.error || 'Unexpected error.'}</div></div>`, "error");
@@ -330,6 +339,9 @@
       }
       
       const data = await r.json();
+      if (window.PFCredits && data.access) {
+        window.PFCredits.syncAccess(data.access);
+      }
       clearStatus();
 
       if (!data.collaborations.length) {

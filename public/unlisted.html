@@ -17,6 +17,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="/styles.css">
   <script src="/nav.js" defer></script>
+  <script src="/credits.js"></script>
   <meta name="description" content="Find unlisted YouTube videos by channel using public playlists only. Paste a channel URL, handle, or ID to surface discoverable unlisted videos without bypassing privacy." />
   <meta name="author" content="David J Woodbury" />
   <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
@@ -516,17 +517,31 @@
       if (status.isExhausted) {
         quotaBanner.className = 'mb-4 rounded-xl p-4 border bg-rose-500/10 border-rose-500/50';
         quotaBar.className = 'h-full transition-all duration-500 bg-rose-500';
-        quotaMessage.textContent = '?? Daily API limit reached. Please try again tomorrow.';
+        quotaMessage.textContent = 'Daily API limit reached. Please try again tomorrow.';
         quotaMessage.className = 'text-sm font-medium text-rose-300';
         submitBtn.disabled = true;
       } else if (status.isLow) {
         quotaBanner.className = 'mb-4 rounded-xl p-4 border bg-amber-500/10 border-amber-500/50';
         quotaBar.className = 'h-full transition-all duration-500 bg-amber-500';
-        quotaMessage.textContent = `?? API quota running low (${status.usableRemaining.toLocaleString()} units left).`;
+        quotaMessage.textContent = `API quota running low (${status.usableRemaining.toLocaleString()} units left).`;
         quotaMessage.className = 'text-sm font-medium text-amber-300';
       } else {
         quotaBanner.classList.add('hidden');
       }
+    }
+
+    function showRateLimitError() {
+      setStatus(`
+        <div class="flex items-start gap-3">
+          <svg class="w-6 h-6 text-amber-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <div>
+            <div class="font-semibold text-lg">Too many requests right now</div>
+            <div class="text-sm mt-1 text-amber-200">This tool is temporarily throttled to protect availability. Wait a minute and try again.</div>
+          </div>
+        </div>
+      `, "error");
     }
     
     async function checkQuotaStatus() {
@@ -572,13 +587,13 @@
         </div>
       `);
       
-      const r = await fetch(`/api/unlisted?url=${encodeURIComponent(u)}`);
+      const r = await fetch(window.PFCredits ? window.PFCredits.buildApiUrl('/api/unlisted', { url: u }) : `/api/unlisted?url=${encodeURIComponent(u)}`);
       setLoading(false);
       checkQuotaStatus();
       
       if (!r.ok) {
         const msg = await r.json().catch(() => ({error: 'Unexpected error'}));
-        if (r.status === 429 || msg.code === 'QUOTA_EXCEEDED') {
+        if (msg.code === 'QUOTA_EXCEEDED') {
           setStatus(`
             <div class="flex items-start gap-3">
               <svg class="w-6 h-6 text-rose-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -591,6 +606,14 @@
           </div>
           `, "error");
           if (msg.quotaStatus) updateQuotaBanner(msg.quotaStatus);
+          return;
+        }
+        if (msg.code === 'RATE_LIMITED') {
+          setStatus(window.PFCredits ? window.PFCredits.getRateLimitedMarkup() : '<div><div class="font-semibold text-lg">Too many requests right now</div><div class="text-sm mt-1">Wait a minute and try again.</div></div>', "error");
+          return;
+        }
+        if (msg.code === 'PAYMENT_REQUIRED') {
+          setStatus(window.PFCredits ? window.PFCredits.getPaymentRequiredMarkup(msg, { toolLabel: 'Unlisted Video Finder' }) : `<div><div class="font-semibold text-lg">Credits required</div><div class="text-sm mt-1">${msg.error || 'Buy credits to continue.'}</div></div>`, "error");
           return;
         }
         setStatus(`
@@ -608,6 +631,9 @@
       }
       
       const data = await r.json();
+      if (window.PFCredits && data.access) {
+        window.PFCredits.syncAccess(data.access);
+      }
       clearStatus();
 
       const hdr = document.createElement('div');

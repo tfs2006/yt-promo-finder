@@ -21,6 +21,11 @@ import {
   validateChannelInput,
   initQuota
 } from "../utils.js";
+import {
+  buildPaymentRequiredResponse,
+  finalizeToolAccess,
+  getToolAccessState
+} from "../lib/credits.js";
 
 // ============================================
 // Link Checker Utilities
@@ -193,6 +198,11 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: "YouTube API key not configured." });
     }
 
+    const accessState = mode === 'linkcheck' ? null : await getToolAccessState(req, 'analyze');
+    if (accessState && !accessState.allowed) {
+      return res.status(402).json(buildPaymentRequiredResponse(accessState));
+    }
+
     // Check quota before starting (analyze can use ~200+ units)
     const quotaCheck = checkQuota(200);
     if (!quotaCheck.allowed) {
@@ -220,7 +230,16 @@ export default async function handler(req, res) {
 
     const cacheKey = `${input}::${sinceISO}`;
     const cached = getCache(cacheKey);
-    if (cached) return res.json({ fromCache: true, ...cached });
+    if (cached) {
+      if (accessState) {
+        const finalized = await finalizeToolAccess(req, res, accessState, { chargeCredits: false });
+        if (!finalized.ok) {
+          return res.status(402).json(finalized.payload);
+        }
+        return res.json({ fromCache: true, ...cached, access: finalized.access });
+      }
+      return res.json({ fromCache: true, ...cached });
+    }
 
     const snapshot = await getChannelSnapshot(input, sinceISO, {
       maxVideos: 1200,
@@ -242,7 +261,14 @@ export default async function handler(req, res) {
       promotions
     };
     setCache(cacheKey, payload);
-    res.json(payload);
+    if (accessState) {
+      const finalized = await finalizeToolAccess(req, res, accessState, { chargeCredits: true });
+      if (!finalized.ok) {
+        return res.status(402).json(finalized.payload);
+      }
+      return res.json({ ...payload, access: finalized.access });
+    }
+    return res.json(payload);
   } catch (err) {
     return handleApiError(res, err);
   }

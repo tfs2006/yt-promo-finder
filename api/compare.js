@@ -20,6 +20,11 @@ import {
   validateChannelInput,
   initQuota
 } from "../utils.js";
+import {
+  buildPaymentRequiredResponse,
+  finalizeToolAccess,
+  getToolAccessState
+} from "../lib/credits.js";
 
 async function analyzeChannel(input, sinceISO) {
   const spec = parseChannelIdFromUrl(input);
@@ -122,6 +127,11 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: "YouTube API key not configured." });
     }
 
+    const accessState = await getToolAccessState(req, 'compare');
+    if (!accessState.allowed) {
+      return res.status(402).json(buildPaymentRequiredResponse(accessState));
+    }
+
     // Check quota before starting (compare uses ~400+ units for both channels)
     const quotaCheck = checkQuota(500);
     if (!quotaCheck.allowed) {
@@ -139,7 +149,13 @@ export default async function handler(req, res) {
     // Check cache
     const cacheKey = `compare::${channel1}::${channel2}::${sinceISO}`;
     const cached = getCache(cacheKey);
-    if (cached) return res.json({ fromCache: true, ...cached });
+    if (cached) {
+      const finalized = await finalizeToolAccess(req, res, accessState, { chargeCredits: false });
+      if (!finalized.ok) {
+        return res.status(402).json(finalized.payload);
+      }
+      return res.json({ fromCache: true, ...cached, access: finalized.access });
+    }
 
     // Analyze both channels
     const [result1, result2] = await Promise.all([
@@ -205,7 +221,11 @@ export default async function handler(req, res) {
     };
 
     setCache(cacheKey, payload);
-    res.json(payload);
+    const finalized = await finalizeToolAccess(req, res, accessState, { chargeCredits: true });
+    if (!finalized.ok) {
+      return res.status(402).json(finalized.payload);
+    }
+    return res.json({ ...payload, access: finalized.access });
   } catch (err) {
     return handleApiError(res, err);
   }
