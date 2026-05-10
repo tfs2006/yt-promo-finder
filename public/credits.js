@@ -3,6 +3,7 @@
 
   var STORAGE_KEY = 'pf_credit_tokens_v1';
   var BALANCE_CACHE_KEY = 'pf_credit_balance_cache_v1';
+  var ACCOUNT_TOKEN_KEY = 'pf_account_token_v1';
   var BALANCE_BADGE_ID = 'pfCreditsBadge';
 
   function safeParse(json, fallback) {
@@ -56,6 +57,7 @@
     var payload = {
       totalRemaining: Number(data.totalRemaining || 0),
       balances: Array.isArray(data.balances) ? data.balances : [],
+      accountBalance: data.accountBalance || null,
       updatedAt: new Date().toISOString()
     };
     try {
@@ -77,6 +79,72 @@
   function getCachedTotalRemaining() {
     var cached = getBalanceCache();
     return cached ? Number(cached.totalRemaining || 0) : 0;
+  }
+
+  function looksLikeJwt(token) {
+    return /^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(token || '');
+  }
+
+  function parseJwtPayload(token) {
+    try {
+      var parts = String(token || '').split('.');
+      if (parts.length !== 3) return null;
+      var normalized = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+      var padded = normalized + '==='.slice((normalized.length + 3) % 4);
+      return JSON.parse(window.atob(padded));
+    } catch {
+      return null;
+    }
+  }
+
+  function getAccountTokenRecord() {
+    try {
+      var stored = safeParse(window.localStorage.getItem(ACCOUNT_TOKEN_KEY) || 'null', null);
+      if (!stored || !looksLikeJwt(stored.token || '')) return null;
+      if (stored.expiresAt && Date.now() >= Number(stored.expiresAt)) {
+        window.localStorage.removeItem(ACCOUNT_TOKEN_KEY);
+        return null;
+      }
+      return stored;
+    } catch {
+      return null;
+    }
+  }
+
+  function getAccountToken() {
+    var record = getAccountTokenRecord();
+    return record ? record.token : '';
+  }
+
+  function setAccountToken(token) {
+    if (!looksLikeJwt(token || '')) return null;
+    var payload = parseJwtPayload(token);
+    var expiresAt = payload && payload.exp ? Number(payload.exp) * 1000 : (Date.now() + (60 * 60 * 1000));
+    var record = { token: token, expiresAt: expiresAt };
+    try {
+      window.localStorage.setItem(ACCOUNT_TOKEN_KEY, JSON.stringify(record));
+    } catch {
+      return record;
+    }
+    return record;
+  }
+
+  function captureAccountTokenFromHash() {
+    var rawHash = window.location.hash || '';
+    if (!rawHash || rawHash.length < 2) return false;
+
+    var params = new URLSearchParams(rawHash.slice(1));
+    var accountToken = params.get('accountToken') || '';
+    if (!looksLikeJwt(accountToken)) return false;
+
+    setAccountToken(accountToken);
+    params.delete('accountToken');
+
+    var nextUrl = window.location.pathname + window.location.search;
+    var nextHash = params.toString();
+    if (nextHash) nextUrl += '#' + nextHash;
+    window.history.replaceState({}, '', nextUrl);
+    return true;
   }
 
   function renderCreditsBadge(totalRemaining) {
@@ -123,6 +191,41 @@
     renderCreditsBadge(resolved);
   }
 
+  function shouldAttachAccountToken(input) {
+    try {
+      var requestUrl = input instanceof Request ? input.url : String(input || '');
+      var resolved = new URL(requestUrl, window.location.origin);
+      return resolved.origin === window.location.origin && resolved.pathname.indexOf('/api/') === 0;
+    } catch {
+      return false;
+    }
+  }
+
+  function patchFetchForAccountToken() {
+    if (typeof window.fetch !== 'function' || window.__pfAccountFetchPatched) return;
+
+    var originalFetch = window.fetch.bind(window);
+    window.fetch = function (input, init) {
+      var accountToken = getAccountToken();
+      if (!accountToken || !shouldAttachAccountToken(input)) {
+        return originalFetch(input, init);
+      }
+
+      var headers = new Headers((init && init.headers) || (input instanceof Request ? input.headers : undefined) || undefined);
+      if (!headers.has('x-account-token')) {
+        headers.set('x-account-token', accountToken);
+      }
+
+      if (input instanceof Request) {
+        return originalFetch(new Request(input, Object.assign({}, init || {}, { headers: headers })));
+      }
+
+      return originalFetch(input, Object.assign({}, init || {}, { headers: headers }));
+    };
+
+    window.__pfAccountFetchPatched = true;
+  }
+
   function buildApiUrl(path, params) {
     var url = new URL(path, window.location.origin);
     Object.entries(params || {}).forEach(function (entry) {
@@ -160,13 +263,19 @@
 
   async function fetchBalances() {
     var tokens = getTokens();
-    if (!tokens.length) {
+    var accountToken = getAccountToken();
+    if (!tokens.length && !accountToken) {
       clearBalanceCache();
       refreshIndicators(0);
-      return { balances: [], totalRemaining: 0, toolCosts: {}, plans: [] };
+      return { balances: [], accountBalance: null, totalRemaining: 0, toolCosts: {}, plans: [] };
     }
 
-    var data = await requestJson('/api/credits?action=balance&tokens=' + encodeURIComponent(tokens.join(',')));
+    var query = '/api/credits?action=balance';
+    if (tokens.length) {
+      query += '&tokens=' + encodeURIComponent(tokens.join(','));
+    }
+
+    var data = await requestJson(query);
     if (Array.isArray(data.balances)) {
       setTokens(data.balances.map(function (balance) { return balance.token; }));
     }
@@ -203,12 +312,18 @@
     return '<div class="text-xs mt-3 text-slate-300">Saved balance detected: <span class="font-semibold text-emerald-300">' + total + ' credits</span>.</div>';
   }
 
+  function formatAccountBalanceHint(accountBalance) {
+    if (!accountBalance || !accountBalance.planName) return '';
+    return '<div class="text-xs mt-2 text-slate-300">Linked ' + accountBalance.planName + ': <span class="font-semibold text-emerald-300">' + Number(accountBalance.creditsRemaining || 0) + ' credits</span>.</div>';
+  }
+
   function getPaymentRequiredMarkup(payload, options) {
     var opts = options || {};
     var toolLabel = opts.toolLabel || 'This search';
     var toolCost = payload && payload.toolCost ? payload.toolCost : 1;
     var message = payload && payload.error ? payload.error : (toolLabel + ' now requires credits.');
     var hint = formatBalanceHint(payload && payload.balances);
+    var accountHint = formatAccountBalanceHint(payload && payload.accountBalance);
     return [
       '<div class="flex items-start gap-3">',
       '  <svg class="w-6 h-6 text-sky-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">',
@@ -219,6 +334,7 @@
       '    <div class="text-sm mt-1 text-slate-200">' + message + '</div>',
       '    <div class="text-sm mt-2 text-sky-200">This request costs ' + toolCost + ' credit' + (toolCost === 1 ? '' : 's') + '.</div>',
            hint,
+           accountHint,
       '    <div class="mt-4 flex flex-wrap gap-3">',
       '      <a href="/credits" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-semibold transition-colors">Buy Credits</a>',
       '      <a href="/credits" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-600 hover:border-sky-400 text-slate-200 hover:text-white transition-colors">View Plans</a>',
@@ -243,6 +359,28 @@
   }
 
   function syncAccess(access) {
+    if (access && access.mode === 'account') {
+      var current = getBalanceCache();
+      var balances = current && Array.isArray(current.balances) ? current.balances.slice() : [];
+      var accountBalance = {
+        provider: '4ourmedia',
+        token: 'account',
+        planId: '4ourmedia-account',
+        planName: access.accountLabel || '4ourMedia Account',
+        creditsRemaining: Number(access.creditsRemaining || 0),
+        creditsTotal: Number(access.creditsTotal || 0),
+        email: access.email || null,
+        status: 'active'
+      };
+      var totalRemaining = balances.reduce(function (sum, balance) {
+        return sum + Number(balance.creditsRemaining || 0);
+      }, 0) + Number(accountBalance.creditsRemaining || 0);
+      setBalanceCache({ balances: balances, accountBalance: accountBalance, totalRemaining: totalRemaining });
+      refreshIndicators(totalRemaining);
+      fetchBalances().catch(function () { return null; });
+      return;
+    }
+
     if (!access || access.mode !== 'paid' || !access.token) return;
 
     saveToken(access.token);
@@ -278,8 +416,10 @@
   }
 
   function initCreditsUi() {
+    captureAccountTokenFromHash();
+    patchFetchForAccountToken();
     refreshIndicators();
-    if (getTokens().length) {
+    if (getTokens().length || getAccountToken()) {
       fetchBalances().catch(function () { return null; });
     }
   }
@@ -296,6 +436,7 @@
     createCheckout: createCheckout,
     fetchBalances: fetchBalances,
     fetchCatalog: fetchCatalog,
+    getAccountToken: getAccountToken,
     getCachedTotalRemaining: getCachedTotalRemaining,
     getPaymentRequiredMarkup: getPaymentRequiredMarkup,
     getRateLimitedMarkup: getRateLimitedMarkup,

@@ -182,7 +182,7 @@ async function handleCredits(req, res) {
 
     if (action === "balance") {
       const tokens = String(req.query.tokens || req.query.creditToken || "");
-      return res.json(await getBalancesForTokens(tokens));
+      return res.json(await getBalancesForTokens(tokens, req));
     }
 
     return res.status(400).json({ error: "Invalid credits action." });

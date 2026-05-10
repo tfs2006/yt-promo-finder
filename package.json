@@ -12,6 +12,7 @@
     "build:css": "tailwindcss -c tailwind.config.cjs -i ./tailwind.input.css -o ./public/tailwind.css --minify"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.105.4",
     "@upstash/redis": "^1.34.3",
     "@ybd-project/ytdl-core": "^6.0.8",
     "dotenv": "^16.4.5",
