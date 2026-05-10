@@ -19,17 +19,72 @@
 
   // --- Tools list ---
   var tools = [
-    { href: '/',           label: 'Promo Finder',       color: 'emerald' },
-    { href: '/domain',     label: 'Domain Search',      color: 'orange'  },
-    { href: '/unlisted',   label: 'Unlisted Videos',    color: 'purple'  },
-    { href: '/collab',     label: 'Collaborations',     color: 'amber'   },
-    { href: '/compare',    label: 'Compare Sponsors',   color: 'pink'    }
+    { href: '/',                             label: 'Promo Finder',         color: 'emerald', activeClass: 'chip-active-emerald' },
+    { href: '/domain',                       label: 'Domain Search',        color: 'orange',  activeClass: 'chip-active-orange'  },
+    { href: '/unlisted',                     label: 'Unlisted Videos',      color: 'purple',  activeClass: 'chip-active-purple'  },
+    { href: '/unlisted-video-finder-by-channel', label: 'By Channel Guide',    color: 'violet',  activeClass: 'chip-active-violet'  },
+    { href: '/youtube-unlisted-video-finder',    label: 'YouTube Finder Guide', color: 'blue',    activeClass: 'chip-active-blue'    },
+    { href: '/growth',                       label: 'Growth Tracker',       color: 'blue',    activeClass: 'chip-active-blue'    },
+    { href: '/collab',                       label: 'Collaborations',       color: 'amber',   activeClass: 'chip-active-amber'   },
+    { href: '/compare',                      label: 'Compare Sponsors',     color: 'pink',    activeClass: 'chip-active-pink'    },
+    { href: '/rate',                         label: 'Rate Estimator',       color: 'teal',    activeClass: 'chip-active-teal'    },
+    { href: '/viral',                        label: 'Viral Detector',       color: 'rose',    activeClass: 'chip-active-rose'    },
+    { href: '/saturation',                   label: 'Saturation Score',     color: 'violet',  activeClass: 'chip-active-violet'  },
+    { href: '/revenue',                      label: 'Revenue Calculator',   color: 'lime',    activeClass: 'chip-active-lime'    },
+    { href: '/predictor',                    label: 'Performance Predictor', color: 'cyan',    activeClass: 'chip-active-cyan'    },
+    { href: '/tiktok',                       label: 'TikTok Downloader',    color: 'rose',    activeClass: 'chip-active-rose'    },
+    { href: '/youtube-downloader',           label: 'YouTube Downloader',   color: 'rose',    activeClass: 'chip-active-rose'    },
+    { href: '/ad-library-finder',            label: 'Ad Library Finder',    color: 'sky',     activeClass: 'chip-active-sky'     },
+    { href: '/services',                     label: 'Social Services',      color: 'sky',     activeClass: 'chip-active-sky'     },
+    { href: '/linkcheck',                    label: 'Link Checker',         color: 'sky',     activeClass: 'chip-active-sky'     }
   ];
+
+  var managedToolStripPaths = {
+    '/': true,
+    '/domain': true,
+    '/unlisted': true,
+    '/unlisted-video-finder-by-channel': true,
+    '/youtube-unlisted-video-finder': true,
+    '/growth': true,
+    '/collab': true,
+    '/compare': true,
+    '/rate': true,
+    '/viral': true,
+    '/saturation': true,
+    '/revenue': true,
+    '/predictor': true,
+    '/tiktok': true,
+    '/youtube-downloader': true,
+    '/ad-library-finder': true,
+    '/services': true,
+    '/linkcheck': true
+  };
 
   function getActivePath() {
     var p = window.location.pathname;
     if (p.length > 1 && p.slice(-1) === '/') p = p.slice(0, -1);
     return p || '/';
+  }
+
+  function isToolActive(toolHref, activePath) {
+    if (toolHref === '/') return activePath === '/';
+    if (toolHref === '/services') return activePath === '/services' || activePath.indexOf('/services-') === 0;
+    return activePath === toolHref || activePath.indexOf(toolHref + '/') === 0;
+  }
+
+  function normalizeDesktopToolStrip(navInner) {
+    var activePath = getActivePath();
+    var toolStrip = navInner ? navInner.querySelector('.tool-strip') : null;
+    if (!toolStrip || !managedToolStripPaths[activePath]) return;
+
+    toolStrip.innerHTML = '';
+    tools.forEach(function (tool) {
+      var link = document.createElement('a');
+      link.href = tool.href;
+      link.className = 'tool-chip' + (isToolActive(tool.href, activePath) ? ' ' + tool.activeClass : '');
+      link.textContent = tool.label;
+      toolStrip.appendChild(link);
+    });
   }
 
   function isMobile() { return window.innerWidth < 768; }
@@ -76,9 +131,7 @@
 
     var activePath = getActivePath();
     tools.forEach(function (t) {
-      var isActive = (t.href === '/')
-        ? (activePath === '/')
-        : (activePath === t.href || activePath.indexOf(t.href + '/') === 0);
+      var isActive = isToolActive(t.href, activePath);
       var c = COLOR[t.color] || COLOR.emerald;
       var a = document.createElement('a');
       a.href = t.href;
@@ -147,6 +200,7 @@
   var navInner = document.querySelector('.site-nav-inner');
 
   if (navTop && navInner) {
+    normalizeDesktopToolStrip(navInner);
     injectHamburger(navTop, navInner);
   }
 }());
