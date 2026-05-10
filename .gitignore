@@ -29,3 +29,6 @@ dist/
 build/
 .vercel
 .env*.local
+
+# Local KV fallback cache artifacts
+cache_*.json

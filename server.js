@@ -13,6 +13,7 @@ import compareHandler from "./api/compare.js";
 import revenueHandler from "./api/revenue.js";
 import predictorHandler from "./api/predictor.js";
 import { handleTikTokMeta, handleTikTokVideo, handleTikTokAudio } from "./lib/tiktokHandlers.js";
+import { handleYouTubeMeta, handleYouTubeVideo, handleYouTubeAudio } from "./lib/youtubeHandlers.js";
 
 dotenv.config();
 
@@ -66,12 +67,24 @@ app.get("/api/growth", growthHandler);
 app.get("/api/unlisted", unlistedHandler);
 app.get("/api/domain", domainHandler);
 app.get("/api/quota", quotaHandler);
+app.get("/api/credits", predictorHandler);
+app.post("/api/credits", express.json({ limit: "128kb" }), predictorHandler);
 app.get("/api/compare", compareHandler);
 app.get("/api/revenue", revenueHandler);
 app.get("/api/predictor", predictorHandler);
+app.get("/api/smm-services", predictorHandler);
+app.get("/api/smm-order-status", predictorHandler);
+app.get("/api/smm-profit-dashboard", predictorHandler);
+app.post("/api/smm-create-checkout", express.json({ limit: "256kb" }), predictorHandler);
+app.post("/api/smm-order-resubmit", express.json({ limit: "256kb" }), predictorHandler);
+app.post("/api/stripe-webhook", express.raw({ type: "application/json" }), predictorHandler);
 app.get("/api/tiktok", handleTikTokMeta);
 app.get("/api/tiktok-video", handleTikTokVideo);
 app.get("/api/tiktok-audio", handleTikTokAudio);
+app.get("/api/youtube", handleYouTubeMeta);
+app.get("/api/youtube-video", handleYouTubeVideo);
+app.get("/api/youtube-audio", handleYouTubeAudio);
+app.get("/api/ad-libraries", predictorHandler);
 
 app.use((err, req, res, next) => {
   console.error(JSON.stringify({
