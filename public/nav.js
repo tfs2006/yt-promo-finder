@@ -74,6 +74,27 @@
     return activePath === toolHref || activePath.indexOf(toolHref + '/') === 0;
   }
 
+  function trackEvent(eventName, params) {
+    if (!eventName || typeof window.gtag !== 'function') return false;
+    try {
+      window.gtag('event', eventName, params || {});
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  function trackEventOnce(storageKey, eventName, params) {
+    if (!storageKey) return trackEvent(eventName, params);
+    try {
+      if (window.sessionStorage.getItem(storageKey)) return false;
+      window.sessionStorage.setItem(storageKey, '1');
+    } catch {
+      // If sessionStorage is unavailable, still try to send the event.
+    }
+    return trackEvent(eventName, params);
+  }
+
   function normalizeDesktopToolStrip(navInner) {
     var activePath = getActivePath();
     var toolStrip = navInner ? navInner.querySelector('.tool-strip') : null;
@@ -205,4 +226,9 @@
     normalizeDesktopToolStrip(navInner);
     injectHamburger(navTop, navInner);
   }
+
+  window.PFAnalytics = window.PFAnalytics || {
+    track: trackEvent,
+    trackOnce: trackEventOnce
+  };
 }());

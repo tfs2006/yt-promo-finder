@@ -565,6 +565,13 @@
         `, "error");
         return;
       }
+
+      if (window.PFAnalytics && typeof window.PFAnalytics.track === 'function') {
+        window.PFAnalytics.track('research_search_submitted', {
+          tool_name: 'sponsor_comparison',
+          search_type: 'channel_compare'
+        });
+      }
       
       resultsEl.innerHTML = "";
       setLoading(true);

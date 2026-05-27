@@ -11,7 +11,7 @@
   </script>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>YouTube Collaboration Finder by Channel | Find Creator Collaborations Free</title>
+  <title>YouTube Collaboration Finder by Channel | Creator Collaboration Research</title>
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -53,7 +53,7 @@
         "@id": "https://promofinder.4ourmedia.com/collab#app",
         "name": "YouTube Collaboration Finder by Channel",
         "url": "https://promofinder.4ourmedia.com/collab",
-        "description": "Free tool to find creator mentions and collaboration patterns from public YouTube video descriptions.",
+        "description": "Research tool to find creator mentions and collaboration patterns from public YouTube video descriptions.",
         "applicationCategory": "UtilityApplication",
         "operatingSystem": "Web",
         "isPartOf": { "@id": "https://promofinder.4ourmedia.com/#website" },
@@ -309,6 +309,13 @@
       if (quotaStatus?.isExhausted) {
         setStatus('<div><div class="font-semibold text-lg">Daily API Limit Reached</div><div class="text-sm mt-1">Please try again tomorrow when the quota resets at midnight PT.</div></div>', "error");
         return;
+      }
+
+      if (window.PFAnalytics && typeof window.PFAnalytics.track === 'function') {
+        window.PFAnalytics.track('research_search_submitted', {
+          tool_name: 'collaboration_finder',
+          search_type: 'channel_lookup'
+        });
       }
       
       resultsEl.innerHTML = "";

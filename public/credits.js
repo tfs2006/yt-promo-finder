@@ -257,6 +257,30 @@
     return payload;
   }
 
+  function parseUsdValue(priceLabel) {
+    var normalized = String(priceLabel || '').replace(/[^0-9.]/g, '');
+    var value = Number(normalized);
+    return Number.isFinite(value) ? value : 0;
+  }
+
+  function normalizeToolName(label) {
+    return String(label || '')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '_')
+      .replace(/^_+|_+$/g, '');
+  }
+
+  function trackAnalytics(eventName, params, onceKey) {
+    if (!window.PFAnalytics || !eventName) return false;
+    if (onceKey && typeof window.PFAnalytics.trackOnce === 'function') {
+      return window.PFAnalytics.trackOnce(onceKey, eventName, params || {});
+    }
+    if (typeof window.PFAnalytics.track === 'function') {
+      return window.PFAnalytics.track(eventName, params || {});
+    }
+    return false;
+  }
+
   async function fetchCatalog() {
     return requestJson('/api/credits?action=plans');
   }
@@ -292,16 +316,44 @@
     if (data && data.balance) {
       setBalanceCache({ balances: [data.balance], totalRemaining: Number(data.balance.creditsRemaining || 0) });
       refreshIndicators(Number(data.balance.creditsRemaining || 0));
+      trackAnalytics('purchase', {
+        transaction_id: String(sessionId || data.token || ''),
+        currency: 'USD',
+        value: parseUsdValue(data.balance.priceLabel),
+        items: [
+          {
+            item_id: data.balance.planId || 'credits_pack',
+            item_name: data.balance.planName || 'Credits Pack',
+            item_category: 'credits',
+            quantity: 1
+          }
+        ]
+      }, 'pf_credits_purchase_' + String(sessionId || data.token || ''));
     }
     return data;
   }
 
   async function createCheckout(planId) {
-    return requestJson('/api/credits?action=checkout', {
+    var data = await requestJson('/api/credits?action=checkout', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ planId: planId })
     });
+    if (data && data.plan) {
+      trackAnalytics('begin_checkout', {
+        currency: 'USD',
+        value: parseUsdValue(data.plan.priceLabel),
+        items: [
+          {
+            item_id: data.plan.id || String(planId || 'credits_pack'),
+            item_name: data.plan.name || 'Credits Pack',
+            item_category: 'credits',
+            quantity: 1
+          }
+        ]
+      });
+    }
+    return data;
   }
 
   function formatBalanceHint(balances) {
@@ -324,6 +376,12 @@
     var message = payload && payload.error ? payload.error : (toolLabel + ' now requires credits.');
     var hint = formatBalanceHint(payload && payload.balances);
     var accountHint = formatAccountBalanceHint(payload && payload.accountBalance);
+    trackAnalytics('research_paywall_shown', {
+      tool_name: normalizeToolName(toolLabel),
+      tool_label: toolLabel,
+      tool_cost: toolCost,
+      page_path: window.location.pathname
+    }, 'pf_paywall_' + window.location.pathname + '_' + normalizeToolName(toolLabel));
     return [
       '<div class="flex items-start gap-3">',
       '  <svg class="w-6 h-6 text-sky-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">',

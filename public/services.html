@@ -1614,6 +1614,22 @@
           throw new Error('Checkout URL was not returned.');
         }
 
+        if (window.PFAnalytics && typeof window.PFAnalytics.track === 'function') {
+          const trackedOrder = data.order || {};
+          window.PFAnalytics.track('begin_checkout', {
+            currency: trackedOrder.currency || 'USD',
+            value: Number(trackedOrder.retailPrice || 0),
+            items: [
+              {
+                item_id: String(trackedOrder.serviceId || state.selected.serviceId || 'social_service'),
+                item_name: trackedOrder.serviceName || state.selected.name || 'Social Service',
+                item_category: trackedOrder.category || state.selected.category || 'social_service',
+                quantity: Number(trackedOrder.quantity || payload.quantity || 1) || 1
+              }
+            ]
+          });
+        }
+
         window.location.href = data.checkoutUrl;
       } catch (error) {
         setMessage(checkoutStatus, error.message || 'Checkout failed.', 'error');

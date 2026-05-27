@@ -426,6 +426,13 @@
         `, "error");
         return;
       }
+
+      if (window.PFAnalytics && typeof window.PFAnalytics.track === 'function') {
+        window.PFAnalytics.track('research_search_submitted', {
+          tool_name: 'domain_search',
+          search_type: 'domain_lookup'
+        });
+      }
       
       resultsEl.innerHTML = "";
       setLoading(true);
