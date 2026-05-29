@@ -125,7 +125,7 @@
             "name": "How do I request access?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Use the founder-beta email link on the page and include what you trade, your time horizon, and what you would want from the desk."
+              "text": "Use the founder-beta signup form on the page and include what you trade, your time horizon, and what you would want from the desk."
             }
           }
         ]
@@ -190,7 +190,7 @@
           </p>
 
           <div class="mt-6 flex flex-wrap gap-3">
-            <a href="mailto:ytpf@4ourmedia.com?subject=ANAMNESIS%20Signal%20Desk%20Founder%20Beta&body=Name%3A%0D%0AWhat%20do%20you%20trade%3F%0D%0ATime%20horizon%3A%0D%0AExperience%20level%3A%0D%0AWhat%20would%20you%20want%20from%20the%20desk%3F%0D%0A" class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-lime-500 px-5 py-3 font-semibold text-slate-950 transition hover:from-amber-400 hover:to-lime-400">Apply for Founder Beta</a>
+            <a href="#founder-beta-form" class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-lime-500 px-5 py-3 font-semibold text-slate-950 transition hover:from-amber-400 hover:to-lime-400">Apply for Founder Beta</a>
             <a href="#workflow" class="inline-flex items-center gap-2 rounded-xl border border-slate-700 px-5 py-3 font-semibold text-slate-200 transition hover:border-amber-400 hover:text-white">See the Workflow</a>
           </div>
 
@@ -262,6 +262,90 @@
         </figure>
       </div>
     </header>
+
+    <section id="founder-beta-form" class="mt-12 grid gap-6 lg:grid-cols-[0.92fr_1.08fr]">
+      <div class="glass-effect rounded-3xl border border-slate-700/50 p-6">
+        <p class="text-xs uppercase tracking-[0.18em] text-amber-300">Founder beta application</p>
+        <h2 class="mt-2 text-2xl font-bold text-white">Apply without leaving the page</h2>
+        <p class="mt-3 text-sm leading-6 text-slate-400">This form sends your request straight to the founder beta inbox at <span class="text-slate-200">david@4ourmedia.com</span>. The goal is to qualify for fit, not to collect a giant waitlist.</p>
+
+        <div class="mt-5 space-y-4 text-sm text-slate-300">
+          <div class="rounded-2xl border border-amber-500/20 bg-amber-500/10 p-4">
+            <p class="font-semibold text-amber-200">Best fit</p>
+            <p class="mt-1.5 text-amber-50/85">Traders already working a watchlist who want better preparation and review, not random alerts.</p>
+          </div>
+          <div class="rounded-2xl border border-lime-500/20 bg-lime-500/10 p-4">
+            <p class="font-semibold text-lime-200">What to include</p>
+            <p class="mt-1.5 text-lime-50/85">Tell us what you trade, your time horizon, your experience level, and what part of your process currently breaks down.</p>
+          </div>
+          <div class="rounded-2xl border border-cyan-500/20 bg-cyan-500/10 p-4">
+            <p class="font-semibold text-cyan-200">What not to send</p>
+            <p class="mt-1.5 text-cyan-50/85">No brokerage credentials, no API keys, and no private account data. This is a workflow beta, not an account-access product.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="glass-effect rounded-3xl border border-lime-500/20 p-6">
+        <p class="text-xs uppercase tracking-[0.18em] text-lime-300">Request access</p>
+        <h2 class="mt-2 text-2xl font-bold text-white">Founder beta signup</h2>
+        <form id="signalDeskSignupForm" action="/api/signal-desk-signup" method="post" class="mt-5 space-y-4">
+          <div class="grid gap-4 sm:grid-cols-2">
+            <label class="block">
+              <span class="text-sm text-slate-300">Name <span class="text-rose-300">*</span></span>
+              <input id="signupName" name="name" type="text" required autocomplete="name" placeholder="Your name" class="mt-1 w-full rounded-xl border border-slate-700 bg-slate-900/80 px-4 py-3 outline-none transition focus:border-lime-400 focus:ring-2 focus:ring-lime-500/30">
+            </label>
+            <label class="block">
+              <span class="text-sm text-slate-300">Email <span class="text-rose-300">*</span></span>
+              <input id="signupEmail" name="email" type="email" required autocomplete="email" placeholder="you@example.com" class="mt-1 w-full rounded-xl border border-slate-700 bg-slate-900/80 px-4 py-3 outline-none transition focus:border-lime-400 focus:ring-2 focus:ring-lime-500/30">
+            </label>
+          </div>
+
+          <div class="grid gap-4 sm:grid-cols-2">
+            <label class="block">
+              <span class="text-sm text-slate-300">What do you trade? <span class="text-rose-300">*</span></span>
+              <input id="signupMarkets" name="markets" type="text" required placeholder="High-beta stocks, crypto, both" class="mt-1 w-full rounded-xl border border-slate-700 bg-slate-900/80 px-4 py-3 outline-none transition focus:border-lime-400 focus:ring-2 focus:ring-lime-500/30">
+            </label>
+            <label class="block">
+              <span class="text-sm text-slate-300">Time horizon <span class="text-rose-300">*</span></span>
+              <input id="signupTimeframe" name="timeframe" type="text" required placeholder="Intraday, swing, daily" class="mt-1 w-full rounded-xl border border-slate-700 bg-slate-900/80 px-4 py-3 outline-none transition focus:border-lime-400 focus:ring-2 focus:ring-lime-500/30">
+            </label>
+          </div>
+
+          <label class="block">
+            <span class="text-sm text-slate-300">Experience level <span class="text-rose-300">*</span></span>
+            <select id="signupExperience" name="experience" required class="mt-1 w-full rounded-xl border border-slate-700 bg-slate-900/80 px-4 py-3 outline-none transition focus:border-lime-400 focus:ring-2 focus:ring-lime-500/30">
+              <option value="">Select one</option>
+              <option value="Beginner">Beginner</option>
+              <option value="Developing">Developing</option>
+              <option value="Intermediate">Intermediate</option>
+              <option value="Advanced">Advanced</option>
+              <option value="Professional">Professional</option>
+            </select>
+          </label>
+
+          <label class="block">
+            <span class="text-sm text-slate-300">What do you want the desk to solve first? <span class="text-rose-300">*</span></span>
+            <textarea id="signupGoals" name="goals" rows="5" required placeholder="Examples: better morning prep, cleaner invalidations, less impulsive overtrading, tighter post-trade review..." class="mt-1 w-full rounded-xl border border-slate-700 bg-slate-900/80 px-4 py-3 outline-none transition focus:border-lime-400 focus:ring-2 focus:ring-lime-500/30"></textarea>
+          </label>
+
+          <label class="hidden" aria-hidden="true">
+            <span>Company website</span>
+            <input id="signupWebsite" name="website" type="text" tabindex="-1" autocomplete="off">
+          </label>
+
+          <p class="text-xs leading-5 text-slate-500">By submitting, you are asking to be contacted about ANAMNESIS Signal Desk beta access. No brokerage credentials or account secrets should be entered here.</p>
+
+          <div class="flex flex-wrap gap-3">
+            <button id="signalDeskSubmit" type="submit" class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-lime-500 px-5 py-3 font-semibold text-slate-950 transition hover:from-amber-400 hover:to-lime-400 disabled:cursor-not-allowed disabled:opacity-60">
+              <span id="signalDeskSubmitText">Request beta access</span>
+            </button>
+            <a href="mailto:david@4ourmedia.com?subject=ANAMNESIS%20Signal%20Desk%20Question" class="inline-flex items-center gap-2 rounded-xl border border-slate-700 px-5 py-3 font-semibold text-slate-200 transition hover:border-lime-400 hover:text-white">Ask a question instead</a>
+          </div>
+
+          <div id="signalDeskStatus" class="hidden rounded-2xl px-4 py-3 text-sm"></div>
+        </form>
+      </div>
+    </section>
 
     <section class="grid gap-5 lg:grid-cols-[1.1fr_0.9fr]">
       <div class="glass-effect rounded-3xl border border-slate-700/50 p-6">
@@ -355,8 +439,8 @@
           <li class="flex items-start gap-3"><span class="mt-1 h-2 w-2 flex-shrink-0 rounded-full bg-lime-400"></span><span>A closeable founder relationship, not a fire-and-forget tool dump.</span></li>
         </ul>
         <div class="mt-6 flex flex-wrap gap-3">
-          <a href="mailto:ytpf@4ourmedia.com?subject=ANAMNESIS%20Signal%20Desk%20Founder%20Beta&body=Name%3A%0D%0AWhat%20do%20you%20trade%3F%0D%0ATime%20horizon%3A%0D%0AExperience%20level%3A%0D%0AWhat%20would%20you%20want%20from%20the%20desk%3F%0D%0A" class="inline-flex items-center gap-2 rounded-xl bg-lime-400 px-5 py-3 font-semibold text-slate-950 transition hover:bg-lime-300">Request access</a>
-          <a href="mailto:ytpf@4ourmedia.com?subject=ANAMNESIS%20Signal%20Desk%20Question" class="inline-flex items-center gap-2 rounded-xl border border-slate-700 px-5 py-3 font-semibold text-slate-200 transition hover:border-lime-400 hover:text-white">Ask a question</a>
+          <a href="#founder-beta-form" class="inline-flex items-center gap-2 rounded-xl bg-lime-400 px-5 py-3 font-semibold text-slate-950 transition hover:bg-lime-300">Request access</a>
+          <a href="mailto:david@4ourmedia.com?subject=ANAMNESIS%20Signal%20Desk%20Question" class="inline-flex items-center gap-2 rounded-xl border border-slate-700 px-5 py-3 font-semibold text-slate-200 transition hover:border-lime-400 hover:text-white">Ask a question</a>
         </div>
       </div>
     </section>
@@ -381,7 +465,7 @@
         </details>
         <details class="glass-effect rounded-2xl border border-slate-700/50 p-5">
           <summary class="cursor-pointer list-none font-semibold text-white">How do I join the founder beta?</summary>
-          <p class="mt-3 text-sm leading-6 text-slate-400">Use the founder-beta application email on this page and include what you trade, your time horizon, and what you would want the desk to solve first.</p>
+          <p class="mt-3 text-sm leading-6 text-slate-400">Use the founder-beta signup form on this page and tell us what you trade, your time horizon, and what you would want the desk to solve first.</p>
         </details>
       </div>
     </section>
@@ -394,7 +478,7 @@
           <p class="mt-3 text-slate-300">If you want the edge of a learning system without the risk of turning it loose on your broker, Signal Desk is the right product shape.</p>
         </div>
         <div class="flex flex-wrap gap-3">
-          <a href="mailto:ytpf@4ourmedia.com?subject=ANAMNESIS%20Signal%20Desk%20Founder%20Beta&body=Name%3A%0D%0AWhat%20do%20you%20trade%3F%0D%0ATime%20horizon%3A%0D%0AExperience%20level%3A%0D%0AWhat%20would%20you%20want%20from%20the%20desk%3F%0D%0A" class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-lime-500 px-5 py-3 font-semibold text-slate-950 transition hover:from-amber-400 hover:to-lime-400">Apply now</a>
+          <a href="#founder-beta-form" class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-lime-500 px-5 py-3 font-semibold text-slate-950 transition hover:from-amber-400 hover:to-lime-400">Apply now</a>
           <a href="/" class="inline-flex items-center gap-2 rounded-xl border border-slate-700 px-5 py-3 font-semibold text-slate-200 transition hover:border-lime-400 hover:text-white">Back to PromoFinder</a>
         </div>
       </div>
@@ -412,5 +496,79 @@
       </div>
     </footer>
   </main>
+  <script>
+    (function () {
+      const form = document.getElementById("signalDeskSignupForm");
+      const statusBox = document.getElementById("signalDeskStatus");
+      const submitButton = document.getElementById("signalDeskSubmit");
+      const submitText = document.getElementById("signalDeskSubmitText");
+
+      if (!form || !statusBox || !submitButton || !submitText) return;
+
+      function setStatus(kind, message) {
+        statusBox.classList.remove("hidden", "bg-emerald-500/10", "border-emerald-500/30", "text-emerald-100", "bg-rose-500/10", "border-rose-500/30", "text-rose-100", "bg-slate-800/80", "border-slate-600", "text-slate-200", "border");
+        statusBox.classList.add("border");
+
+        if (kind === "success") {
+          statusBox.classList.add("bg-emerald-500/10", "border-emerald-500/30", "text-emerald-100");
+        } else if (kind === "error") {
+          statusBox.classList.add("bg-rose-500/10", "border-rose-500/30", "text-rose-100");
+        } else {
+          statusBox.classList.add("bg-slate-800/80", "border-slate-600", "text-slate-200");
+        }
+
+        statusBox.textContent = message;
+      }
+
+      form.addEventListener("submit", async function (event) {
+        event.preventDefault();
+
+        if (!form.reportValidity()) {
+          return;
+        }
+
+        submitButton.disabled = true;
+        submitText.textContent = "Sending...";
+        setStatus("pending", "Sending your founder beta request...");
+
+        const payload = {
+          name: form.elements.name.value.trim(),
+          email: form.elements.email.value.trim(),
+          markets: form.elements.markets.value.trim(),
+          timeframe: form.elements.timeframe.value.trim(),
+          experience: form.elements.experience.value.trim(),
+          goals: form.elements.goals.value.trim(),
+          website: form.elements.website.value.trim()
+        };
+
+        try {
+          const response = await fetch("/api/signal-desk-signup", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json"
+            },
+            body: JSON.stringify(payload)
+          });
+
+          const data = await response.json().catch(function () {
+            return {};
+          });
+
+          if (!response.ok) {
+            throw new Error(data.error || "Unable to submit your request right now.");
+          }
+
+          form.reset();
+          setStatus("success", data.message || "Thanks — your founder beta request is in.");
+        } catch (error) {
+          setStatus("error", error.message || "Unable to submit your request right now.");
+        } finally {
+          submitButton.disabled = false;
+          submitText.textContent = "Request beta access";
+        }
+      });
+    }());
+  </script>
 </body>
 </html>

@@ -83,6 +83,7 @@
     { "source": "/api/viral", "destination": "/api/viral.js" },
     { "source": "/api/saturation", "destination": "/api/saturation.js" },
     { "source": "/api/revenue", "destination": "/api/revenue.js" },
+    { "source": "/api/signal-desk-signup", "destination": "/api/signal-desk-signup.js" },
     { "source": "/api/predictor", "destination": "/api/predictor.js" },
     { "source": "/api/smm-services", "destination": "/api/predictor.js" },
     { "source": "/api/smm-create-checkout", "destination": "/api/predictor.js" },
