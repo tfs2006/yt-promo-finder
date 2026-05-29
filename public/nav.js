@@ -37,6 +37,7 @@
     { href: '/youtube-downloader',           label: 'YouTube Downloader',   color: 'rose',    activeClass: 'chip-active-rose'    },
     { href: '/ad-library-finder',            label: 'Ad Library Finder',    color: 'sky',     activeClass: 'chip-active-sky'     },
     { href: '/services',                     label: 'Social Services',      color: 'sky',     activeClass: 'chip-active-sky'     },
+    { href: '/signal-desk',                  label: 'Signal Desk',          color: 'lime',    activeClass: 'chip-active-lime'    },
     { href: '/linkcheck',                    label: 'Link Checker',         color: 'sky',     activeClass: 'chip-active-sky'     }
   ];
 
@@ -59,6 +60,7 @@
     '/youtube-downloader': true,
     '/ad-library-finder': true,
     '/services': true,
+    '/signal-desk': true,
     '/linkcheck': true
   };
 
