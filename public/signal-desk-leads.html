@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Signal Desk Lead Desk</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="description" content="Private lead desk for Signal Desk founder beta follow-up.">
+  <link rel="stylesheet" href="/tailwind.css">
+</head>
+<body class="min-h-screen bg-slate-950 text-slate-100">
+  <main class="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
+    <section class="rounded-3xl border border-slate-700/60 bg-slate-900/70 p-6 sm:p-8">
+      <div class="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+        <div>
+          <p class="text-xs uppercase tracking-[0.18em] text-lime-300">Private operations</p>
+          <h1 class="mt-2 text-3xl font-bold text-white">Signal Desk lead desk</h1>
+          <p class="mt-3 max-w-2xl text-slate-300">Review founder beta requests, mark follow-up status, and keep one simple notes trail instead of working from inbox alone.</p>
+        </div>
+        <div class="rounded-2xl border border-slate-700 bg-slate-950/70 px-4 py-3 text-sm text-slate-400">
+          Path: <span class="font-semibold text-slate-200">/signal-desk-leads</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="mt-6 grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
+      <div class="rounded-3xl border border-slate-700/60 bg-slate-900/70 p-6">
+        <p class="text-xs uppercase tracking-[0.18em] text-cyan-300">Admin sign-in</p>
+        <h2 class="mt-2 text-2xl font-bold text-white">Open the desk</h2>
+        <p class="mt-3 text-sm leading-6 text-slate-400">Use the admin username and password configured in Vercel. Credentials stay in this browser session only.</p>
+        <form id="leadDeskLoginForm" class="mt-5 space-y-4">
+          <label class="block">
+            <span class="text-sm text-slate-300">Username</span>
+            <input id="leadDeskUsername" type="text" autocomplete="username" placeholder="david" class="mt-1 w-full rounded-xl border border-slate-700 bg-slate-950/80 px-4 py-3 outline-none transition focus:border-lime-400 focus:ring-2 focus:ring-lime-500/30">
+          </label>
+          <label class="block">
+            <span class="text-sm text-slate-300">Password</span>
+            <input id="leadDeskPassword" type="password" autocomplete="current-password" placeholder="Lead desk password" class="mt-1 w-full rounded-xl border border-slate-700 bg-slate-950/80 px-4 py-3 outline-none transition focus:border-lime-400 focus:ring-2 focus:ring-lime-500/30">
+          </label>
+          <div class="flex flex-wrap gap-3">
+            <button id="leadDeskLoginButton" type="submit" class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-lime-500 px-5 py-3 font-semibold text-slate-950 transition hover:from-amber-400 hover:to-lime-400">Load leads</button>
+            <button id="leadDeskLogoutButton" type="button" class="inline-flex items-center gap-2 rounded-xl border border-slate-700 px-5 py-3 font-semibold text-slate-200 transition hover:border-lime-400 hover:text-white">Forget session</button>
+          </div>
+        </form>
+        <div id="leadDeskStatus" class="mt-5 hidden rounded-2xl border px-4 py-3 text-sm"></div>
+      </div>
+
+      <div class="rounded-3xl border border-slate-700/60 bg-slate-900/70 p-6">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p class="text-xs uppercase tracking-[0.18em] text-amber-300">Workflow</p>
+            <h2 class="mt-2 text-2xl font-bold text-white">Follow-up queue</h2>
+          </div>
+          <label class="block sm:w-56">
+            <span class="text-sm text-slate-300">Filter by status</span>
+            <select id="leadDeskFilter" class="mt-1 w-full rounded-xl border border-slate-700 bg-slate-950/80 px-4 py-3 outline-none transition focus:border-lime-400 focus:ring-2 focus:ring-lime-500/30">
+              <option value="">All leads</option>
+              <option value="new">New</option>
+              <option value="contacted">Contacted</option>
+              <option value="qualified">Qualified</option>
+              <option value="waitlist">Waitlist</option>
+              <option value="closed">Closed</option>
+            </select>
+          </label>
+        </div>
+        <div id="leadDeskSummary" class="mt-5 grid gap-3 sm:grid-cols-3 lg:grid-cols-6"></div>
+      </div>
+    </section>
+
+    <section id="leadDeskCards" class="mt-6 space-y-4"></section>
+  </main>
+
+  <script>
+    (function () {
+      const authStorageKey = "signalDeskLeadDeskAuth";
+      const loginForm = document.getElementById("leadDeskLoginForm");
+      const usernameInput = document.getElementById("leadDeskUsername");
+      const passwordInput = document.getElementById("leadDeskPassword");
+      const loginButton = document.getElementById("leadDeskLoginButton");
+      const logoutButton = document.getElementById("leadDeskLogoutButton");
+      const statusBox = document.getElementById("leadDeskStatus");
+      const filterSelect = document.getElementById("leadDeskFilter");
+      const summaryGrid = document.getElementById("leadDeskSummary");
+      const cardsRoot = document.getElementById("leadDeskCards");
+
+      if (!loginForm || !usernameInput || !passwordInput || !loginButton || !logoutButton || !statusBox || !filterSelect || !summaryGrid || !cardsRoot) {
+        return;
+      }
+
+      let authHeader = sessionStorage.getItem(authStorageKey) || "";
+
+      function setStatus(kind, message) {
+        statusBox.classList.remove("hidden", "bg-emerald-500/10", "border-emerald-500/30", "text-emerald-100", "bg-rose-500/10", "border-rose-500/30", "text-rose-100", "bg-slate-800/80", "border-slate-600", "text-slate-200");
+
+        if (kind === "success") {
+          statusBox.classList.add("bg-emerald-500/10", "border-emerald-500/30", "text-emerald-100");
+        } else if (kind === "error") {
+          statusBox.classList.add("bg-rose-500/10", "border-rose-500/30", "text-rose-100");
+        } else {
+          statusBox.classList.add("bg-slate-800/80", "border-slate-600", "text-slate-200");
+        }
+
+        statusBox.textContent = message;
+      }
+
+      function clearStatus() {
+        statusBox.className = "mt-5 hidden rounded-2xl border px-4 py-3 text-sm";
+        statusBox.textContent = "";
+      }
+
+      function formatDate(iso) {
+        if (!iso) return "Unknown";
+        const value = new Date(iso);
+        if (!Number.isFinite(value.getTime())) return iso;
+        return value.toLocaleString();
+      }
+
+      function metricCard(label, value, accent) {
+        return [
+          '<div class="rounded-2xl border border-slate-700 bg-slate-950/70 p-4">',
+          `<div class="text-xs uppercase tracking-[0.18em] ${accent}">${label}</div>`,
+          `<div class="mt-2 text-2xl font-bold text-white">${value}</div>`,
+          '</div>'
+        ].join("");
+      }
+
+      function renderSummary(summary) {
+        const safe = summary || { total: 0, new: 0, contacted: 0, qualified: 0, waitlist: 0, closed: 0 };
+        summaryGrid.innerHTML = [
+          metricCard("Total", safe.total || 0, "text-slate-400"),
+          metricCard("New", safe.new || 0, "text-lime-300"),
+          metricCard("Contacted", safe.contacted || 0, "text-cyan-300"),
+          metricCard("Qualified", safe.qualified || 0, "text-emerald-300"),
+          metricCard("Waitlist", safe.waitlist || 0, "text-amber-300"),
+          metricCard("Closed", safe.closed || 0, "text-rose-300")
+        ].join("");
+      }
+
+      function escapeHtml(value) {
+        return String(value || "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/\"/g, "&quot;")
+          .replace(/'/g, "&#39;");
+      }
+
+      function renderLeads(leads) {
+        if (!Array.isArray(leads) || !leads.length) {
+          cardsRoot.innerHTML = '<div class="rounded-3xl border border-dashed border-slate-700 bg-slate-900/50 p-8 text-center text-slate-400">No leads match the current filter yet.</div>';
+          return;
+        }
+
+        cardsRoot.innerHTML = leads.map(function (lead) {
+          const selected = function (value) {
+            return lead.status === value ? ' selected' : '';
+          };
+
+          return [
+            `<article class="rounded-3xl border border-slate-700/60 bg-slate-900/70 p-6" data-pathname="${escapeHtml(lead.pathname)}">`,
+            '  <div class="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">',
+            '    <div class="space-y-4">',
+            `      <div><p class="text-xs uppercase tracking-[0.18em] text-slate-500">Submitted ${escapeHtml(formatDate(lead.createdAt))}</p><h3 class="mt-2 text-2xl font-bold text-white">${escapeHtml(lead.name)}</h3></div>`,
+            `      <div class="flex flex-wrap gap-2 text-sm text-slate-300"><a class="rounded-full border border-cyan-500/30 bg-cyan-500/10 px-3 py-1 transition hover:border-cyan-400 hover:text-white" href="mailto:${encodeURIComponent(lead.email)}?subject=ANAMNESIS%20Signal%20Desk%20Follow-up">${escapeHtml(lead.email)}</a><span class="rounded-full border border-slate-700 px-3 py-1">${escapeHtml(lead.markets)}</span><span class="rounded-full border border-slate-700 px-3 py-1">${escapeHtml(lead.timeframe)}</span><span class="rounded-full border border-slate-700 px-3 py-1">${escapeHtml(lead.experience)}</span></div>`,
+            `      <div class="rounded-2xl border border-slate-700 bg-slate-950/70 p-4 text-sm leading-6 text-slate-300">${escapeHtml(lead.goals)}</div>`,
+            `      <p class="text-xs text-slate-500">Source: ${escapeHtml(lead.source || 'ANAMNESIS Signal Desk')} ${lead.contactedAt ? '&middot; First touched ' + escapeHtml(formatDate(lead.contactedAt)) : ''}</p>`,
+            '    </div>',
+            '    <div class="w-full max-w-xl space-y-4">',
+            '      <label class="block">',
+            '        <span class="text-sm text-slate-300">Status</span>',
+            '        <select class="signalDeskLeadStatus mt-1 w-full rounded-xl border border-slate-700 bg-slate-950/80 px-4 py-3 outline-none transition focus:border-lime-400 focus:ring-2 focus:ring-lime-500/30">',
+            `          <option value="new"${selected('new')}>New</option>`,
+            `          <option value="contacted"${selected('contacted')}>Contacted</option>`,
+            `          <option value="qualified"${selected('qualified')}>Qualified</option>`,
+            `          <option value="waitlist"${selected('waitlist')}>Waitlist</option>`,
+            `          <option value="closed"${selected('closed')}>Closed</option>`,
+            '        </select>',
+            '      </label>',
+            '      <label class="block">',
+            '        <span class="text-sm text-slate-300">Notes</span>',
+            `        <textarea class="signalDeskLeadNotes mt-1 h-32 w-full rounded-xl border border-slate-700 bg-slate-950/80 px-4 py-3 outline-none transition focus:border-lime-400 focus:ring-2 focus:ring-lime-500/30">${escapeHtml(lead.adminNotes || '')}</textarea>`,
+            '      </label>',
+            '      <div class="flex flex-wrap gap-3">',
+            '        <button type="button" class="signalDeskLeadSave inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-lime-500 px-4 py-2.5 font-semibold text-slate-950 transition hover:from-amber-400 hover:to-lime-400">Save follow-up</button>',
+            `        <a class="inline-flex items-center gap-2 rounded-xl border border-slate-700 px-4 py-2.5 font-semibold text-slate-200 transition hover:border-lime-400 hover:text-white" href="mailto:${encodeURIComponent(lead.email)}?subject=ANAMNESIS%20Signal%20Desk%20Founder%20Beta">Reply by email</a>`,
+            '      </div>',
+            '      <div class="signalDeskLeadMessage hidden rounded-2xl border px-4 py-3 text-sm"></div>',
+            '    </div>',
+            '  </div>',
+            '</article>'
+          ].join('');
+        }).join('');
+      }
+
+      function setLeadMessage(card, kind, message) {
+        const box = card.querySelector('.signalDeskLeadMessage');
+        if (!box) return;
+
+        box.classList.remove('hidden', 'bg-emerald-500/10', 'border-emerald-500/30', 'text-emerald-100', 'bg-rose-500/10', 'border-rose-500/30', 'text-rose-100', 'bg-slate-800/80', 'border-slate-600', 'text-slate-200');
+        if (kind === 'success') {
+          box.classList.add('bg-emerald-500/10', 'border-emerald-500/30', 'text-emerald-100');
+        } else if (kind === 'error') {
+          box.classList.add('bg-rose-500/10', 'border-rose-500/30', 'text-rose-100');
+        } else {
+          box.classList.add('bg-slate-800/80', 'border-slate-600', 'text-slate-200');
+        }
+        box.textContent = message;
+      }
+
+      async function apiRequest(path, options) {
+        const config = Object.assign({ method: 'GET', headers: {} }, options || {});
+        config.headers = Object.assign({}, config.headers);
+        if (authHeader) {
+          config.headers.Authorization = authHeader;
+        }
+
+        const response = await fetch(path, config);
+        const data = await response.json().catch(function () { return {}; });
+
+        if (response.status === 401) {
+          throw new Error('Authentication failed. Check the lead desk username and password.');
+        }
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Unable to complete the request right now.');
+        }
+
+        return data;
+      }
+
+      async function loadLeads() {
+        if (!authHeader) {
+          setStatus('error', 'Enter the lead desk credentials first.');
+          return;
+        }
+
+        loginButton.disabled = true;
+        setStatus('pending', 'Loading the latest founder beta leads...');
+
+        try {
+          const filterValue = filterSelect.value ? ('?status=' + encodeURIComponent(filterSelect.value)) : '';
+          const data = await apiRequest('/api/signal-desk-leads' + filterValue);
+          renderSummary(data.summary);
+          renderLeads(data.leads);
+          setStatus('success', 'Lead desk refreshed.');
+        } catch (error) {
+          renderSummary();
+          renderLeads([]);
+          setStatus('error', error.message || 'Unable to load leads right now.');
+        } finally {
+          loginButton.disabled = false;
+        }
+      }
+
+      loginForm.addEventListener('submit', function (event) {
+        event.preventDefault();
+        const username = usernameInput.value.trim();
+        const password = passwordInput.value;
+
+        if (!username || !password) {
+          setStatus('error', 'Enter both the username and password for the lead desk.');
+          return;
+        }
+
+        authHeader = 'Basic ' + btoa(username + ':' + password);
+        sessionStorage.setItem(authStorageKey, authHeader);
+        clearStatus();
+        loadLeads();
+      });
+
+      logoutButton.addEventListener('click', function () {
+        authHeader = '';
+        sessionStorage.removeItem(authStorageKey);
+        passwordInput.value = '';
+        renderSummary();
+        renderLeads([]);
+        setStatus('success', 'Lead desk session cleared from this browser.');
+      });
+
+      filterSelect.addEventListener('change', function () {
+        if (authHeader) {
+          loadLeads();
+        }
+      });
+
+      cardsRoot.addEventListener('click', async function (event) {
+        const saveButton = event.target.closest('.signalDeskLeadSave');
+        if (!saveButton) return;
+
+        const card = saveButton.closest('[data-pathname]');
+        if (!card) return;
+
+        const pathname = card.getAttribute('data-pathname') || '';
+        const status = card.querySelector('.signalDeskLeadStatus')?.value || 'new';
+        const adminNotes = card.querySelector('.signalDeskLeadNotes')?.value || '';
+
+        saveButton.disabled = true;
+        setLeadMessage(card, 'pending', 'Saving follow-up state...');
+
+        try {
+          await apiRequest('/api/signal-desk-leads', {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ pathname: pathname, status: status, adminNotes: adminNotes })
+          });
+          setLeadMessage(card, 'success', 'Follow-up saved.');
+          loadLeads();
+        } catch (error) {
+          setLeadMessage(card, 'error', error.message || 'Unable to save the follow-up right now.');
+        } finally {
+          saveButton.disabled = false;
+        }
+      });
+
+      renderSummary();
+      renderLeads([]);
+
+      if (authHeader) {
+        setStatus('pending', 'Stored lead desk session found. Refreshing leads...');
+        loadLeads();
+      }
+    }());
+  </script>
+</body>
+</html>

@@ -31,6 +31,10 @@ import {
   getBalancesForTokens,
   getCreditsCatalog
 } from "../lib/credits.js";
+import {
+  handleSignalDeskLeads,
+  handleSignalDeskWebhook
+} from "../lib/signalDeskLeads.js";
 
 const SMM_CURRENCY = (process.env.SMM_CURRENCY || "usd").toLowerCase();
 const SMM_MEMORY_TTL_MS = 10 * 60 * 1000;
@@ -654,6 +658,12 @@ export default async function handler(req, res) {
     } catch (err) {
       return handleApiError(res, err, req);
     }
+  }
+  if (pathname === "/api/signal-desk-webhook") {
+    return handleSignalDeskWebhook(req, res);
+  }
+  if (pathname === "/api/signal-desk-leads") {
+    return handleSignalDeskLeads(req, res);
   }
 
   if (applyApiGuards(req, res, { rateKey: "predictor", maxRequests: 8, windowMs: 60_000 })) return;
