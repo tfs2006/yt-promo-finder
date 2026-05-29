@@ -67,6 +67,8 @@
     { "source": "/youtube-downloader/", "destination": "/youtube-downloader.html", "permanent": false },
     { "source": "/ad-library-finder", "destination": "/ad-library-finder.html", "permanent": false },
     { "source": "/ad-library-finder/", "destination": "/ad-library-finder.html", "permanent": false }
+    ,{ "source": "/signal-desk", "destination": "/signal-desk.html", "permanent": false }
+    ,{ "source": "/signal-desk/", "destination": "/signal-desk.html", "permanent": false }
   ],
   "rewrites": [
     { "source": "/api/analyze", "destination": "/api/analyze.js" },
