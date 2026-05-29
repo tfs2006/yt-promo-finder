@@ -11,8 +11,8 @@ import domainHandler from "./api/domain.js";
 import quotaHandler from "./api/quota.js";
 import compareHandler from "./api/compare.js";
 import revenueHandler from "./api/revenue.js";
-import signalDeskSignupHandler from "./api/signal-desk-signup.js";
 import predictorHandler from "./api/predictor.js";
+import { handleSignalDeskSignup } from "./lib/signalDeskSignup.js";
 import { handleTikTokMeta, handleTikTokVideo, handleTikTokAudio } from "./lib/tiktokHandlers.js";
 import { handleYouTubeMeta, handleYouTubeVideo, handleYouTubeAudio } from "./lib/youtubeHandlers.js";
 
@@ -72,7 +72,7 @@ app.get("/api/credits", predictorHandler);
 app.post("/api/credits", express.json({ limit: "128kb" }), predictorHandler);
 app.get("/api/compare", compareHandler);
 app.get("/api/revenue", revenueHandler);
-app.post("/api/signal-desk-signup", express.json({ limit: "64kb" }), signalDeskSignupHandler);
+app.post("/api/signal-desk-signup", express.json({ limit: "64kb" }), handleSignalDeskSignup);
 app.get("/api/predictor", predictorHandler);
 app.get("/api/smm-services", predictorHandler);
 app.get("/api/smm-order-status", predictorHandler);
