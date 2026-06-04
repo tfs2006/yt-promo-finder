@@ -51,6 +51,11 @@
     <priority>0.75</priority>
   </url>
   <url>
+    <loc>https://promofinder.4ourmedia.com/bot-detector</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
     <loc>https://promofinder.4ourmedia.com/saturation</loc>
     <changefreq>weekly</changefreq>
     <priority>0.75</priority>

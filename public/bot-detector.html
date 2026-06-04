@@ -1,0 +1,751 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-4Y4X38W3FZ"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-4Y4X38W3FZ');
+  </script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>YouTube Bot Detector | Audit Suspicious Views, Subs, and Comments (Free)</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/nav.js" defer></script>
+  <meta name="description" content="Free YouTube bot detector. Audit any public channel for suspicious view, subscriber, and comment patterns using eight heuristic signals built on the YouTube Data API." />
+  <meta name="keywords" content="YouTube bot detector, fake YouTube subscribers, bought YouTube views, comment farm detector, YouTube authenticity audit, detect fake engagement on YouTube" />
+  <meta name="author" content="David J Woodbury" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://promofinder.4ourmedia.com/bot-detector" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="YouTube Bot Detector | Audit Suspicious Views, Subs, and Comments" />
+  <meta property="og:description" content="Run a forensic-style audit on any public YouTube channel to spot bought views, fake subscribers, recycled comments, and suspiciously flat performance." />
+  <meta property="og:url" content="https://promofinder.4ourmedia.com/bot-detector" />
+  <meta property="og:site_name" content="YouTube Promo Finder" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="YouTube Bot Detector | Free Channel Authenticity Audit" />
+  <meta name="twitter:description" content="Analyze public YouTube channels for artificial growth signals across views, subscribers, comments, and upload behavior." />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "YouTube Bot Detector",
+    "url": "https://promofinder.4ourmedia.com/bot-detector",
+    "description": "Audit public YouTube channels for suspicious view, subscriber, and comment patterns using eight heuristic checks.",
+    "applicationCategory": "UtilityApplication",
+    "operatingSystem": "Web",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+  }
+  </script>
+  <link rel="stylesheet" href="/tailwind.css">
+  <style>
+    .fade-in { animation: fadein 0.4s ease-out; }
+    @keyframes fadein { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .spin { animation: spin 1s linear infinite; }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    .glass-effect { background: rgba(15, 23, 42, 0.62); backdrop-filter: blur(12px); }
+    .gradient-text {
+      background: linear-gradient(135deg, #fb7185 0%, #f97316 48%, #facc15 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .risk-card.low {
+      border-color: rgba(16, 185, 129, 0.35);
+      background: linear-gradient(160deg, rgba(16, 185, 129, 0.18), rgba(15, 23, 42, 0.58));
+    }
+    .risk-card.elevated {
+      border-color: rgba(245, 158, 11, 0.35);
+      background: linear-gradient(160deg, rgba(245, 158, 11, 0.18), rgba(15, 23, 42, 0.58));
+    }
+    .risk-card.high {
+      border-color: rgba(249, 115, 22, 0.35);
+      background: linear-gradient(160deg, rgba(249, 115, 22, 0.18), rgba(15, 23, 42, 0.58));
+    }
+    .risk-card.critical {
+      border-color: rgba(244, 63, 94, 0.42);
+      background: linear-gradient(160deg, rgba(244, 63, 94, 0.22), rgba(15, 23, 42, 0.62));
+      box-shadow: 0 0 56px rgba(244, 63, 94, 0.12);
+    }
+    .risk-pill,
+    .signal-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 9999px;
+      border: 1px solid transparent;
+      padding: 0.35rem 0.8rem;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    .risk-pill.low { background: rgba(16, 185, 129, 0.12); border-color: rgba(16, 185, 129, 0.32); color: #86efac; }
+    .risk-pill.elevated { background: rgba(245, 158, 11, 0.12); border-color: rgba(245, 158, 11, 0.32); color: #fde68a; }
+    .risk-pill.high { background: rgba(249, 115, 22, 0.12); border-color: rgba(249, 115, 22, 0.32); color: #fdba74; }
+    .risk-pill.critical { background: rgba(244, 63, 94, 0.14); border-color: rgba(244, 63, 94, 0.36); color: #fda4af; }
+    .signal-card.ok { border-color: rgba(71, 85, 105, 0.55); }
+    .signal-card.info { border-color: rgba(100, 116, 139, 0.45); }
+    .signal-card.warning {
+      border-color: rgba(245, 158, 11, 0.32);
+      background: linear-gradient(180deg, rgba(120, 53, 15, 0.16), rgba(15, 23, 42, 0.5));
+    }
+    .signal-card.danger {
+      border-color: rgba(244, 63, 94, 0.36);
+      background: linear-gradient(180deg, rgba(127, 29, 29, 0.18), rgba(15, 23, 42, 0.52));
+    }
+    .signal-pill.ok { background: rgba(16, 185, 129, 0.12); border-color: rgba(16, 185, 129, 0.3); color: #86efac; }
+    .signal-pill.info { background: rgba(71, 85, 105, 0.18); border-color: rgba(100, 116, 139, 0.32); color: #cbd5e1; }
+    .signal-pill.warning { background: rgba(245, 158, 11, 0.12); border-color: rgba(245, 158, 11, 0.32); color: #fde68a; }
+    .signal-pill.danger { background: rgba(244, 63, 94, 0.14); border-color: rgba(244, 63, 94, 0.36); color: #fda4af; }
+    .signal-dot {
+      display: inline-block;
+      width: 0.65rem;
+      height: 0.65rem;
+      border-radius: 9999px;
+      flex-shrink: 0;
+    }
+    .signal-dot.ok { background: #34d399; box-shadow: 0 0 14px rgba(52, 211, 153, 0.45); }
+    .signal-dot.info { background: #94a3b8; }
+    .signal-dot.warning { background: #f59e0b; box-shadow: 0 0 14px rgba(245, 158, 11, 0.4); }
+    .signal-dot.danger { background: #fb7185; box-shadow: 0 0 16px rgba(251, 113, 133, 0.44); }
+    .signal-bar {
+      height: 100%;
+      border-radius: 9999px;
+    }
+    .signal-bar.ok { background: linear-gradient(90deg, #10b981, #34d399); }
+    .signal-bar.info { background: linear-gradient(90deg, #64748b, #94a3b8); }
+    .signal-bar.warning { background: linear-gradient(90deg, #d97706, #f59e0b); }
+    .signal-bar.danger { background: linear-gradient(90deg, #e11d48, #fb7185); }
+    .metric-card {
+      border: 1px solid rgba(51, 65, 85, 0.72);
+      background: rgba(2, 6, 23, 0.5);
+    }
+    .video-thumb {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      object-fit: cover;
+    }
+    .gauge-track {
+      stroke: rgba(148, 163, 184, 0.18);
+    }
+    .gauge-progress {
+      transition: stroke-dashoffset 0.9s ease-out;
+      stroke-linecap: round;
+    }
+    .channel-banner {
+      background:
+        radial-gradient(circle at top right, rgba(251, 113, 133, 0.18), transparent 46%),
+        linear-gradient(135deg, rgba(15, 23, 42, 0.92), rgba(15, 23, 42, 0.68));
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-100 min-h-screen">
+<nav class="site-nav">
+  <div class="site-nav-inner">
+    <div class="site-nav-top">
+      <a href="/" class="site-logo">
+        <div class="site-logo-mark">
+          <svg width="17" height="17" viewBox="0 0 17 17" fill="none"><circle cx="6.5" cy="6.5" r="4.5" stroke="white" stroke-width="1.6"/><polygon points="4.5,4.5 4.5,8.5 8.5,6.5" fill="white"/><line x1="10" y1="10" x2="15" y2="15" stroke="white" stroke-width="1.6" stroke-linecap="round"/></svg>
+        </div>
+        <span class="site-logo-text">Promo<span>Finder</span></span>
+      </a>
+      <a href="https://4ourmedia.com" target="_blank" rel="noopener" class="site-nav-external">
+        4ourmedia.com
+        <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+      </a>
+    </div>
+    <div class="tool-strip">
+      <a href="/" class="tool-chip">Promo Finder</a>
+      <a href="/domain" class="tool-chip">Domain Search</a>
+      <a href="/unlisted" class="tool-chip">Unlisted Videos</a>
+      <a href="/growth" class="tool-chip">Growth Tracker</a>
+      <a href="/collab" class="tool-chip">Collaborations</a>
+      <a href="/compare" class="tool-chip">Compare Sponsors</a>
+      <a href="/viral" class="tool-chip">Viral Detector</a>
+      <a href="/bot-detector" class="tool-chip chip-active-rose">Bot Detector</a>
+      <a href="/predictor" class="tool-chip">Performance Predictor</a>
+      <a href="/services" class="tool-chip">Social Services</a>
+    </div>
+  </div>
+</nav>
+  <div class="max-w-6xl mx-auto px-4 py-10 md:py-16">
+    <header class="mb-10">
+      <div class="inline-flex items-center gap-2 mb-4 px-4 py-2 rounded-full glass-effect border border-rose-500/20">
+        <svg class="w-5 h-5 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3l7 4v5c0 5-3.5 8.74-7 10-3.5-1.26-7-5-7-10V7l7-4z"></path>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01"></path>
+        </svg>
+        <span class="text-sm font-medium text-rose-300">Engagement Authenticity Audit</span>
+      </div>
+      <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
+        YouTube <span class="gradient-text">Bot Detector</span>
+      </h1>
+      <p class="text-slate-300 mt-4 text-lg md:text-xl max-w-4xl">
+        Audit any public channel for suspicious view, subscriber, and comment patterns. This detector samples recent uploads and high-traffic comment threads to flag bought views, fake subscribers, recycled comments, and suspiciously flat performance.
+      </p>
+      <div class="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4 text-sm text-slate-300">
+        <div class="glass-effect border border-slate-700/50 rounded-2xl px-4 py-3">Uses the site's server-side YouTube API key. No browser key required.</div>
+        <div class="glass-effect border border-slate-700/50 rounded-2xl px-4 py-3">Scores 8 heuristic signals across engagement ratios, comments, and cadence.</div>
+        <div class="glass-effect border border-slate-700/50 rounded-2xl px-4 py-3">Scans up to 20 recent uploads and comment samples from the highest-viewed recent videos.</div>
+        <div class="glass-effect border border-slate-700/50 rounded-2xl px-4 py-3">Built for due diligence on creators, channels, and sponsorship prospects.</div>
+      </div>
+    </header>
+
+    <section class="glass-effect border border-slate-700/50 rounded-3xl p-6 md:p-8 shadow-2xl">
+      <form id="form" class="flex flex-col gap-3 md:flex-row md:items-center">
+        <div class="flex-1 relative">
+          <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+          </svg>
+          <input
+            id="url"
+            type="text"
+            placeholder="https://www.youtube.com/@veritasium"
+            class="w-full rounded-xl bg-slate-900/80 border border-slate-700 pl-12 pr-4 py-3.5 outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500 transition-all"
+            required
+          />
+        </div>
+        <button
+          id="submitBtn"
+          class="rounded-xl bg-gradient-to-r from-rose-500 to-orange-500 hover:from-rose-400 hover:to-amber-400 text-white font-semibold px-8 py-3.5 transition-all shadow-lg hover:shadow-rose-500/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 min-w-[170px]"
+          type="submit"
+        >
+          <span id="btnText">Run Audit</span>
+          <svg id="btnIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+          </svg>
+          <svg id="btnSpinner" class="w-5 h-5 spin hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+        </button>
+      </form>
+      <div class="mt-4 flex flex-wrap items-center gap-2 text-xs text-slate-400">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <span>Best for spotting paid engagement patterns, comment farming, suspiciously uniform views, and mismatched subscriber-to-view behavior.</span>
+      </div>
+    </section>
+
+    <section id="status" class="mt-6 hidden"></section>
+    <section id="results" class="mt-6 space-y-6"></section>
+
+    <section class="mt-16 pt-12 border-t border-slate-800/30">
+      <div class="grid gap-4 md:grid-cols-3">
+        <div class="glass-effect border border-slate-700/50 rounded-2xl p-5">
+          <h2 class="text-lg font-semibold text-white">What it flags</h2>
+          <p class="mt-3 text-sm leading-relaxed text-slate-400">Low like-to-view ratios, weak comment activity, suspiciously flat views, unrealistic subscriber efficiency, spammy comment samples, duplicate commenters, and robotic upload regularity.</p>
+        </div>
+        <div class="glass-effect border border-slate-700/50 rounded-2xl p-5">
+          <h2 class="text-lg font-semibold text-white">What it does not prove</h2>
+          <p class="mt-3 text-sm leading-relaxed text-slate-400">No single heuristic proves fraud. Sophisticated click farms can hide in healthy-looking numbers, and legitimate breakout channels can trigger warnings during unusual growth periods.</p>
+        </div>
+        <div class="glass-effect border border-slate-700/50 rounded-2xl p-5">
+          <h2 class="text-lg font-semibold text-white">Why people use it</h2>
+          <p class="mt-3 text-sm leading-relaxed text-slate-400">Marketers, agencies, and creator managers use channel authenticity audits to sanity-check sponsorship candidates before outreach, budget allocation, or partnership approvals.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="mt-16 pt-12 border-t border-slate-800/30">
+      <h2 class="text-2xl md:text-3xl font-bold mb-8 text-center">YouTube Bot Detector FAQ</h2>
+      <div class="max-w-3xl mx-auto space-y-4">
+        <details class="glass-effect border border-slate-700/50 rounded-2xl p-5 group">
+          <summary class="font-semibold cursor-pointer list-none flex justify-between items-center gap-3">
+            How does the bot detector score a channel?
+            <svg class="w-5 h-5 text-slate-400 flex-shrink-0 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </summary>
+          <p class="mt-3 text-slate-400 text-sm leading-relaxed">The tool runs eight heuristic checks across recent uploads and sampled comment threads. Each signal gets a weighted score based on how strongly it correlates with artificial growth patterns, then those scores roll up into an overall risk band.</p>
+        </details>
+        <details class="glass-effect border border-slate-700/50 rounded-2xl p-5 group">
+          <summary class="font-semibold cursor-pointer list-none flex justify-between items-center gap-3">
+            Can it prove a channel bought subscribers or views?
+            <svg class="w-5 h-5 text-slate-400 flex-shrink-0 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </summary>
+          <p class="mt-3 text-slate-400 text-sm leading-relaxed">No. It is a due-diligence tool, not a legal proof engine. The value is in spotting channels that deserve a closer look because multiple suspicious signals align at the same time.</p>
+        </details>
+        <details class="glass-effect border border-slate-700/50 rounded-2xl p-5 group">
+          <summary class="font-semibold cursor-pointer list-none flex justify-between items-center gap-3">
+            Does this use private data or logins?
+            <svg class="w-5 h-5 text-slate-400 flex-shrink-0 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </summary>
+          <p class="mt-3 text-slate-400 text-sm leading-relaxed">No. It only uses public channel, video, and comment metadata available through the official YouTube Data API. There is no login, no private analytics access, and no scraping around privacy restrictions.</p>
+        </details>
+      </div>
+    </section>
+
+    <footer class="pf-footer">
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-5 mb-6">
+        <a href="https://pay.4ourmedia.com/b/14AfZh1SU9M3arI5pQ8bS0o" target="_blank" rel="noopener" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-400 hover:to-rose-400 text-white font-medium text-sm transition-all shadow-lg hover:shadow-pink-500/25">
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/></svg>
+          Support the Project
+        </a>
+        <div class="text-xs text-slate-500 text-center sm:text-right leading-relaxed">
+          <p>Crafted by <a href="https://davidjwoodbury.com" target="_blank" rel="noopener" class="text-slate-400 hover:text-emerald-400 transition-colors font-medium">David J Woodbury</a></p>
+          <p class="mt-0.5">&copy; <span id="year"></span> David J Woodbury. All rights reserved.</p>
+        </div>
+      </div>
+      <div class="flex flex-wrap justify-center gap-x-5 gap-y-1.5 pt-4 border-t border-slate-800/30 text-xs text-slate-600">
+        <a href="/" class="hover:text-slate-400 transition-colors">Home</a>
+        <a href="/privacy" class="hover:text-slate-400 transition-colors">Privacy Policy</a>
+        <a href="/terms" class="hover:text-slate-400 transition-colors">Terms of Service</a>
+        <a href="/disclaimer" class="hover:text-slate-400 transition-colors">Disclaimer</a>
+        <a href="https://4ourmedia.com" target="_blank" rel="noopener" class="hover:text-slate-400 transition-colors">4ourmedia.com</a>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    const form = document.getElementById('form');
+    const urlInput = document.getElementById('url');
+    const statusEl = document.getElementById('status');
+    const resultsEl = document.getElementById('results');
+    const submitBtn = document.getElementById('submitBtn');
+    const btnText = document.getElementById('btnText');
+    const btnIcon = document.getElementById('btnIcon');
+    const btnSpinner = document.getElementById('btnSpinner');
+
+    const riskStyles = {
+      low: { className: 'low', color: '#34d399', label: 'Likely organic' },
+      elevated: { className: 'elevated', color: '#fbbf24', label: 'Some concerns' },
+      high: { className: 'high', color: '#fb923c', label: 'Likely bot-aided' },
+      critical: { className: 'critical', color: '#fb7185', label: 'High bot risk' }
+    };
+
+    const severityStyles = {
+      ok: { className: 'ok', label: 'Pass' },
+      info: { className: 'info', label: 'N/A' },
+      warning: { className: 'warning', label: 'Warn' },
+      danger: { className: 'danger', label: 'Red flag' }
+    };
+
+    function escapeHtml(value) {
+      return String(value == null ? '' : value).replace(/[&<>"']/g, function (char) {
+        return {
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#39;'
+        }[char];
+      });
+    }
+
+    function truncate(text, maxLength) {
+      const value = String(text || '').trim();
+      if (!value || value.length <= maxLength) return value;
+      return value.slice(0, maxLength - 1).trim() + '...';
+    }
+
+    function setStatus(html, tone) {
+      statusEl.classList.remove('hidden');
+      const base = 'mt-6 rounded-2xl border p-5 fade-in glass-effect ';
+      const toneClass = tone === 'error'
+        ? 'border-rose-500/50 text-rose-100'
+        : tone === 'success'
+        ? 'border-emerald-500/40 text-emerald-100'
+        : 'border-slate-700/50 text-slate-100';
+      statusEl.className = base + toneClass;
+      statusEl.innerHTML = html;
+    }
+
+    function clearStatus() {
+      statusEl.classList.add('hidden');
+      statusEl.innerHTML = '';
+    }
+
+    function setLoading(loading) {
+      submitBtn.disabled = loading;
+      btnText.textContent = loading ? 'Auditing...' : 'Run Audit';
+      btnIcon.classList.toggle('hidden', loading);
+      btnSpinner.classList.toggle('hidden', !loading);
+    }
+
+    function formatNumber(value) {
+      const number = Number(value) || 0;
+      if (number >= 1000000) return (number / 1000000).toFixed(number >= 10000000 ? 1 : 2) + 'M';
+      if (number >= 1000) return (number / 1000).toFixed(number >= 100000 ? 0 : 1) + 'K';
+      return number.toLocaleString();
+    }
+
+    function formatDate(value) {
+      if (!value) return 'Unknown';
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return 'Unknown';
+      return new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).format(date);
+    }
+
+    function formatDuration(seconds) {
+      const total = Number(seconds) || 0;
+      if (!total) return '0s';
+      const hours = Math.floor(total / 3600);
+      const minutes = Math.floor((total % 3600) / 60);
+      const remainder = total % 60;
+      if (hours) return hours + 'h ' + minutes + 'm';
+      if (minutes) return minutes + 'm ' + remainder + 's';
+      return remainder + 's';
+    }
+
+    function getRiskStyle(risk) {
+      return riskStyles[risk] || riskStyles.low;
+    }
+
+    function getSeverityStyle(severity) {
+      return severityStyles[severity] || severityStyles.info;
+    }
+
+    function buildGauge(score, risk) {
+      const style = getRiskStyle(risk);
+      const normalized = Math.max(0, Math.min(100, Number(score) || 0));
+      const radius = 54;
+      const circumference = 2 * Math.PI * radius;
+      const offset = circumference - (normalized / 100) * circumference;
+      return `
+        <div class="relative mx-auto h-44 w-44">
+          <svg viewBox="0 0 140 140" class="h-full w-full -rotate-90">
+            <circle cx="70" cy="70" r="54" fill="none" stroke-width="8" class="gauge-track"></circle>
+            <circle
+              cx="70"
+              cy="70"
+              r="54"
+              fill="none"
+              stroke-width="8"
+              class="gauge-progress"
+              style="stroke:${style.color};stroke-dasharray:${circumference};stroke-dashoffset:${offset};"
+            ></circle>
+          </svg>
+          <div class="absolute inset-0 flex flex-col items-center justify-center">
+            <div class="text-[10px] uppercase tracking-wide text-slate-500">Risk score</div>
+            <div class="text-5xl font-bold tabular-nums" style="color:${style.color};">${normalized}</div>
+            <div class="text-[10px] uppercase tracking-wide text-slate-500">out of 100</div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderBreakdown(signals) {
+      if (!signals.length) {
+        return '<div class="text-sm text-slate-400">No signal data available.</div>';
+      }
+
+      return signals.map(function (signal) {
+        const style = getSeverityStyle(signal.severity);
+        return `
+          <div class="flex items-center gap-3">
+            <span class="signal-dot ${style.className}"></span>
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center justify-between gap-3 text-xs text-slate-300">
+                <span class="truncate">${escapeHtml(signal.title)}</span>
+                <span class="tabular-nums text-slate-500">${signal.score}</span>
+              </div>
+              <div class="mt-2 h-1.5 rounded-full bg-slate-800 overflow-hidden">
+                <div class="signal-bar ${style.className}" style="width:${Math.max(signal.score, 3)}%"></div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderSignalCards(signals) {
+      if (!signals.length) {
+        return '<div class="glass-effect border border-slate-700/50 rounded-2xl p-5 text-slate-400">No detailed signal data available.</div>';
+      }
+
+      return signals.map(function (signal, index) {
+        const style = getSeverityStyle(signal.severity);
+        const evidence = Array.isArray(signal.evidence) && signal.evidence.length
+          ? `
+            <div class="mt-4 rounded-xl border border-slate-800 bg-slate-950/60 p-3">
+              <div class="text-[11px] uppercase tracking-wide text-slate-500 mb-2">Evidence sample</div>
+              <ul class="space-y-1.5 text-xs text-slate-300">${signal.evidence.map(function (item) {
+                return `<li><span class="text-slate-500">></span> ${escapeHtml(item)}</li>`;
+              }).join('')}</ul>
+            </div>
+          `
+          : '';
+
+        return `
+          <article class="signal-card ${style.className} rounded-2xl border p-4 fade-in">
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex items-start gap-3 min-w-0">
+                <span class="signal-dot ${style.className} mt-1"></span>
+                <div class="min-w-0">
+                  <div class="flex items-center gap-2 text-[11px] uppercase tracking-wide text-slate-500">
+                    <span>${String(index + 1).padStart(2, '0')}</span>
+                    <span class="text-sm normal-case tracking-normal text-white font-semibold">${escapeHtml(signal.title)}</span>
+                  </div>
+                  <div class="mt-2 text-sm text-slate-300">${escapeHtml(signal.finding || 'No finding available')}</div>
+                </div>
+              </div>
+              <span class="signal-pill ${style.className}">${style.label}</span>
+            </div>
+            <p class="mt-4 text-sm leading-relaxed text-slate-400">${escapeHtml(signal.explanation || '')}</p>
+            ${evidence}
+          </article>
+        `;
+      }).join('');
+    }
+
+    function renderVideoCards(videos) {
+      if (!videos.length) {
+        return '<div class="glass-effect border border-slate-700/50 rounded-2xl p-5 text-slate-400">No videos were available for analysis.</div>';
+      }
+
+      return videos.slice(0, 6).map(function (video) {
+        return `
+          <article class="glass-effect border border-slate-700/50 rounded-2xl overflow-hidden fade-in">
+            ${video.thumbnail ? `<img src="${escapeHtml(video.thumbnail)}" alt="${escapeHtml(video.title)}" class="video-thumb">` : ''}
+            <div class="p-4">
+              <div class="text-sm font-semibold text-white leading-snug">${escapeHtml(video.title || 'Untitled video')}</div>
+              <div class="mt-3 grid grid-cols-2 gap-2 text-xs text-slate-400">
+                <div class="metric-card rounded-xl px-3 py-2">
+                  <div class="uppercase tracking-wide text-[10px] text-slate-500">Views</div>
+                  <div class="mt-1 text-sm font-semibold text-slate-100">${formatNumber(video.viewCount)}</div>
+                </div>
+                <div class="metric-card rounded-xl px-3 py-2">
+                  <div class="uppercase tracking-wide text-[10px] text-slate-500">Likes</div>
+                  <div class="mt-1 text-sm font-semibold text-slate-100">${formatNumber(video.likeCount)}</div>
+                </div>
+                <div class="metric-card rounded-xl px-3 py-2">
+                  <div class="uppercase tracking-wide text-[10px] text-slate-500">Comments</div>
+                  <div class="mt-1 text-sm font-semibold text-slate-100">${formatNumber(video.commentCount)}</div>
+                </div>
+                <div class="metric-card rounded-xl px-3 py-2">
+                  <div class="uppercase tracking-wide text-[10px] text-slate-500">Duration</div>
+                  <div class="mt-1 text-sm font-semibold text-slate-100">${formatDuration(video.durationSeconds)}</div>
+                </div>
+              </div>
+              <div class="mt-3 text-xs text-slate-500">Published ${formatDate(video.publishedAt)}</div>
+            </div>
+          </article>
+        `;
+      }).join('');
+    }
+
+    function renderResults(data) {
+      const report = data.report || {};
+      const metadata = report.metadata || {};
+      const signals = Array.isArray(report.signals) ? report.signals : [];
+      const channel = data.channel || {};
+      const videos = Array.isArray(data.videos) ? data.videos : [];
+      const commentFetchStats = data.commentFetchStats || {};
+      const risk = getRiskStyle(report.risk || 'low');
+      const dangerCount = signals.filter(function (signal) { return signal.severity === 'danger'; }).length;
+      const warningCount = signals.filter(function (signal) { return signal.severity === 'warning'; }).length;
+      const topSignal = signals[0];
+      const cachedMarkup = data.fromCache
+        ? '<span class="risk-pill elevated">Cached result</span>'
+        : '<span class="risk-pill low">Fresh scan</span>';
+      const identity = channel.customUrl || channel.handle || channel.id || 'Public channel';
+      const dateRange = metadata.oldestVideoDate && metadata.newestVideoDate
+        ? `${formatDate(metadata.oldestVideoDate)} to ${formatDate(metadata.newestVideoDate)}`
+        : 'Recent uploads';
+
+      resultsEl.innerHTML = `
+        <div class="grid gap-6 xl:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)]">
+          <section class="risk-card ${risk.className} glass-effect border rounded-3xl p-6 shadow-2xl">
+            <div class="flex items-center justify-between gap-3">
+              <div>
+                <div class="text-xs uppercase tracking-wide text-slate-500">Verdict</div>
+                <div class="mt-2"><span class="risk-pill ${risk.className}">${risk.label}</span></div>
+              </div>
+              ${cachedMarkup}
+            </div>
+            <div class="mt-4">${buildGauge(report.overallScore || 0, report.risk || 'low')}</div>
+            <p class="text-sm leading-relaxed text-slate-200">${escapeHtml(report.summary || 'No summary available.')}</p>
+            <div class="mt-6 grid grid-cols-3 gap-3 text-center">
+              <div class="metric-card rounded-2xl px-3 py-3">
+                <div class="text-[10px] uppercase tracking-wide text-slate-500">Red flags</div>
+                <div class="mt-1 text-xl font-bold text-rose-300">${dangerCount}</div>
+              </div>
+              <div class="metric-card rounded-2xl px-3 py-3">
+                <div class="text-[10px] uppercase tracking-wide text-slate-500">Warnings</div>
+                <div class="mt-1 text-xl font-bold text-amber-300">${warningCount}</div>
+              </div>
+              <div class="metric-card rounded-2xl px-3 py-3">
+                <div class="text-[10px] uppercase tracking-wide text-slate-500">Top signal</div>
+                <div class="mt-1 text-sm font-semibold text-slate-100">${topSignal ? escapeHtml(topSignal.title) : 'None'}</div>
+              </div>
+            </div>
+          </section>
+
+          <div class="space-y-4">
+            <section class="glass-effect border border-slate-700/50 rounded-3xl overflow-hidden">
+              <div class="channel-banner p-5 md:p-6">
+                <div class="flex flex-col md:flex-row md:items-start gap-4">
+                  ${channel.thumbnail ? `<img src="${escapeHtml(channel.thumbnail)}" alt="${escapeHtml(channel.title || identity)}" class="w-16 h-16 md:w-20 md:h-20 rounded-full border border-slate-700 object-cover">` : `<div class="w-16 h-16 md:w-20 md:h-20 rounded-full border border-slate-700 bg-slate-900 flex items-center justify-center text-2xl font-bold text-slate-200">${escapeHtml((channel.title || '?').slice(0, 1).toUpperCase())}</div>`}
+                  <div class="min-w-0 flex-1">
+                    <div class="flex flex-wrap items-center gap-2">
+                      <h2 class="text-xl md:text-2xl font-bold text-white">${escapeHtml(channel.title || 'Unknown channel')}</h2>
+                      ${channel.country ? `<span class="rounded-full border border-slate-700 bg-slate-950/60 px-2.5 py-1 text-[11px] uppercase tracking-wide text-slate-400">${escapeHtml(channel.country)}</span>` : ''}
+                    </div>
+                    <div class="mt-1 text-sm text-slate-400">${escapeHtml(identity)}</div>
+                    <p class="mt-3 text-sm leading-relaxed text-slate-300 max-w-3xl">${escapeHtml(truncate(channel.description || 'Public metadata audit powered by the YouTube Data API.', 240))}</p>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <div class="grid grid-cols-2 xl:grid-cols-4 gap-3">
+              <div class="metric-card rounded-2xl px-4 py-3">
+                <div class="text-[10px] uppercase tracking-wide text-slate-500">Subscribers</div>
+                <div class="mt-1 text-lg font-semibold text-slate-100">${channel.hiddenSubscriberCount ? 'Hidden' : formatNumber(channel.subscriberCount)}</div>
+              </div>
+              <div class="metric-card rounded-2xl px-4 py-3">
+                <div class="text-[10px] uppercase tracking-wide text-slate-500">Total views</div>
+                <div class="mt-1 text-lg font-semibold text-slate-100">${formatNumber(channel.viewCount)}</div>
+              </div>
+              <div class="metric-card rounded-2xl px-4 py-3">
+                <div class="text-[10px] uppercase tracking-wide text-slate-500">Videos scanned</div>
+                <div class="mt-1 text-lg font-semibold text-slate-100">${metadata.videosAnalyzed || videos.length || 0}</div>
+              </div>
+              <div class="metric-card rounded-2xl px-4 py-3">
+                <div class="text-[10px] uppercase tracking-wide text-slate-500">Comments sampled</div>
+                <div class="mt-1 text-lg font-semibold text-slate-100">${metadata.commentsAnalyzed || 0}</div>
+              </div>
+              <div class="metric-card rounded-2xl px-4 py-3">
+                <div class="text-[10px] uppercase tracking-wide text-slate-500">Avg views</div>
+                <div class="mt-1 text-lg font-semibold text-slate-100">${formatNumber(Math.round(metadata.avgViews || 0))}</div>
+              </div>
+              <div class="metric-card rounded-2xl px-4 py-3">
+                <div class="text-[10px] uppercase tracking-wide text-slate-500">Median views</div>
+                <div class="mt-1 text-lg font-semibold text-slate-100">${formatNumber(Math.round(metadata.medianViews || 0))}</div>
+              </div>
+              <div class="metric-card rounded-2xl px-4 py-3">
+                <div class="text-[10px] uppercase tracking-wide text-slate-500">Comment videos</div>
+                <div class="mt-1 text-lg font-semibold text-slate-100">${commentFetchStats.attempted || 0}</div>
+              </div>
+              <div class="metric-card rounded-2xl px-4 py-3">
+                <div class="text-[10px] uppercase tracking-wide text-slate-500">Date range</div>
+                <div class="mt-1 text-sm font-semibold text-slate-100">${escapeHtml(dateRange)}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid gap-6 lg:grid-cols-[minmax(0,1.12fr)_minmax(0,0.88fr)]">
+          <section class="glass-effect border border-slate-700/50 rounded-3xl p-5 md:p-6">
+            <div class="flex items-center gap-3 mb-4">
+              <h3 class="text-lg font-semibold text-white">Signal breakdown</h3>
+              <div class="h-px flex-1 bg-gradient-to-r from-slate-700 to-transparent"></div>
+            </div>
+            <div class="space-y-3">${renderBreakdown(signals)}</div>
+          </section>
+
+          <section class="glass-effect border border-slate-700/50 rounded-3xl p-5 md:p-6">
+            <div class="flex items-center gap-3 mb-4">
+              <h3 class="text-lg font-semibold text-white">Scope and caveats</h3>
+              <div class="h-px flex-1 bg-gradient-to-r from-slate-700 to-transparent"></div>
+            </div>
+            <div class="space-y-3 text-sm text-slate-300 leading-relaxed">
+              <p>This scan used <span class="text-white font-semibold">${metadata.videosAnalyzed || videos.length || 0}</span> recent uploads and <span class="text-white font-semibold">${metadata.commentsAnalyzed || 0}</span> sampled comments from the highest-viewed recent videos.</p>
+              <p>Comment fetches succeeded for <span class="text-white font-semibold">${commentFetchStats.succeeded || 0}</span> of <span class="text-white font-semibold">${commentFetchStats.attempted || 0}</span> sampled videos${commentFetchStats.disabled ? `, with ${commentFetchStats.disabled} video(s) returning disabled comments.` : '.'}</p>
+              <p>No private analytics or login data is used. This is a public-data heuristic audit meant to highlight channels that deserve manual review.</p>
+            </div>
+          </section>
+        </div>
+
+        <section>
+          <div class="mb-4 flex items-center gap-3">
+            <h3 class="text-lg font-semibold text-white">Detailed signals</h3>
+            <div class="h-px flex-1 bg-gradient-to-r from-slate-700 to-transparent"></div>
+          </div>
+          <div class="grid gap-4 md:grid-cols-2">${renderSignalCards(signals)}</div>
+        </section>
+
+        <section>
+          <div class="mb-4 flex items-center gap-3">
+            <h3 class="text-lg font-semibold text-white">Recent uploads sampled</h3>
+            <div class="h-px flex-1 bg-gradient-to-r from-slate-700 to-transparent"></div>
+          </div>
+          <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">${renderVideoCards(videos)}</div>
+        </section>
+
+        <section class="glass-effect border border-slate-700/50 rounded-3xl p-5 md:p-6">
+          <h3 class="text-lg font-semibold text-white">Methodology and limits</h3>
+          <p class="mt-3 text-sm leading-relaxed text-slate-400">This detector applies eight weighted heuristic signals to the channel's public data: recent uploads, engagement ratios, comment quality, duplicate commenter behavior, and upload regularity. The output is meant for screening and prioritization. A clean result does not guarantee authenticity, and a risky result is not proof of fraud.</p>
+        </section>
+      `;
+    }
+
+    async function runAudit(url) {
+      if (window.PFAnalytics && typeof window.PFAnalytics.track === 'function') {
+        window.PFAnalytics.track('research_search_submitted', {
+          tool_name: 'bot_detector',
+          search_type: 'channel_audit'
+        });
+      }
+
+      resultsEl.innerHTML = '';
+      setLoading(true);
+      setStatus(`
+        <div class="flex items-center gap-3">
+          <svg class="w-5 h-5 spin text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <span>Scanning recent uploads, view ratios, and sampled comment threads...</span>
+        </div>
+      `, 'info');
+
+      try {
+        const response = await fetch(`/api/bot-detector?url=${encodeURIComponent(url)}`);
+        const payload = await response.json().catch(function () {
+          return { error: 'Unexpected error.' };
+        });
+
+        setLoading(false);
+
+        if (!response.ok) {
+          setStatus(`<div class="font-medium">${escapeHtml(payload.error || 'Failed to audit channel.')}</div>`, 'error');
+          return;
+        }
+
+        clearStatus();
+        renderResults(payload);
+
+        if (window.history && typeof window.history.replaceState === 'function') {
+          window.history.replaceState(null, '', `/bot-detector?url=${encodeURIComponent(url)}`);
+        }
+
+        window.setTimeout(function () {
+          resultsEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 120);
+      } catch (error) {
+        setLoading(false);
+        setStatus(`<div class="font-medium">${escapeHtml(error && error.message ? error.message : 'Network error. Please try again.')}</div>`, 'error');
+      }
+    }
+
+    form.addEventListener('submit', function (event) {
+      event.preventDefault();
+      const value = urlInput.value.trim();
+      if (!value) return;
+      runAudit(value);
+    });
+
+    const params = new URLSearchParams(window.location.search);
+    const initialUrl = params.get('url');
+    if (initialUrl) {
+      urlInput.value = initialUrl;
+      window.setTimeout(function () {
+        if (typeof form.requestSubmit === 'function') {
+          form.requestSubmit();
+        } else {
+          form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+        }
+      }, 0);
+    }
+  </script>
+</body>
+</html>

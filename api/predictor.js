@@ -18,6 +18,7 @@ import smmServicesSnapshot from "../lib/smmServicesSnapshot.js";
 import { handleTikTokMeta, handleTikTokVideo, handleTikTokAudio } from "../lib/tiktokHandlers.js";
 import { handleYouTubeMeta, handleYouTubeVideo, handleYouTubeAudio } from "../lib/youtubeHandlers.js";
 import { handleAdLibrariesSearch } from "../lib/adLibraryHandlers.js";
+import { handleBotDetector } from "../lib/botDetector.js";
 import {
   handleSmmCreateCheckout,
   handleStripeWebhook,
@@ -651,6 +652,9 @@ export default async function handler(req, res) {
   }
   if (pathname === "/api/ad-libraries") {
     return handleAdLibrariesSearch(req, res);
+  }
+  if (pathname === "/api/bot-detector") {
+    return handleBotDetector(req, res);
   }
   if (pathname === "/api/credits") {
     try {
