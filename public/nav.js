@@ -221,6 +221,62 @@
     });
   }
 
+  function injectGlobalBottomBanner() {
+    if (!document.body) return;
+    if (document.getElementById('pfGlobalBottomBanner')) return;
+
+    var wrap = document.createElement('section');
+    wrap.id = 'pfGlobalBottomBanner';
+    wrap.style.cssText = [
+      'margin:26px auto 20px',
+      'padding:0 16px',
+      'max-width:980px',
+      'width:100%',
+      'box-sizing:border-box'
+    ].join(';');
+
+    var link = document.createElement('a');
+    link.href = 'https://nobad.link/syllaby';
+    link.target = '_blank';
+    link.rel = 'noopener sponsored';
+    link.setAttribute('aria-label', 'Sponsored: Faceless Creator Program');
+    link.style.cssText = [
+      'display:block',
+      'max-width:460px',
+      'margin:0 auto',
+      'border-radius:14px',
+      'padding:6px',
+      'background:rgba(15,23,42,0.45)',
+      'border:1px solid rgba(51,65,85,0.5)',
+      'transition:border-color .18s ease, transform .18s ease'
+    ].join(';');
+
+    var img = document.createElement('img');
+    img.src = '/global-bottom-banner-460x60.png';
+    img.alt = 'Faceless Creator Program';
+    img.loading = 'lazy';
+    img.style.cssText = [
+      'display:block',
+      'width:100%',
+      'height:auto',
+      'border-radius:10px',
+      'opacity:.95'
+    ].join(';');
+
+    link.addEventListener('mouseenter', function () {
+      link.style.borderColor = 'rgba(99,102,241,0.55)';
+      link.style.transform = 'translateY(-1px)';
+    });
+    link.addEventListener('mouseleave', function () {
+      link.style.borderColor = 'rgba(51,65,85,0.5)';
+      link.style.transform = '';
+    });
+
+    link.appendChild(img);
+    wrap.appendChild(link);
+    document.body.appendChild(wrap);
+  }
+
   // --- Init ---
   var siteNav  = document.querySelector('.site-nav');
   var navTop   = document.querySelector('.site-nav-top');
@@ -230,6 +286,8 @@
     normalizeDesktopToolStrip(navInner);
     injectHamburger(navTop, navInner);
   }
+
+  injectGlobalBottomBanner();
 
   window.PFAnalytics = window.PFAnalytics || {
     track: trackEvent,
