@@ -11,7 +11,7 @@
   </script>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>YouTube Revenue Calculator � Estimate Any Channel's Ad Earnings (Free)</title>
+  <title>YouTube Revenue Calculator | Estimate Channel Ad-Earnings Ranges</title>
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -23,47 +23,23 @@
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="https://promofinder.4ourmedia.com/revenue" />
   <meta property="og:type" content="website" />
-  <meta property="og:title" content="YouTube Revenue Calculator � Estimate Any Channel's Ad Earnings" />
+  <meta property="og:title" content="YouTube Revenue Calculator | Estimate Channel Ad-Earnings Ranges" />
   <meta property="og:description" content="Free YouTube money calculator. Estimate how much a YouTube channel earns from ads based on real view counts and niche CPM data." />
   <meta property="og:url" content="https://promofinder.4ourmedia.com/revenue" />
   <meta property="og:site_name" content="YouTube Promo Finder" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="YouTube Revenue Calculator � How Much Do YouTubers Make?" />
+  <meta name="twitter:title" content="YouTube Revenue Calculator | Estimate Channel Earnings" />
   <meta name="twitter:description" content="Estimate any YouTube channel's ad earnings for free. Uses real view data and niche CPM averages." />
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
-    "@graph": [
-      {
-        "@type": "WebApplication",
-        "name": "YouTube Revenue Calculator",
-        "url": "https://promofinder.4ourmedia.com/revenue",
-        "description": "Estimate any YouTube channel's ad revenue using view count data and niche-specific CPM averages.",
-        "applicationCategory": "UtilityApplication",
-        "operatingSystem": "Web",
-        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
-      },
-      {
-        "@type": "FAQPage",
-        "mainEntity": [
-          {
-            "@type": "Question",
-            "name": "How much money does a YouTube channel make per 1000 views?",
-            "acceptedAnswer": { "@type": "Answer", "text": "YouTube channels earn roughly $1�$5 per 1,000 views on average, though this varies significantly by niche. Finance, tech, and business channels can earn $10�25 per 1,000 views. Entertainment and gaming channels typically earn $1�3 per 1,000 views. These are net creator earnings after YouTube's 45% revenue share cut." }
-          },
-          {
-            "@type": "Question",
-            "name": "How much does YouTube pay per view?",
-            "acceptedAnswer": { "@type": "Answer", "text": "YouTube pays creators an average of $0.001�$0.003 per view (or $1�$3 per 1,000 views after YouTube's cut). The actual amount varies based on the viewer's location, the advertiser's bid, whether ads were skipped, and the video's niche and audience demographics." }
-          },
-          {
-            "@type": "Question",
-            "name": "Is this YouTube revenue calculator accurate?",
-            "acceptedAnswer": { "@type": "Answer", "text": "This tool provides estimates based on publicly available CPM benchmarks and actual channel view data from the YouTube API. Actual earnings can differ based on factors like ad block usage, viewer location, seasonality, and monetization status. Use it as a directional estimate, not an exact figure." }
-          }
-        ]
-      }
-    ]
+    "@type": "WebApplication",
+    "name": "YouTube Revenue Calculator",
+    "url": "https://promofinder.4ourmedia.com/revenue",
+    "description": "Estimate likely ad-earnings ranges for a YouTube channel from public view history and benchmark CPM assumptions.",
+    "applicationCategory": "UtilityApplication",
+    "operatingSystem": "Web",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
   }
   </script>
   <link rel="stylesheet" href="/tailwind.css">
@@ -125,6 +101,9 @@
       <p class="text-slate-300 mt-4 text-lg md:text-xl max-w-3xl">
         Estimate how much any YouTuber earns from ad revenue. Get monthly and yearly estimates based on their views, niche, and industry CPM averages.
       </p>
+      <div class="mt-4 rounded-xl border border-emerald-500/25 bg-emerald-500/10 p-4 text-sm text-emerald-100 max-w-3xl">
+        Revenue numbers are modeled estimates from public data and benchmark CPM ranges. They are not verified payouts and can differ from actual creator analytics.
+      </div>
     </header>
 
     <section class="glass-effect border border-slate-700/50 rounded-3xl p-6 md:p-8 shadow-2xl">
@@ -167,30 +146,66 @@
     <section id="status" class="mt-6 hidden"></section>
     <section id="results" class="mt-6 space-y-6"></section>
 
+    <section class="mt-14 pt-12 border-t border-slate-800/30">
+      <h2 class="text-2xl md:text-3xl font-bold mb-6 text-center">How It Works</h2>
+      <div class="grid md:grid-cols-3 gap-4 max-w-5xl mx-auto">
+        <div class="glass-effect border border-slate-700/50 rounded-2xl p-5">
+          <p class="font-semibold text-lime-200">1. Read public view history</p>
+          <p class="text-sm text-slate-400 mt-2">The tool gathers recent channel performance from public YouTube metadata.</p>
+        </div>
+        <div class="glass-effect border border-slate-700/50 rounded-2xl p-5">
+          <p class="font-semibold text-lime-200">2. Apply niche CPM bands</p>
+          <p class="text-sm text-slate-400 mt-2">It applies benchmark RPM or CPM assumptions based on content category and traffic patterns.</p>
+        </div>
+        <div class="glass-effect border border-slate-700/50 rounded-2xl p-5">
+          <p class="font-semibold text-lime-200">3. Return estimate ranges</p>
+          <p class="text-sm text-slate-400 mt-2">You get monthly and annual low, midpoint, and high estimates for planning context.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="mt-14 pt-12 border-t border-slate-800/30">
+      <h2 class="text-2xl md:text-3xl font-bold mb-6 text-center">Related Analytics Tools</h2>
+      <div class="grid md:grid-cols-3 gap-4 max-w-5xl mx-auto">
+        <a href="/growth" class="glass-effect border border-blue-500/25 rounded-2xl p-5 hover:border-blue-400/45 transition">
+          <p class="font-semibold text-blue-200">Growth Tracker</p>
+          <p class="text-sm text-slate-400 mt-2">Check trend direction and posting cadence behind revenue volatility.</p>
+        </a>
+        <a href="/rate" class="glass-effect border border-emerald-500/25 rounded-2xl p-5 hover:border-emerald-400/45 transition">
+          <p class="font-semibold text-emerald-200">Sponsorship Rate Estimator</p>
+          <p class="text-sm text-slate-400 mt-2">Pair ad-earnings estimates with likely sponsorship pricing ranges.</p>
+        </a>
+        <a href="/predictor" class="glass-effect border border-cyan-500/25 rounded-2xl p-5 hover:border-cyan-400/45 transition">
+          <p class="font-semibold text-cyan-200">Performance Predictor</p>
+          <p class="text-sm text-slate-400 mt-2">Use forecast insights to test content decisions that may influence earnings.</p>
+        </a>
+      </div>
+    </section>
+
     <!-- FAQ Section -->
     <section class="mt-16 pt-12 border-t border-slate-800/30">
-      <h2 class="text-2xl md:text-3xl font-bold mb-8 text-center">YouTube Revenue Calculator � FAQ</h2>
+      <h2 class="text-2xl md:text-3xl font-bold mb-8 text-center">YouTube Revenue Calculator FAQ</h2>
       <div class="max-w-3xl mx-auto space-y-4">
         <details class="glass-effect border border-slate-700/50 rounded-2xl p-5 group">
           <summary class="font-semibold cursor-pointer list-none flex justify-between items-center gap-3">
             How much money does a YouTube channel make per 1,000 views?
             <svg class="w-5 h-5 text-slate-400 flex-shrink-0 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
           </summary>
-          <p class="mt-3 text-slate-400 text-sm leading-relaxed">On average, YouTube channels earn $1�$5 per 1,000 views after YouTube's revenue share. High-CPM niches like finance, insurance, and B2B software can reach $15�$25 per 1,000 views. Entertainment and gaming channels typically earn $1�$3 per 1,000 views.</p>
+          <p class="mt-3 text-slate-400 text-sm leading-relaxed">Earnings per 1,000 views vary significantly by niche, audience location, and ad demand. This calculator provides benchmark-based ranges, not exact payout values.</p>
         </details>
         <details class="glass-effect border border-slate-700/50 rounded-2xl p-5 group">
           <summary class="font-semibold cursor-pointer list-none flex justify-between items-center gap-3">
             How much does YouTube pay per view?
             <svg class="w-5 h-5 text-slate-400 flex-shrink-0 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
           </summary>
-          <p class="mt-3 text-slate-400 text-sm leading-relaxed">YouTube pays creators approximately $0.001�$0.003 per view on average, which translates to $1�$3 per 1,000 views. The per-view rate depends on whether the viewer watched ads (skippable vs. non-skippable), the viewer's country, the video's category, and current advertiser demand.</p>
+          <p class="mt-3 text-slate-400 text-sm leading-relaxed">Per-view earnings depend on ad inventory, geography, watch behavior, and content category. Actual creator payouts can be above or below benchmark ranges in this tool.</p>
         </details>
         <details class="glass-effect border border-slate-700/50 rounded-2xl p-5 group">
           <summary class="font-semibold cursor-pointer list-none flex justify-between items-center gap-3">
             How much does a YouTuber with 1 million subscribers make?
             <svg class="w-5 h-5 text-slate-400 flex-shrink-0 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
           </summary>
-          <p class="mt-3 text-slate-400 text-sm leading-relaxed">A YouTube channel with 1 million subscribers typically earns $3,000�$40,000 per month from ad revenue alone, depending heavily on their niche and average views per video. Total income including sponsorships, merchandise, and memberships is usually 2�5x the ad revenue figure.</p>
+          <p class="mt-3 text-slate-400 text-sm leading-relaxed">Subscriber count alone is not enough to estimate earnings. View consistency, niche, audience geography, and monetization mix drive most revenue outcomes.</p>
         </details>
         <details class="glass-effect border border-slate-700/50 rounded-2xl p-5 group">
           <summary class="font-semibold cursor-pointer list-none flex justify-between items-center gap-3">
@@ -203,6 +218,12 @@
     </section>
 
     <footer class="pf-footer">
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-5 mb-6">
+        <a href="https://pay.4ourmedia.com/b/14AfZh1SU9M3arI5pQ8bS0o" target="_blank" rel="noopener" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-400 hover:to-rose-400 text-white font-medium text-sm transition-all shadow-lg hover:shadow-pink-500/25">
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/></svg>
+          Support the Project
+        </a>
+        <div class="text-xs text-slate-500 text-center sm:text-right leading-relaxed">
           <p>Crafted by <a href="https://davidjwoodbury.com" target="_blank" rel="noopener" class="text-slate-400 hover:text-emerald-400 transition-colors font-medium">David J Woodbury</a></p>
           <p class="mt-0.5">&copy; <span id="year"></span> David J Woodbury. All rights reserved.</p>
         </div>
@@ -357,7 +378,7 @@
                 <h2 class="text-xl font-bold text-white">${data.channelName}</h2>
                 <div class="flex flex-wrap gap-3 mt-1 text-sm text-slate-400">
                   <span>${formatNumber(data.subscriberCount)} subscribers</span>
-                  <span>�</span>
+                  <span>|</span>
                   <span>${formatNumber(data.totalChannelViews)} total views</span>
                 </div>
               </div>
@@ -375,12 +396,12 @@
               ${data.estimatedRevenue.monthly.formatted.avg}
             </div>
             <div class="text-slate-400 text-lg">
-              Range: <span class="text-emerald-400">${data.estimatedRevenue.monthly.formatted.low}</span> � <span class="text-emerald-400">${data.estimatedRevenue.monthly.formatted.high}</span>
+              Range: <span class="text-emerald-400">${data.estimatedRevenue.monthly.formatted.low}</span> to <span class="text-emerald-400">${data.estimatedRevenue.monthly.formatted.high}</span>
             </div>
             <div class="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-800/50 border border-slate-700">
               <span class="text-2xl">${getNicheEmoji(data.niche.primary)}</span>
               <span class="text-slate-300 capitalize">${data.niche.primary} Niche</span>
-              <span class="text-slate-500">�</span>
+              <span class="text-slate-500">|</span>
               <span class="text-emerald-400">$${data.cpmRates.avg.toFixed(2)} avg CPM</span>
             </div>
           </div>
