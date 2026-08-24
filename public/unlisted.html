@@ -191,7 +191,7 @@
         </div>
         <div class="flex items-center gap-2">
           <svg class="w-5 h-5 text-purple-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
-          <span>1 free search per browser</span>
+          <span>1 free preview per browser + network</span>
         </div>
         <div class="flex items-center gap-2">
           <svg class="w-5 h-5 text-purple-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
@@ -283,6 +283,7 @@
 
     <section id="status" class="mt-6 hidden"></section>
     <section id="results" class="mt-6 space-y-4"></section>
+  <section id="conversionCta" class="mt-6 hidden"></section>
 
     <!-- How It Works -->
     <section class="mt-16 pt-12 border-t border-slate-800/30">
@@ -482,6 +483,7 @@
     const urlInput = document.getElementById('url');
     const statusEl = document.getElementById('status');
     const resultsEl = document.getElementById('results');
+    const conversionCtaEl = document.getElementById('conversionCta');
     const tpl = document.getElementById('videoCard');
     const submitBtn = document.getElementById('submitBtn');
     const btnText = document.getElementById('btnText');
@@ -512,6 +514,47 @@
     function clearStatus() { 
       statusEl.classList.add('hidden'); 
       statusEl.innerHTML = ""; 
+    }
+
+    function clearConversionCta() {
+      conversionCtaEl.classList.add('hidden');
+      conversionCtaEl.innerHTML = '';
+    }
+
+    function trackEvent(name, params = {}) {
+      if (!name) return;
+      if (window.PFAnalytics && typeof window.PFAnalytics.track === 'function') {
+        window.PFAnalytics.track(name, params);
+        return;
+      }
+      if (typeof window.gtag === 'function') {
+        window.gtag('event', name, params);
+      }
+    }
+
+    function renderConversionCta(data, accessMode) {
+      const paid = accessMode === 'paid' || accessMode === 'account';
+      const found = Number(data?.unlistedVideos?.length || 0);
+      const playlists = Number(data?.playlistCount || 0);
+
+      conversionCtaEl.classList.remove('hidden');
+      conversionCtaEl.className = 'mt-6 fade-in glass-effect border border-sky-500/30 rounded-2xl p-5 md:p-6';
+      conversionCtaEl.innerHTML = `
+        <p class="text-xs uppercase tracking-[0.18em] text-sky-200">Next step</p>
+        <h3 class="mt-2 text-xl md:text-2xl font-bold text-white">Turn this channel scan into sponsor outreach targets</h3>
+        <p class="mt-2 text-sm text-slate-300">
+          You scanned <span class="font-semibold text-white">${playlists}</span> public playlists and found
+          <span class="font-semibold text-white">${found}</span> discoverable unlisted videos.
+          ${paid ? 'Keep going with related research tools.' : 'Use credits to keep scanning fresh channels and move into sponsor research.'}
+        </p>
+        <div class="mt-4 flex flex-wrap gap-3">
+          ${paid
+            ? '<a href="/domain" data-cta="next_domain" class="inline-flex items-center gap-2 rounded-xl bg-sky-400 px-4 py-2.5 font-semibold text-slate-950 hover:bg-sky-300 transition">Find Brand Mentions</a>'
+            : '<a href="/credits" data-cta="buy_credits" class="inline-flex items-center gap-2 rounded-xl bg-sky-400 px-4 py-2.5 font-semibold text-slate-950 hover:bg-sky-300 transition">Buy Credits</a>'}
+          <a href="/collab" data-cta="next_collab" class="inline-flex items-center gap-2 rounded-xl border border-amber-400/35 bg-amber-500/10 px-4 py-2.5 text-amber-200 hover:bg-amber-500/20 transition">Find Collaborations</a>
+          <a href="/compare" data-cta="next_compare" class="inline-flex items-center gap-2 rounded-xl border border-emerald-400/35 bg-emerald-500/10 px-4 py-2.5 text-emerald-200 hover:bg-emerald-500/20 transition">Compare Sponsors</a>
+        </div>
+      `;
     }
     
     function formatDate(iso) { 
@@ -603,14 +646,13 @@
         return;
       }
 
-      if (window.PFAnalytics && typeof window.PFAnalytics.track === 'function') {
-        window.PFAnalytics.track('research_search_submitted', {
-          tool_name: 'unlisted_finder',
-          search_type: 'channel_lookup'
-        });
-      }
+      trackEvent('research_search_submitted', {
+        tool_name: 'unlisted_finder',
+        search_type: 'channel_lookup'
+      });
       
       resultsEl.innerHTML = "";
+      clearConversionCta();
       setLoading(true);
       setStatus(`
         <div class="flex items-center gap-3">
@@ -648,6 +690,11 @@
           return;
         }
         if (msg.code === 'PAYMENT_REQUIRED') {
+          trackEvent('research_paywall_response', {
+            tool_name: 'unlisted_finder',
+            tool_cost: Number(msg.toolCost || 0),
+            response_code: 'PAYMENT_REQUIRED'
+          });
           setStatus(window.PFCredits ? window.PFCredits.getPaymentRequiredMarkup(msg, { toolLabel: 'Unlisted Video Finder' }) : `<div><div class="font-semibold text-lg">Credits required</div><div class="text-sm mt-1">${msg.error || 'Buy credits to continue.'}</div></div>`, "error");
           return;
         }
@@ -669,6 +716,14 @@
       if (window.PFCredits && data.access) {
         window.PFCredits.syncAccess(data.access);
       }
+
+      trackEvent('research_results_viewed', {
+        tool_name: 'unlisted_finder',
+        results_count: Number(data?.unlistedVideos?.length || 0),
+        playlist_count: Number(data?.playlistCount || 0),
+        access_mode: data?.access?.mode || 'unknown'
+      });
+
       clearStatus();
 
       const hdr = document.createElement('div');
@@ -686,8 +741,14 @@
         </div>
       `;
       resultsEl.appendChild(hdr);
+      renderConversionCta(data, data?.access?.mode || 'unknown');
 
       if (!data.unlistedVideos.length) {
+        trackEvent('research_zero_results', {
+          tool_name: 'unlisted_finder',
+          playlist_count: Number(data?.playlistCount || 0),
+          access_mode: data?.access?.mode || 'unknown'
+        });
         setStatus(`
           <div class="flex items-start gap-3">
             <svg class="w-6 h-6 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -720,6 +781,24 @@
         
         resultsEl.appendChild(node);
       }
+    });
+
+    statusEl.addEventListener('click', (e) => {
+      const link = e.target.closest('a[href="/credits"]');
+      if (!link) return;
+      trackEvent('research_paywall_cta_clicked', {
+        tool_name: 'unlisted_finder',
+        cta: (link.textContent || 'credits_cta').trim().toLowerCase().replace(/\s+/g, '_')
+      });
+    });
+
+    conversionCtaEl.addEventListener('click', (e) => {
+      const link = e.target.closest('a[data-cta]');
+      if (!link) return;
+      trackEvent('research_next_step_clicked', {
+        tool_name: 'unlisted_finder',
+        cta: link.dataset.cta || 'unknown'
+      });
     });
   </script>
 </body>
