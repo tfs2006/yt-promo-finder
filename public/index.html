@@ -1034,6 +1034,13 @@
           return;
         }
         if (msg.code === 'PAYMENT_REQUIRED') {
+          if (window.PFAnalytics && typeof window.PFAnalytics.track === 'function') {
+            window.PFAnalytics.track('research_paywall_response', {
+              tool_name: 'sponsor_finder',
+              tool_cost: Number(msg.toolCost || 0),
+              response_code: 'PAYMENT_REQUIRED'
+            });
+          }
           setStatus(window.PFCredits ? window.PFCredits.getPaymentRequiredMarkup(msg, { toolLabel: 'Sponsor Finder' }) : `<div><div class="font-semibold text-lg">Credits required</div><div class="text-sm mt-1">${msg.error || 'Buy credits to continue.'}</div></div>`, "error");
           return;
         }
@@ -1056,6 +1063,16 @@
       if (window.PFCredits && data.access) {
         window.PFCredits.syncAccess(data.access);
       }
+
+      if (window.PFAnalytics && typeof window.PFAnalytics.track === 'function') {
+        window.PFAnalytics.track('research_results_viewed', {
+          tool_name: 'sponsor_finder',
+          results_count: Number(data?.promotions?.length || 0),
+          video_count: Number(data?.videoCount || 0),
+          access_mode: data?.access?.mode || 'unknown'
+        });
+      }
+
       clearStatus();
       
       // Store results for export
@@ -1097,6 +1114,13 @@
       resultsEl.appendChild(hdr);
 
       if (!data.promotions.length) {
+        if (window.PFAnalytics && typeof window.PFAnalytics.track === 'function') {
+          window.PFAnalytics.track('research_zero_results', {
+            tool_name: 'sponsor_finder',
+            video_count: Number(data?.videoCount || 0),
+            access_mode: data?.access?.mode || 'unknown'
+          });
+        }
         setStatus(`
           <div class="flex items-start gap-3">
             <svg class="w-6 h-6 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">

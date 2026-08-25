@@ -871,8 +871,33 @@
         setLoading(false);
 
         if (!response.ok) {
+          if (payload && payload.code === 'PAYMENT_REQUIRED') {
+            if (window.PFAnalytics && typeof window.PFAnalytics.track === 'function') {
+              window.PFAnalytics.track('research_paywall_response', {
+                tool_name: 'bot_detector',
+                tool_cost: Number(payload.toolCost || 0),
+                response_code: 'PAYMENT_REQUIRED'
+              });
+            }
+          }
           setStatus(`<div class="font-medium">${escapeHtml(payload.error || 'Failed to audit channel.')}</div>`, 'error');
           return;
+        }
+
+        if (window.PFAnalytics && typeof window.PFAnalytics.track === 'function') {
+          const signalCount = Number(payload?.signals?.length || 0);
+          window.PFAnalytics.track('research_results_viewed', {
+            tool_name: 'bot_detector',
+            results_count: signalCount,
+            video_count: Number(payload?.metadata?.videosAnalyzed || payload?.videos?.length || 0),
+            access_mode: payload?.access?.mode || 'unknown'
+          });
+          if (signalCount === 0) {
+            window.PFAnalytics.track('research_zero_results', {
+              tool_name: 'bot_detector',
+              access_mode: payload?.access?.mode || 'unknown'
+            });
+          }
         }
 
         clearStatus();

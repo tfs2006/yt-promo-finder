@@ -493,6 +493,13 @@
           return;
         }
         if (msg.code === 'PAYMENT_REQUIRED') {
+          if (window.PFAnalytics && typeof window.PFAnalytics.track === 'function') {
+            window.PFAnalytics.track('research_paywall_response', {
+              tool_name: 'domain_search',
+              tool_cost: Number(msg.toolCost || 0),
+              response_code: 'PAYMENT_REQUIRED'
+            });
+          }
           setStatus(window.PFCredits ? window.PFCredits.getPaymentRequiredMarkup(msg, { toolLabel: 'Domain Search' }) : `<div><div class="font-semibold text-lg">Credits required</div><div class="text-sm mt-1">${msg.error || 'Buy credits to continue.'}</div></div>`, "error");
           return;
         }
@@ -514,6 +521,16 @@
       if (window.PFCredits && data.access) {
         window.PFCredits.syncAccess(data.access);
       }
+
+      if (window.PFAnalytics && typeof window.PFAnalytics.track === 'function') {
+        window.PFAnalytics.track('research_results_viewed', {
+          tool_name: 'domain_search',
+          results_count: Number(data?.videos?.length || 0),
+          video_count: Number(data?.videoCount || 0),
+          access_mode: data?.access?.mode || 'unknown'
+        });
+      }
+
       clearStatus();
 
       const hdr = document.createElement('div');
@@ -533,6 +550,13 @@
       resultsEl.appendChild(hdr);
 
       if (!data.videos.length) {
+        if (window.PFAnalytics && typeof window.PFAnalytics.track === 'function') {
+          window.PFAnalytics.track('research_zero_results', {
+            tool_name: 'domain_search',
+            search_domain: data?.domain || d,
+            access_mode: data?.access?.mode || 'unknown'
+          });
+        }
         setStatus(`
           <div class="flex items-start gap-3">
             <svg class="w-6 h-6 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">

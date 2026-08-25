@@ -632,6 +632,13 @@
           return;
         }
         if (msg.code === 'PAYMENT_REQUIRED') {
+          if (window.PFAnalytics && typeof window.PFAnalytics.track === 'function') {
+            window.PFAnalytics.track('research_paywall_response', {
+              tool_name: 'sponsor_comparison',
+              tool_cost: Number(msg.toolCost || 0),
+              response_code: 'PAYMENT_REQUIRED'
+            });
+          }
           setStatus(window.PFCredits ? window.PFCredits.getPaymentRequiredMarkup(msg, { toolLabel: 'Sponsor Comparison' }) : `<div><div class="font-semibold text-lg">Credits required</div><div class="text-sm mt-1">${msg.error || 'Buy credits to continue.'}</div></div>`, "error");
           return;
         }
@@ -653,6 +660,26 @@
       if (window.PFCredits && data.access) {
         window.PFCredits.syncAccess(data.access);
       }
+
+      if (window.PFAnalytics && typeof window.PFAnalytics.track === 'function') {
+        const overlapCount = Number(data?.comparison?.commonSponsorsCount || 0);
+        const unique1Count = Number(data?.comparison?.uniqueToChannel1Count || 0);
+        const unique2Count = Number(data?.comparison?.uniqueToChannel2Count || 0);
+        const totalSignals = overlapCount + unique1Count + unique2Count;
+        window.PFAnalytics.track('research_results_viewed', {
+          tool_name: 'sponsor_comparison',
+          results_count: totalSignals,
+          common_sponsors_count: overlapCount,
+          access_mode: data?.access?.mode || 'unknown'
+        });
+        if (totalSignals === 0) {
+          window.PFAnalytics.track('research_zero_results', {
+            tool_name: 'sponsor_comparison',
+            access_mode: data?.access?.mode || 'unknown'
+          });
+        }
+      }
+
       clearStatus();
       renderResults(data);
     });

@@ -352,6 +352,13 @@
           return;
         }
         if (msg.code === 'PAYMENT_REQUIRED') {
+          if (window.PFAnalytics && typeof window.PFAnalytics.track === 'function') {
+            window.PFAnalytics.track('research_paywall_response', {
+              tool_name: 'collaboration_finder',
+              tool_cost: Number(msg.toolCost || 0),
+              response_code: 'PAYMENT_REQUIRED'
+            });
+          }
           setStatus(window.PFCredits ? window.PFCredits.getPaymentRequiredMarkup(msg, { toolLabel: 'Collaboration Finder' }) : `<div><div class="font-semibold text-lg">Credits required</div><div class="text-sm mt-1">${msg.error || 'Buy credits to continue.'}</div></div>`, "error");
           return;
         }
@@ -363,9 +370,26 @@
       if (window.PFCredits && data.access) {
         window.PFCredits.syncAccess(data.access);
       }
+
+      if (window.PFAnalytics && typeof window.PFAnalytics.track === 'function') {
+        window.PFAnalytics.track('research_results_viewed', {
+          tool_name: 'collaboration_finder',
+          results_count: Number(data?.collaborations?.length || 0),
+          video_count: Number(data?.videosAnalyzed || 0),
+          access_mode: data?.access?.mode || 'unknown'
+        });
+      }
+
       clearStatus();
 
       if (!data.collaborations.length) {
+        if (window.PFAnalytics && typeof window.PFAnalytics.track === 'function') {
+          window.PFAnalytics.track('research_zero_results', {
+            tool_name: 'collaboration_finder',
+            video_count: Number(data?.videosAnalyzed || 0),
+            access_mode: data?.access?.mode || 'unknown'
+          });
+        }
         setStatus('<div><div class="font-semibold text-lg">No clear collaboration signals found</div><div class="text-sm mt-1">No repeated channel mentions or creator references were detected in recent public descriptions. Try another channel or compare sponsor activity instead.</div></div>', "info");
         return;
       }
