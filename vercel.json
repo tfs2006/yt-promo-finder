@@ -26,13 +26,13 @@
     {
       "source": "/styles.css",
       "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }
       ]
     },
     {
       "source": "/tailwind.css",
       "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }
       ]
     },
     {
@@ -109,6 +109,7 @@
     { "source": "/tiktok", "destination": "/public/tiktok.html" },
     { "source": "/youtube-downloader", "destination": "/public/youtube-downloader.html" },
     { "source": "/ad-library-finder", "destination": "/public/ad-library-finder.html" },
+    { "source": "/owner-demo", "destination": "/public/owner-demo.html" },
     { "source": "/rate", "destination": "/public/rate.html" },
     { "source": "/viral", "destination": "/public/viral.html" },
     { "source": "/saturation", "destination": "/public/saturation.html" },
@@ -119,6 +120,10 @@
     { "source": "/bot-detector", "destination": "/public/bot-detector.html" },
     { "source": "/revenue", "destination": "/public/revenue.html" },
     { "source": "/predictor", "destination": "/public/predictor.html" },
+    { "source": "/how-to-find-unlisted-youtube-videos", "destination": "/public/how-to-find-unlisted-youtube-videos.html" },
+    { "source": "/find-unlisted-videos-by-channel", "destination": "/public/find-unlisted-videos-by-channel.html" },
+    { "source": "/youtube-private-vs-unlisted", "destination": "/public/youtube-private-vs-unlisted.html" },
+    { "source": "/unlisted-playlist-finder", "destination": "/public/unlisted-playlist-finder.html" },
     { "source": "/credits", "destination": "/public/credits.html" },
     { "source": "/privacy", "destination": "/public/privacy.html" },
     { "source": "/terms", "destination": "/public/terms.html" },

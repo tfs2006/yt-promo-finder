@@ -363,6 +363,14 @@ export async function initQuota() {
   }
 }
 
+export function sanitizeErrorMessage(value) {
+  let message = String(value || 'Unexpected server error.');
+  // Upstream URLs and error bodies must never expose query/header credentials.
+  message = message.replace(/([?&](?:key|api_key|apikey|token|access_token|secret)=)[^\s&#"']*/gi, '$1[REDACTED]');
+  if (API_KEY) message = message.split(API_KEY).join('[REDACTED]');
+  return message;
+}
+
 export async function fetchJson(url) {
   const res = await fetch(url);
   if (!res.ok) {
@@ -373,7 +381,9 @@ export async function fetchJson(url) {
       error.code = 'YOUTUBE_QUOTA_EXCEEDED';
       throw error;
     }
-    throw new Error(`HTTP ${res.status} for ${url}\n${txt}`);
+    const error = new Error(`Upstream service returned HTTP ${res.status}. Please try again later.`);
+    error.code = 'UPSTREAM_ERROR';
+    throw error;
   }
   return res.json();
 }
@@ -680,13 +690,13 @@ export function handleApiError(res, err, req = null) {
   log("error", "api_error", {
     requestId,
     code: err?.code,
-    message: err?.message,
-    stack: err?.stack
+    message: sanitizeErrorMessage(err?.message),
+    stack: err?.stack ? sanitizeErrorMessage(err.stack) : undefined
   });
   
   if (err.code === 'QUOTA_EXCEEDED' || err.code === 'YOUTUBE_QUOTA_EXCEEDED') {
     return res.status(429).json({ 
-      error: err.message,
+      error: sanitizeErrorMessage(err.message),
       code: 'QUOTA_EXCEEDED',
       quotaStatus: err.quotaStatus || getQuotaStatus(),
       requestId
@@ -694,7 +704,7 @@ export function handleApiError(res, err, req = null) {
   }
   
   return res.status(500).json({
-    error: err.message || "Unexpected server error.",
+    error: sanitizeErrorMessage(err.message),
     requestId
   });
 }

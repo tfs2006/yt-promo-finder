@@ -4,7 +4,10 @@
   var STORAGE_KEY = 'pf_credit_tokens_v1';
   var BALANCE_CACHE_KEY = 'pf_credit_balance_cache_v1';
   var ACCOUNT_TOKEN_KEY = 'pf_account_token_v1';
+  var OWNER_DEMO_KEY = 'pf_owner_demo_key_v1';
+  var OWNER_DEMO_TTL_MS = 12 * 60 * 60 * 1000;
   var BALANCE_BADGE_ID = 'pfCreditsBadge';
+  var OWNER_DEMO_BADGE_ID = 'pfOwnerDemoBadge';
 
   function safeParse(json, fallback) {
     try {
@@ -116,6 +119,50 @@
     return record ? record.token : '';
   }
 
+  function getOwnerDemoKey() {
+    try {
+      var raw = window.localStorage.getItem(OWNER_DEMO_KEY) || '';
+      if (!raw) return '';
+      var parsed = safeParse(raw, null);
+      if (parsed && typeof parsed === 'object') {
+        var expiresAt = Number(parsed.expiresAt || 0);
+        if (expiresAt && Date.now() >= expiresAt) {
+          window.localStorage.removeItem(OWNER_DEMO_KEY);
+          return '';
+        }
+        return String(parsed.key || '').trim();
+      }
+      return String(raw).trim();
+    } catch {
+      return '';
+    }
+  }
+
+  function setOwnerDemoKey(key) {
+    var normalized = String(key || '').trim();
+    try {
+      if (!normalized) {
+        window.localStorage.removeItem(OWNER_DEMO_KEY);
+        return '';
+      }
+      window.localStorage.setItem(OWNER_DEMO_KEY, JSON.stringify({
+        key: normalized,
+        expiresAt: Date.now() + OWNER_DEMO_TTL_MS
+      }));
+      return normalized;
+    } catch {
+      return normalized;
+    }
+  }
+
+  function clearOwnerDemoKey() {
+    try {
+      window.localStorage.removeItem(OWNER_DEMO_KEY);
+    } catch {
+      return;
+    }
+  }
+
   function setAccountToken(token) {
     if (!looksLikeJwt(token || '')) return null;
     var payload = parseJwtPayload(token);
@@ -173,6 +220,34 @@
     ].join('');
   }
 
+  function renderOwnerDemoBadge() {
+    if (!document.body) return;
+
+    var ownerDemoKey = getOwnerDemoKey();
+    var badge = document.getElementById(OWNER_DEMO_BADGE_ID);
+
+    if (!ownerDemoKey) {
+      if (badge) badge.remove();
+      return;
+    }
+
+    if (!badge) {
+      badge = document.createElement('a');
+      badge.id = OWNER_DEMO_BADGE_ID;
+      badge.href = '/owner-demo';
+      badge.style.cssText = 'position:fixed;left:18px;bottom:18px;z-index:70;display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:14px;border:1px solid rgba(52,211,153,0.45);background:rgba(6,78,59,0.88);box-shadow:0 16px 36px rgba(2,6,23,0.45);backdrop-filter:blur(12px);text-decoration:none;color:#ecfdf5;font-family:inherit;';
+      document.body.appendChild(badge);
+    }
+
+    badge.innerHTML = [
+      '<span style="display:inline-flex;width:28px;height:28px;align-items:center;justify-content:center;border-radius:999px;background:rgba(16,185,129,0.2);color:#6ee7b7;font-weight:800;">D</span>',
+      '<span>',
+      '  <span style="display:block;font-size:11px;line-height:1;text-transform:uppercase;letter-spacing:0.16em;color:#a7f3d0;">Owner Demo</span>',
+      '  <span style="display:block;margin-top:3px;font-size:13px;font-weight:700;color:#f0fdf4;">Active</span>',
+      '</span>'
+    ].join('');
+  }
+
   function updateCreditsLinkLabels(totalRemaining) {
     var links = document.querySelectorAll('a[href="/credits"]');
     links.forEach(function (link) {
@@ -189,6 +264,7 @@
     var resolved = typeof totalRemaining === 'number' ? totalRemaining : getCachedTotalRemaining();
     updateCreditsLinkLabels(resolved);
     renderCreditsBadge(resolved);
+    renderOwnerDemoBadge();
   }
 
   function shouldAttachAccountToken(input) {
@@ -207,13 +283,17 @@
     var originalFetch = window.fetch.bind(window);
     window.fetch = function (input, init) {
       var accountToken = getAccountToken();
-      if (!accountToken || !shouldAttachAccountToken(input)) {
+      var ownerDemoKey = getOwnerDemoKey();
+      if ((!accountToken && !ownerDemoKey) || !shouldAttachAccountToken(input)) {
         return originalFetch(input, init);
       }
 
       var headers = new Headers((init && init.headers) || (input instanceof Request ? input.headers : undefined) || undefined);
       if (!headers.has('x-account-token')) {
-        headers.set('x-account-token', accountToken);
+        if (accountToken) headers.set('x-account-token', accountToken);
+      }
+      if (!headers.has('x-owner-demo-key')) {
+        if (ownerDemoKey) headers.set('x-owner-demo-key', ownerDemoKey);
       }
 
       if (input instanceof Request) {
@@ -359,20 +439,26 @@
   function formatBalanceHint(balances) {
     if (!Array.isArray(balances) || !balances.length) return '';
     var total = balances.reduce(function (sum, balance) {
-      return sum + (balance.creditsRemaining || 0);
+      return sum + Number(balance.creditsRemaining || 0);
     }, 0);
     return '<div class="text-xs mt-3 text-slate-300">Saved balance detected: <span class="font-semibold text-emerald-300">' + total + ' credits</span>.</div>';
   }
 
   function formatAccountBalanceHint(accountBalance) {
     if (!accountBalance || !accountBalance.planName) return '';
-    return '<div class="text-xs mt-2 text-slate-300">Linked ' + accountBalance.planName + ': <span class="font-semibold text-emerald-300">' + Number(accountBalance.creditsRemaining || 0) + ' credits</span>.</div>';
+    return '<div class="text-xs mt-2 text-slate-300">Linked ' + escapeHtml(accountBalance.planName) + ': <span class="font-semibold text-emerald-300">' + Number(accountBalance.creditsRemaining || 0) + ' credits</span>.</div>';
+  }
+
+  function escapeHtml(value) {
+    return String(value == null ? '' : value).replace(/[&<>"']/g, function (character) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[character];
+    });
   }
 
   function getPaymentRequiredMarkup(payload, options) {
     var opts = options || {};
     var toolLabel = opts.toolLabel || 'This search';
-    var toolCost = payload && payload.toolCost ? payload.toolCost : 1;
+    var toolCost = Number(payload && payload.toolCost) || 1;
     var message = payload && payload.error ? payload.error : (toolLabel + ' now requires credits.');
     var hint = formatBalanceHint(payload && payload.balances);
     var accountHint = formatAccountBalanceHint(payload && payload.accountBalance);
@@ -389,7 +475,7 @@
       '  </svg>',
       '  <div>',
       '    <div class="font-semibold text-lg text-white">Free preview used</div>',
-      '    <div class="text-sm mt-1 text-slate-200">' + message + '</div>',
+      '    <div class="text-sm mt-1 text-slate-200">' + escapeHtml(message) + '</div>',
       '    <div class="text-sm mt-2 text-sky-200">This request costs ' + toolCost + ' credit' + (toolCost === 1 ? '' : 's') + '.</div>',
            hint,
            accountHint,
@@ -498,7 +584,11 @@
     getCachedTotalRemaining: getCachedTotalRemaining,
     getPaymentRequiredMarkup: getPaymentRequiredMarkup,
     getRateLimitedMarkup: getRateLimitedMarkup,
+    getOwnerDemoKey: getOwnerDemoKey,
+    isOwnerDemoActive: function () { return !!getOwnerDemoKey(); },
     getTokens: getTokens,
+    setOwnerDemoKey: setOwnerDemoKey,
+    clearOwnerDemoKey: clearOwnerDemoKey,
     saveToken: saveToken,
     syncAccess: syncAccess,
     setTokens: setTokens

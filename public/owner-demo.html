@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Owner Demo Mode - Promo Finder</title>
+  <meta name="robots" content="noindex,nofollow" />
+  <link rel="stylesheet" href="/tailwind.css" />
+  <link rel="stylesheet" href="/styles.css" />
+  <style>
+    body { background: radial-gradient(circle at top, #0f172a, #020617 58%); }
+    .card { background: rgba(15, 23, 42, 0.72); border: 1px solid rgba(148, 163, 184, 0.2); backdrop-filter: blur(8px); }
+  </style>
+</head>
+<body class="min-h-screen text-slate-100">
+  <main class="max-w-2xl mx-auto px-4 py-12">
+    <section class="card rounded-2xl p-6 md:p-8 shadow-2xl">
+      <h1 class="text-2xl md:text-3xl font-bold tracking-tight">Owner Demo Setup</h1>
+      <p class="mt-3 text-slate-300 text-sm md:text-base">
+        Save your private owner demo key in this browser so tool API requests automatically run in demo mode.
+      </p>
+
+      <div class="mt-6 space-y-3">
+        <label for="ownerDemoKeyInput" class="block text-sm font-semibold text-slate-200">Owner Demo Key</label>
+        <input
+          id="ownerDemoKeyInput"
+          type="password"
+          class="w-full rounded-xl border border-slate-600 bg-slate-900/70 px-4 py-3 text-slate-100 outline-none focus:border-sky-400"
+          placeholder="Paste OWNER_DEMO_KEY"
+          autocomplete="off"
+          spellcheck="false"
+        />
+        <p class="text-xs text-slate-400">
+          Stored in this browser only (localStorage). Do not share screenshots of this page.
+        </p>
+      </div>
+
+      <div class="mt-6 flex flex-wrap gap-3">
+        <button id="saveBtn" class="px-4 py-2.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-semibold transition-colors">
+          Save Key
+        </button>
+        <button id="clearBtn" class="px-4 py-2.5 rounded-xl border border-slate-500 hover:border-slate-300 text-slate-200 transition-colors">
+          Clear Key
+        </button>
+        <a href="/" class="px-4 py-2.5 rounded-xl border border-slate-500 hover:border-sky-400 text-slate-200 hover:text-white transition-colors">
+          Go to Home
+        </a>
+      </div>
+
+      <div id="status" class="mt-5 text-sm"></div>
+
+      <div class="mt-8 rounded-xl border border-slate-700/80 bg-slate-950/40 p-4">
+        <h2 class="font-semibold text-slate-100">Quick usage</h2>
+        <ol class="mt-2 space-y-1 text-sm text-slate-300 list-decimal list-inside">
+          <li>Save your key once on this device/browser.</li>
+          <li>Open any tool page and run normal scans.</li>
+          <li>To disable, return here and click <strong>Clear Key</strong>.</li>
+        </ol>
+      </div>
+    </section>
+  </main>
+
+  <script src="/credits.js"></script>
+  <script>
+    (function () {
+      var input = document.getElementById('ownerDemoKeyInput');
+      var saveBtn = document.getElementById('saveBtn');
+      var clearBtn = document.getElementById('clearBtn');
+      var status = document.getElementById('status');
+
+      function setStatus(message, tone) {
+        status.textContent = message;
+        status.className = 'mt-5 text-sm ' + (tone === 'ok' ? 'text-emerald-300' : tone === 'warn' ? 'text-amber-300' : 'text-slate-300');
+      }
+
+      function maskKey(key) {
+        var value = String(key || '');
+        if (!value) return '';
+        if (value.length <= 8) return '••••••••';
+        return value.slice(0, 4) + '••••••••' + value.slice(-4);
+      }
+
+      function refreshUi() {
+        if (!window.PFCredits || typeof window.PFCredits.getOwnerDemoKey !== 'function') {
+          setStatus('Credits runtime is not available on this page.', 'warn');
+          return;
+        }
+        var saved = window.PFCredits.getOwnerDemoKey();
+        input.value = '';
+        if (saved) {
+          setStatus('Owner demo key saved: ' + maskKey(saved), 'ok');
+        } else {
+          setStatus('No owner demo key saved in this browser.', 'warn');
+        }
+      }
+
+      saveBtn.addEventListener('click', function () {
+        var key = String(input.value || '').trim();
+        if (!key) {
+          setStatus('Enter a key before saving.', 'warn');
+          return;
+        }
+        window.PFCredits.setOwnerDemoKey(key);
+        input.value = '';
+        setStatus('Owner demo key saved successfully.', 'ok');
+      });
+
+      clearBtn.addEventListener('click', function () {
+        window.PFCredits.clearOwnerDemoKey();
+        input.value = '';
+        setStatus('Owner demo key cleared.', 'ok');
+      });
+
+      refreshUi();
+    }());
+  </script>
+</body>
+</html>

@@ -26,6 +26,7 @@ import {
   finalizeToolAccess,
   getToolAccessState
 } from "../lib/credits.js";
+import { safeLinkCheck } from "../lib/safeLinkCheck.js";
 
 // ============================================
 // Link Checker Utilities
@@ -62,67 +63,7 @@ function matchesDomainFilter(url, filter) {
  * Check if a URL is accessible (returns HTTP 2xx or 3xx)
  */
 async function checkUrlStatus(url, timeout = 10000) {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), timeout);
-  
-  try {
-    let response = await fetch(url, {
-      method: 'HEAD',
-      signal: controller.signal,
-      redirect: 'follow',
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
-      }
-    });
-    
-    clearTimeout(timeoutId);
-    
-    if (response.status === 405) {
-      const getController = new AbortController();
-      const getTimeoutId = setTimeout(() => getController.abort(), timeout);
-      
-      response = await fetch(url, {
-        method: 'GET',
-        signal: getController.signal,
-        redirect: 'follow',
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
-        }
-      });
-      
-      clearTimeout(getTimeoutId);
-    }
-    
-    const working = response.status >= 200 && response.status < 400;
-    const result = { working, status: response.status };
-    
-    if (response.url && response.url !== url) {
-      result.redirectUrl = response.url;
-    }
-    
-    return result;
-  } catch (err) {
-    clearTimeout(timeoutId);
-    
-    if (err.name === 'AbortError') {
-      return { working: false, error: 'Timeout' };
-    }
-    
-    const errorMessage = err.message || 'Unknown error';
-    if (errorMessage.includes('ENOTFOUND') || errorMessage.includes('getaddrinfo')) {
-      return { working: false, error: 'Domain not found' };
-    }
-    if (errorMessage.includes('ECONNREFUSED')) {
-      return { working: false, error: 'Connection refused' };
-    }
-    if (errorMessage.includes('CERT') || errorMessage.includes('SSL')) {
-      return { working: false, error: 'SSL certificate error' };
-    }
-    
-    return { working: false, error: errorMessage.substring(0, 100) };
-  }
+  return safeLinkCheck(url, timeout);
 }
 
 /**

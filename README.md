@@ -84,7 +84,7 @@ A comprehensive suite of YouTube channel analysis tools to discover sponsorships
 
 ### Prerequisites
 
-- Node.js (v14 or higher)
+- Node.js (v18 or higher)
 - YouTube Data API v3 Key
 
 ### Installation
@@ -133,6 +133,10 @@ A comprehensive suite of YouTube channel analysis tools to discover sponsorships
    Navigate to `http://localhost:3000`
 
 ## 📖 Usage
+
+### Regression tests
+
+Run `npm test` to verify search recovery, duplicate-submission prevention, safe rendering, CSV exports, local routes, deployment targets, owner-demo authorization, upstream error redaction, and link-check SSRF protection. Search tests use mocked responses and do not create purchases.
 
 ### Promotion Finder
 1. Enter a YouTube channel URL in any of these formats:

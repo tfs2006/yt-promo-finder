@@ -1,6 +1,6 @@
 import express from "express";
 import * as dotenv from "dotenv";
-import { API_KEY, getQuotaStatusAsync } from "./utils.js";
+import { API_KEY, getQuotaStatusAsync, sanitizeErrorMessage } from "./utils.js";
 
 // Import API handlers for local development
 import collabHandler from "./api/collab.js";
@@ -12,6 +12,9 @@ import quotaHandler from "./api/quota.js";
 import compareHandler from "./api/compare.js";
 import revenueHandler from "./api/revenue.js";
 import predictorHandler from "./api/predictor.js";
+import rateHandler from "./api/rate.js";
+import viralHandler from "./api/viral.js";
+import saturationHandler from "./api/saturation.js";
 import { handleTikTokMeta, handleTikTokVideo, handleTikTokAudio } from "./lib/tiktokHandlers.js";
 import { handleYouTubeMeta, handleYouTubeVideo, handleYouTubeAudio } from "./lib/youtubeHandlers.js";
 
@@ -56,7 +59,7 @@ app.get("/health/ready", async (req, res) => {
       requestId: req.requestId
     });
   } catch (err) {
-    res.status(503).json({ status: "not-ready", error: err.message, requestId: req.requestId });
+    res.status(503).json({ status: "not-ready", error: sanitizeErrorMessage(err.message), requestId: req.requestId });
   }
 });
 
@@ -64,6 +67,9 @@ app.get("/health/ready", async (req, res) => {
 app.get("/api/analyze", analyzeHandler);
 app.get("/api/collab", collabHandler);
 app.get("/api/growth", growthHandler);
+app.get("/api/rate", rateHandler);
+app.get("/api/viral", viralHandler);
+app.get("/api/saturation", saturationHandler);
 app.get("/api/unlisted", unlistedHandler);
 app.get("/api/domain", domainHandler);
 app.get("/api/quota", quotaHandler);
@@ -96,12 +102,12 @@ app.use((err, req, res, next) => {
     level: "error",
     msg: "express_unhandled_error",
     requestId: req?.requestId,
-    error: err?.message,
-    stack: err?.stack
+    error: sanitizeErrorMessage(err?.message),
+    stack: err?.stack ? sanitizeErrorMessage(err.stack) : undefined
   }));
   if (res.headersSent) return next(err);
   return res.status(err.status || 500).json({
-    error: err.message || "Internal server error",
+    error: sanitizeErrorMessage(err.message || "Internal server error"),
     requestId: req?.requestId
   });
 });
