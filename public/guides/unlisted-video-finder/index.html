@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-4Y4X38W3FZ"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-4Y4X38W3FZ');
+  </script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Unlisted Video Finder: Complete Overview | PromoFinder</title>
+  <meta name="description" content="Full walkthrough of PromoFinder's unlisted video scanner: accepted inputs, how public-playlist scanning works, credits, and what results to expect." />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="Unlisted Video Finder: Complete Overview | PromoFinder" />
+  <meta property="og:description" content="Full walkthrough of PromoFinder's unlisted video scanner: accepted inputs, how public-playlist scanning works, credits, and what results to expect." />
+  <meta property="og:url" content="https://promofinder.4ourmedia.com/guides/unlisted-video-finder" />
+  <meta property="og:site_name" content="PromoFinder" />
+  <meta property="og:image" content="https://promofinder.4ourmedia.com/social-preview.png" />
+  <meta property="og:image:alt" content="Unlisted Video Finder complete overview — PromoFinder guide" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Unlisted Video Finder: Complete Overview | PromoFinder" />
+  <meta name="twitter:description" content="Full walkthrough of PromoFinder's unlisted video scanner: accepted inputs, how public-playlist scanning works, credits, and what results to expect." />
+  <meta name="twitter:image" content="https://promofinder.4ourmedia.com/social-preview.png" />
+  <meta name="twitter:image:alt" content="Unlisted Video Finder complete overview — PromoFinder guide" />
+  <link rel="canonical" href="https://promofinder.4ourmedia.com/guides/unlisted-video-finder" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/research.css">
+  <script src="/nav.js" defer></script>
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": "https://promofinder.4ourmedia.com/#website",
+      "name": "PromoFinder",
+      "url": "https://promofinder.4ourmedia.com/"
+    },
+    {
+      "@type": "Article",
+      "@id": "https://promofinder.4ourmedia.com/guides/unlisted-video-finder#article",
+      "url": "https://promofinder.4ourmedia.com/guides/unlisted-video-finder",
+      "headline": "Unlisted Video Finder: Complete Overview",
+      "description": "Full walkthrough of PromoFinder's unlisted video scanner: accepted inputs, how public-playlist scanning works, credits, and what results to expect.",
+      "isPartOf": {
+        "@id": "https://promofinder.4ourmedia.com/#website"
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://promofinder.4ourmedia.com/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Guides",
+          "item": "https://promofinder.4ourmedia.com/guides/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Unlisted Video Finder: Complete Overview",
+          "item": "https://promofinder.4ourmedia.com/guides/unlisted-video-finder"
+        }
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What exactly does the PromoFinder unlisted video finder do?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "It takes a channel URL, @handle, or ID, checks available public playlist entries within scan limits, and returns matching unlisted videos with titles and watch links."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How many free scans do I get?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Each browser and network combination receives one free research preview. This single preview is shared across all PromoFinder research tools — the unlisted scanner, the promo finder, domain search, and others. After the preview is used, fresh scans require credits."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What are PromoFinder credits?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Credits pay for additional fresh research scans. Check the credits page for current pack prices and tool costs before purchasing."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can the tool find private YouTube videos?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. Private videos are not accessible through the YouTube Data API to unauthorized callers. The tool only surfaces unlisted videos that appear in public playlists — private videos remain inaccessible regardless of the method used."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How fresh are the scan results?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Results may come from a recent cache or a new API scan. Playlist changes, unavailable data, and scan limits can affect coverage; credits do not guarantee a new upstream request."
+          }
+        }
+      ]
+    }
+  ]
+}
+  </script>
+  <link rel="stylesheet" href="/tailwind.css">
+</head>
+<body class="bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-100 min-h-screen">
+<nav class="site-nav">
+  <div class="site-nav-inner">
+    <div class="site-nav-top">
+      <a href="/" class="site-logo">
+        <div class="site-logo-mark">
+          <svg width="17" height="17" viewBox="0 0 17 17" fill="none"><circle cx="6.5" cy="6.5" r="4.5" stroke="white" stroke-width="1.6"/><polygon points="4.5,4.5 4.5,8.5 8.5,6.5" fill="white"/><line x1="10" y1="10" x2="15" y2="15" stroke="white" stroke-width="1.6" stroke-linecap="round"/></svg>
+        </div>
+        <span class="site-logo-text">Promo<span>Finder</span></span>
+      </a>
+      <a href="/guides/" class="site-nav-external">← All Guides</a>
+    </div>
+    <div class="tool-strip">
+      <a href="/" class="tool-chip">Promo Finder</a>
+      <a href="/unlisted" class="tool-chip">Unlisted Videos</a>
+      <a href="/guides/" class="tool-chip">Guides</a>
+      <a href="/credits" class="tool-chip">Buy Credits</a>
+    </div>
+  </div>
+</nav>
+
+<main class="max-w-3xl mx-auto px-4 py-10">
+  <article class="guide-content">
+    <header class="mb-8">
+      <p class="research-eyebrow">Guide · Tool Reference</p>
+      <h1 class="text-3xl md:text-4xl font-bold mt-3">Unlisted Video Finder: Complete Overview</h1>
+      <p class="mt-4 text-slate-300 text-lg">Understand the scanner's inputs, public-playlist results, credits, and coverage limits before starting your research.</p>
+    </header>
+
+    <section>
+      <h2 class="text-2xl font-bold mt-8 mb-4">How the Scanner Works</h2>
+      <p class="text-slate-300">PromoFinder checks public playlist data through the YouTube API. It does not guess IDs or access private videos.</p>
+
+      <ol class="mt-4 space-y-4 text-slate-300">
+        <li class="flex gap-3">
+          <span class="text-emerald-400 font-bold shrink-0">Step 1</span>
+          <span><strong>Channel resolution.</strong> A channel URL, @handle, or channel ID is resolved to a channel.</span>
+        </li>
+        <li class="flex gap-3">
+          <span class="text-emerald-400 font-bold shrink-0">Step 2</span>
+          <span><strong>Playlist enumeration.</strong> Available public playlists are retrieved within the scanner's coverage and safety limits.</span>
+        </li>
+        <li class="flex gap-3">
+          <span class="text-emerald-400 font-bold shrink-0">Step 3</span>
+          <span><strong>Video entry inspection.</strong> For each playlist, the <code class="text-purple-300 bg-slate-800 px-1 rounded">playlistItems.list</code> endpoint returns every video entry with its <code class="text-purple-300 bg-slate-800 px-1 rounded">status.privacyStatus</code> field. Entries returning <code class="text-purple-300 bg-slate-800 px-1 rounded">unlisted</code> are collected.</span>
+        </li>
+        <li class="flex gap-3">
+          <span class="text-emerald-400 font-bold shrink-0">Step 4</span>
+          <span><strong>Result assembly.</strong> Collected unlisted entries are deduplicated (a video may appear in multiple playlists) and returned with their video ID, title, thumbnail URL, and the full watch link.</span>
+        </li>
+      </ol>
+
+      <h2 class="text-2xl font-bold mt-8 mb-4">Accepted Input Formats</h2>
+      <p class="text-slate-300">The tool accepts three forms of channel identifier. All are equivalent — use whichever you have available:</p>
+
+      <div class="mt-4 space-y-3">
+        <div class="research-panel">
+          <h3 class="font-semibold text-emerald-300">Channel URL</h3>
+          <p class="mt-1 research-muted">A channel URL, for example: <code class="text-purple-300 bg-slate-800 px-1 rounded text-sm">https://www.youtube.com/channel/UCxxxxxxxxxxxxxxxxxxxxxxxx</code></p>
+        </div>
+        <div class="research-panel">
+          <h3 class="font-semibold text-emerald-300">@handle URL or bare handle</h3>
+          <p class="mt-1 research-muted">The @username format used since 2022: <code class="text-purple-300 bg-slate-800 px-1 rounded text-sm">https://www.youtube.com/@CreatorName</code> or just <code class="text-purple-300 bg-slate-800 px-1 rounded text-sm">@CreatorName</code></p>
+        </div>
+        <div class="research-panel">
+          <h3 class="font-semibold text-emerald-300">Bare channel ID</h3>
+          <p class="mt-1 research-muted">The raw ID string starting with UC: <code class="text-purple-300 bg-slate-800 px-1 rounded text-sm">UCxxxxxxxxxxxxxxxxxxxxxxxx</code> (24 characters)</p>
+        </div>
+      </div>
+
+      <p class="mt-4 text-slate-300">Use a channel identifier, not a keyword, video watch URL, or playlist URL. If you only have a video link, open its uploader's channel and copy that channel URL.</p>
+
+      <h2 class="text-2xl font-bold mt-8 mb-4">What You Get in Results</h2>
+      <p class="text-slate-300">For each discoverable unlisted video, the results panel shows:</p>
+      <ul class="mt-3 space-y-2 text-slate-300">
+        <li class="flex gap-3"><span class="text-purple-400 shrink-0">·</span><span><strong>Video title</strong> — as it appears on YouTube</span></li>
+        <li class="flex gap-3"><span class="text-purple-400 shrink-0">·</span><span><strong>Thumbnail</strong> — the default YouTube thumbnail for the video</span></li>
+        <li class="flex gap-3"><span class="text-purple-400 shrink-0">·</span><span><strong>Watch link</strong> — a direct <code class="text-purple-300 bg-slate-800 px-1 rounded">youtube.com/watch?v=ID</code> URL</span></li>
+        <li class="flex gap-3"><span class="text-purple-400 shrink-0">·</span><span><strong>Playlist source</strong> — which public playlist the video was found in</span></li>
+      </ul>
+
+      <h2 class="text-2xl font-bold mt-8 mb-4">The Free Research Preview and Credits</h2>
+      <p class="text-slate-300">One free research preview per browser and network is shared across paid research tools. Using it on another tool may consume that preview.</p>
+      <p class="mt-3 text-slate-300">Additional fresh scans require credits. Check current packs and tool costs on the <a href="/credits" class="text-purple-300 hover:text-purple-200 underline">credits page</a>. Cached results may be reused; paying does not guarantee complete coverage or a new upstream request.</p>
+
+      <h2 class="text-2xl font-bold mt-8 mb-4">Coverage and Limitations</h2>
+      <p class="text-slate-300">Understanding what the scanner can and cannot surface helps set accurate expectations:</p>
+
+      <div class="mt-4 space-y-3">
+        <div class="research-panel">
+          <h3 class="font-semibold text-emerald-300">Can find</h3>
+          <ul class="mt-2 space-y-1 research-muted text-sm">
+            <li>Unlisted videos that the creator has added to any public playlist</li>
+            <li>Unlisted entries that remain accessible in the public playlists returned by a scan</li>
+            <li>Videos whose status changed from public to unlisted after being added to a public playlist</li>
+          </ul>
+        </div>
+        <div class="research-panel">
+          <h3 class="font-semibold text-rose-300">Cannot find</h3>
+          <ul class="mt-2 space-y-1 research-muted text-sm">
+            <li>Unlisted videos that exist only in private playlists or in no playlist at all</li>
+            <li>Private videos (access denied by YouTube regardless of playlist membership)</li>
+            <li>Deleted videos (no longer in the YouTube API)</li>
+            <li>Videos on channels with zero public playlists</li>
+            <li>Any video that YouTube's API does not expose to an unauthorized caller</li>
+          </ul>
+        </div>
+      </div>
+
+      <h2 class="text-2xl font-bold mt-8 mb-4">Result Freshness</h2>
+      <p class="text-slate-300">Results may be cached. For ongoing research, note when you scanned and review changes periodically; new scans cannot guarantee complete coverage.</p>
+      <p class="mt-3 text-slate-300">The free preview may serve a recent cached result (typically from within the last 24 hours) for popular channels. Credits always trigger a live API pull for the most current data.</p>
+    </section>
+
+    <!-- CTA -->
+    <div class="research-panel mt-10">
+      <p class="research-eyebrow">Use the tool</p>
+      <p class="text-xl font-bold mt-2">Run your first unlisted scan now</p>
+      <p class="mt-2 research-muted">Your free research preview is ready. Paste a channel URL, @handle, or channel ID to get started.</p>
+      <div class="mt-5 flex flex-wrap gap-3">
+        <a href="/unlisted" class="research-button">Open Unlisted Finder</a>
+        <a href="/credits" class="research-button-secondary">Get Credits</a>
+      </div>
+    </div>
+
+    <!-- FAQ -->
+    <section class="mt-12">
+      <h2 class="text-2xl font-bold mb-6">Frequently Asked Questions</h2>
+
+      <details class="research-panel mb-3">
+        <summary class="font-semibold cursor-pointer">What exactly does the PromoFinder unlisted video finder do?</summary>
+        <p class="mt-3 research-muted">It takes a channel URL, @handle, or ID, checks available public playlist entries within scan limits, and returns matching unlisted videos with titles and watch links.</p>
+      </details>
+
+      <details class="research-panel mb-3">
+        <summary class="font-semibold cursor-pointer">How many free scans do I get?</summary>
+        <p class="mt-3 research-muted">Each browser and network combination receives one free research preview. This single preview is shared across all PromoFinder research tools — the unlisted scanner, the promo finder, domain search, and others. After the preview is used, fresh scans require credits.</p>
+      </details>
+
+      <details class="research-panel mb-3">
+        <summary class="font-semibold cursor-pointer">What are PromoFinder credits?</summary>
+        <p class="mt-3 research-muted">Credits pay for additional fresh research scans. Check the credits page for current pack prices and tool costs before purchasing.</p>
+      </details>
+
+      <details class="research-panel mb-3">
+        <summary class="font-semibold cursor-pointer">Can the tool find private YouTube videos?</summary>
+        <p class="mt-3 research-muted">No. Private videos are not accessible through the YouTube Data API to unauthorized callers. The tool only surfaces unlisted videos that appear in public playlists — private videos remain inaccessible regardless of the method used.</p>
+      </details>
+
+      <details class="research-panel mb-3">
+        <summary class="font-semibold cursor-pointer">How fresh are the scan results?</summary>
+        <p class="mt-3 research-muted">Results may come from a recent cache or a new API scan. Playlist changes, unavailable data, and scan limits can affect coverage; credits do not guarantee a new upstream request.</p>
+      </details>
+    </section>
+
+    <!-- Crosslinks -->
+    <nav aria-label="Related guides" class="mt-12">
+      <h2 class="text-xl font-bold mb-4">Related Guides</h2>
+      <div class="research-grid">
+        <a href="/guides/how-to-find-unlisted-youtube-videos" class="research-panel hover:border-purple-500/40 transition">
+          <p class="research-eyebrow">Guide 1</p>
+          <p class="font-semibold mt-1">How to Find Unlisted YouTube Videos</p>
+        </a>
+        <a href="/guides/how-to-watch-unlisted-youtube-videos" class="research-panel hover:border-purple-500/40 transition">
+          <p class="research-eyebrow">Guide 2</p>
+          <p class="font-semibold mt-1">How to Watch Unlisted YouTube Videos</p>
+        </a>
+        <a href="/guides/how-to-find-unlisted-videos-without-link" class="research-panel hover:border-purple-500/40 transition">
+          <p class="research-eyebrow">Guide 3</p>
+          <p class="font-semibold mt-1">How to Find Unlisted Videos Without a Link</p>
+        </a>
+        <a href="/guides/" class="research-panel hover:border-purple-500/40 transition">
+          <p class="research-eyebrow">Hub</p>
+          <p class="font-semibold mt-1">All Unlisted Video Guides</p>
+        </a>
+      </div>
+    </nav>
+  </article>
+</main>
+
+<footer class="border-t border-slate-800 mt-16 py-8 text-center text-slate-500 text-sm">
+  <p>© 2025 <a href="https://4ourmedia.com" class="hover:text-slate-300 transition">4ourmedia.com</a> · <a href="/privacy" class="hover:text-slate-300 transition ml-3">Privacy</a> · <a href="/terms" class="hover:text-slate-300 transition ml-3">Terms</a></p>
+</footer>
+</body>
+</html>

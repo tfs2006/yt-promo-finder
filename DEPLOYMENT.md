@@ -124,6 +124,18 @@ Without Redis storage, quota tracking will reset between serverless function inv
 - Ensure the deployment platform is serving from the correct directory
 - Check that `public` folder is included in deployment
 
+## Research pages and email signup
+
+Public pages are static HTML in `public`; `server.js` serves them locally and `vercel.json` maps production clean URLs. Guide articles use directory `index.html` files plus explicit production rewrites. The homepage retains the original sponsor analyzer below its research landing sections.
+
+After UI/content changes, run `npm run build:css` and `npm test`. The SEO tests cover every static page's metadata, internal links, heading structure, sitemap membership, guide lengths, and FAQ schema. Private dashboards and transaction confirmations remain `noindex` and are excluded from the sitemap.
+
+The homepage and Unlisted Finder use `public/newsletter.js` to POST opt-in signups to `https://formsubmit.co/ajax/promofinder@4ourmedia.com`. The native form action works without JavaScript. Production CSP permits only this provider origin in addition to existing connections. Submissions include email, consent, source, and mail formatting fields, not search inputs/results. Success is shown only after FormSubmit confirms acceptance; delivery is not guaranteed by an HTTP success.
+
+**Inbox activation:** FormSubmit requires the inbox owner to follow its activation email before forwarding signups. Confirm activation and send a controlled signup from the live site to verify delivery. Browser/tests use synthetic requests and do not send real signup emails. This integration captures consent and delivers signup requests; it does not create an automated mailing list or send campaigns. Manage removal requests at promofinder@4ourmedia.com as described in the privacy policy.
+
+SoftwareApplication structured data includes the accurate free-preview offer; no aggregate rating is published without verified review data. The WebSite SearchAction pre-fills the channel field on `/unlisted`; the visitor still explicitly runs the search. Usage statistics on the homepage are labeled with their reporting dates and are not search counts or testimonials.
+
 ## 🎉 Success!
 
 Once deployed, your app will be live and accessible via a public URL. Share it with the world! 🌍

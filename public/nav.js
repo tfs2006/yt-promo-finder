@@ -19,7 +19,8 @@
 
   // --- Tools list ---
   var tools = [
-    { href: '/',                             label: 'Promo Finder',         color: 'emerald', activeClass: 'chip-active-emerald' },
+    { href: '/',                             label: 'Research Tools',       color: 'emerald', activeClass: 'chip-active-emerald' },
+    { href: '/guides/',                       label: 'Guides',               color: 'purple',  activeClass: 'chip-active-purple'  },
     { href: '/domain',                       label: 'Domain Search',        color: 'orange',  activeClass: 'chip-active-orange'  },
     { href: '/unlisted',                     label: 'Unlisted Videos',      color: 'purple',  activeClass: 'chip-active-purple'  },
     { href: '/unlisted-video-finder-by-channel', label: 'By Channel Guide',    color: 'violet',  activeClass: 'chip-active-violet'  },
@@ -67,13 +68,15 @@
   };
 
   function getActivePath() {
-    var p = window.location.pathname;
+    var p = window.location.pathname.replace(/\.html$/, '');
     if (p.length > 1 && p.slice(-1) === '/') p = p.slice(0, -1);
+    if (p === '/index') p = '/';
     return p || '/';
   }
 
   function isToolActive(toolHref, activePath) {
     if (toolHref === '/') return activePath === '/';
+    if (toolHref === '/guides/') return activePath === '/guides' || activePath.indexOf('/guides/') === 0;
     if (toolHref === '/services') return activePath === '/services' || activePath.indexOf('/services-') === 0;
     return activePath === toolHref || activePath.indexOf(toolHref + '/') === 0;
   }

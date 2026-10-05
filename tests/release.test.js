@@ -31,7 +31,7 @@ test('sitemap pages exist and owner demo remains non-indexable', () => {
   const locations = [...read('public/sitemap.xml').matchAll(/<loc>(.*?)<\/loc>/g)].map(match => new URL(match[1]));
   for (const url of locations) {
     const path = url.pathname === '/' ? 'index.html' : url.pathname.slice(1);
-    assert.ok(existsSync(new URL(`public/${path}`, root)) || existsSync(new URL(`public/${path}.html`, root)), url.href);
+    assert.ok(existsSync(new URL(`public/${path}`, root)) || existsSync(new URL(`public/${path}.html`, root)) || existsSync(new URL(`public/${path.replace(/\/$/, '')}/index.html`, root)), url.href);
   }
   assert.ok(!locations.some(url => url.pathname === '/owner-demo'));
   assert.match(read('public/owner-demo.html'), /name="robots" content="noindex,nofollow"/);
