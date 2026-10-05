@@ -65,14 +65,8 @@
     { "source": "/youtube-unlisted-video-finder/", "destination": "/youtube-unlisted-video-finder.html", "permanent": false },
     { "source": "/youtube-downloader", "destination": "/youtube-downloader.html", "permanent": false },
     { "source": "/youtube-downloader/", "destination": "/youtube-downloader.html", "permanent": false },
-    { "source": "/ad-library-finder", "destination": "/ad-library-finder.html", "permanent": false },
-    { "source": "/ad-library-finder/", "destination": "/ad-library-finder.html", "permanent": false }
-    ,{ "source": "/signal-desk", "destination": "/signal-desk.html", "permanent": false }
-    ,{ "source": "/signal-desk/", "destination": "/signal-desk.html", "permanent": false }
-    ,{ "source": "/signal-desk-thanks", "destination": "/signal-desk-thanks.html", "permanent": false }
-    ,{ "source": "/signal-desk-thanks/", "destination": "/signal-desk-thanks.html", "permanent": false }
-    ,{ "source": "/signal-desk-leads", "destination": "/signal-desk-leads.html", "permanent": false }
-    ,{ "source": "/signal-desk-leads/", "destination": "/signal-desk-leads.html", "permanent": false }
+    { "source": "/ad-library-finder", "destination": "/ad-library-finder.html", "statusCode": 301 },
+    { "source": "/ad-library-finder/", "destination": "/ad-library-finder.html", "statusCode": 301 }
   ],
   "rewrites": [
     { "source": "/api/analyze", "destination": "/api/analyze.js" },
@@ -83,8 +77,6 @@
     { "source": "/api/compare", "destination": "/api/compare.js" },
     { "source": "/api/quota", "destination": "/api/quota.js" },
     { "source": "/api/credits", "destination": "/api/predictor.js" },
-    { "source": "/api/signal-desk-webhook", "destination": "/api/predictor.js" },
-    { "source": "/api/signal-desk-leads", "destination": "/api/predictor.js" },
     { "source": "/api/rate", "destination": "/api/rate.js" },
     { "source": "/api/viral", "destination": "/api/viral.js" },
     { "source": "/api/saturation", "destination": "/api/saturation.js" },
