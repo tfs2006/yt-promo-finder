@@ -59,6 +59,7 @@ test('owner demo requires enablement, correct key, and permitted IP', async () =
   const names = ['OWNER_DEMO_MODE', 'OWNER_DEMO_KEY', 'OWNER_DEMO_IP_ALLOWLIST', 'OWNER_DEMO_ALLOWLIST_IPS'];
   const previous = Object.fromEntries(names.map(name => [name, process.env[name]]));
   const req = { headers: { 'x-owner-demo-key': 'synthetic-test-key', 'x-forwarded-for': '203.0.113.20', cookie: 'pf_free_search_used_v1=1' }, query: {} };
+  const reqCookieFallback = { headers: { 'x-forwarded-for': '::ffff:203.0.113.20:443', cookie: 'pf_owner_demo_key_v1=synthetic-test-key; pf_free_search_used_v1=1' }, query: {} };
   try {
     process.env.OWNER_DEMO_MODE = 'true';
     process.env.OWNER_DEMO_KEY = 'synthetic-test-key';
@@ -68,6 +69,9 @@ test('owner demo requires enablement, correct key, and permitted IP', async () =
     assert.equal(state.mode, 'owner_demo');
     const finalized = await finalizeToolAccess(req, {}, state);
     assert.equal(finalized.access.chargedCredits, 0);
+
+    const cookieState = await getToolAccessState(reqCookieFallback, 'analyze');
+    assert.equal(cookieState.mode, 'owner_demo');
     for (const [name, value] of [['OWNER_DEMO_MODE', 'false'], ['OWNER_DEMO_KEY', 'different'], ['OWNER_DEMO_IP_ALLOWLIST', '203.0.113.21']]) {
       const old = process.env[name];
       process.env[name] = value;

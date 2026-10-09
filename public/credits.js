@@ -5,6 +5,7 @@
   var BALANCE_CACHE_KEY = 'pf_credit_balance_cache_v1';
   var ACCOUNT_TOKEN_KEY = 'pf_account_token_v1';
   var OWNER_DEMO_KEY = 'pf_owner_demo_key_v1';
+  var OWNER_DEMO_COOKIE_NAME = 'pf_owner_demo_key_v1';
   var OWNER_DEMO_TTL_MS = 12 * 60 * 60 * 1000;
   var BALANCE_BADGE_ID = 'pfCreditsBadge';
   var OWNER_DEMO_BADGE_ID = 'pfOwnerDemoBadge';
@@ -119,22 +120,54 @@
     return record ? record.token : '';
   }
 
+  function getCookieValue(name) {
+    var source = String(document.cookie || '');
+    if (!source) return '';
+    var parts = source.split(';');
+    for (var i = 0; i < parts.length; i += 1) {
+      var part = String(parts[i] || '').trim();
+      if (!part) continue;
+      var separatorIndex = part.indexOf('=');
+      if (separatorIndex === -1) continue;
+      var key = part.slice(0, separatorIndex).trim();
+      if (key !== name) continue;
+      var value = part.slice(separatorIndex + 1);
+      try {
+        return decodeURIComponent(value);
+      } catch {
+        return value;
+      }
+    }
+    return '';
+  }
+
   function getOwnerDemoKey() {
     try {
       var raw = window.localStorage.getItem(OWNER_DEMO_KEY) || '';
-      if (!raw) return '';
+      if (!raw) {
+        return String(getCookieValue(OWNER_DEMO_COOKIE_NAME) || '').trim();
+      }
       var parsed = safeParse(raw, null);
       if (parsed && typeof parsed === 'object') {
         var expiresAt = Number(parsed.expiresAt || 0);
         if (expiresAt && Date.now() >= expiresAt) {
           window.localStorage.removeItem(OWNER_DEMO_KEY);
+          clearOwnerDemoCookie();
           return '';
         }
-        return String(parsed.key || '').trim();
+        var key = String(parsed.key || '').trim();
+        if (key) {
+          writeOwnerDemoCookie(key, Math.max(60, Math.floor((expiresAt - Date.now()) / 1000)));
+        }
+        return key;
       }
-      return String(raw).trim();
+      var fallbackKey = String(raw).trim();
+      if (fallbackKey) {
+        writeOwnerDemoCookie(fallbackKey, OWNER_DEMO_TTL_MS / 1000);
+      }
+      return fallbackKey;
     } catch {
-      return '';
+      return String(getCookieValue(OWNER_DEMO_COOKIE_NAME) || '').trim();
     }
   }
 
@@ -143,21 +176,40 @@
     try {
       if (!normalized) {
         window.localStorage.removeItem(OWNER_DEMO_KEY);
+        clearOwnerDemoCookie();
         return '';
       }
+      var expiresAt = Date.now() + OWNER_DEMO_TTL_MS;
       window.localStorage.setItem(OWNER_DEMO_KEY, JSON.stringify({
         key: normalized,
-        expiresAt: Date.now() + OWNER_DEMO_TTL_MS
+        expiresAt: expiresAt
       }));
+      writeOwnerDemoCookie(normalized, OWNER_DEMO_TTL_MS / 1000);
       return normalized;
     } catch {
       return normalized;
     }
   }
 
+  function writeOwnerDemoCookie(rawValue, maxAgeSeconds) {
+    try {
+      var encoded = encodeURIComponent(String(rawValue || ''));
+      var secure = window.location.protocol === 'https:' ? '; Secure' : '';
+      var maxAge = Number(maxAgeSeconds || 0) > 0 ? '; Max-Age=' + Math.floor(Number(maxAgeSeconds)) : '; Max-Age=0';
+      document.cookie = OWNER_DEMO_COOKIE_NAME + '=' + encoded + maxAge + '; Path=/; SameSite=Lax' + secure;
+    } catch {
+      return;
+    }
+  }
+
+  function clearOwnerDemoCookie() {
+    writeOwnerDemoCookie('', 0);
+  }
+
   function clearOwnerDemoKey() {
     try {
       window.localStorage.removeItem(OWNER_DEMO_KEY);
+      clearOwnerDemoCookie();
     } catch {
       return;
     }
