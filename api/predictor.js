@@ -178,7 +178,7 @@ async function handleCredits(req, res) {
 
     if (action === "claim") {
       const sessionId = String(req.query.sessionId || "");
-      return res.json(await claimCreditsSession(sessionId));
+      return res.json(await claimCreditsSession(sessionId, req));
     }
 
     if (action === "balance") {

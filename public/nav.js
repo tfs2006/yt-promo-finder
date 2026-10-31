@@ -222,6 +222,34 @@
     });
   }
 
+  // --- "More tools" link: one big app across 4ourmedia.com + promofinder ---
+  function injectMoreToolsLink(navTop) {
+    if (!navTop || document.getElementById('pfMoreToolsLink')) return;
+    var link = document.createElement('a');
+    link.id = 'pfMoreToolsLink';
+    link.href = 'https://4ourmedia.com';
+    link.target = '_blank';
+    link.rel = 'noopener';
+    link.textContent = 'More tools';
+    link.setAttribute('aria-label', 'More creator tools on 4ourMedia');
+    link.style.cssText = [
+      'margin-left:auto',
+      'margin-right:12px',
+      'font-size:0.8rem',
+      'font-weight:500',
+      'color:#94a3b8',
+      'text-decoration:none',
+      'white-space:nowrap',
+      'font-family:inherit',
+      'flex-shrink:0'
+    ].join(';');
+    link.addEventListener('mouseenter', function () { this.style.color = '#e2e8f0'; });
+    link.addEventListener('mouseleave', function () { this.style.color = '#94a3b8'; });
+    var hamburger = navTop.querySelector('#navHamburger');
+    if (hamburger) navTop.insertBefore(link, hamburger);
+    else navTop.appendChild(link);
+  }
+
   function injectGlobalBottomBanner() {
     if (!document.body) return;
     if (document.getElementById('pfGlobalBottomBanner')) return;
@@ -286,6 +314,7 @@
   if (navTop && navInner) {
     normalizeDesktopToolStrip(navInner);
     injectHamburger(navTop, navInner);
+    injectMoreToolsLink(navTop);
   }
 
   injectGlobalBottomBanner();

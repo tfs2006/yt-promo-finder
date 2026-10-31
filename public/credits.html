@@ -273,10 +273,13 @@
       const canceled = params.get('canceled');
 
       if (sessionId) {
-        setStatus('<div><div class="font-semibold text-lg">Activating your purchase</div><div class="text-sm mt-2">We detected a completed Stripe checkout and are saving that credit pack to this browser.</div></div>');
+        setStatus('<div><div class="font-semibold text-lg">Activating your purchase</div><div class="text-sm mt-2">We detected a completed Stripe checkout and are saving those credits.</div></div>');
         try {
           const claimed = await window.PFCredits.claimSession(sessionId);
-          setStatus(`<div><div class="font-semibold text-lg">Credits added</div><div class="text-sm mt-2">${escapeHtml(claimed.balance.planName)} is now saved in this browser with <span class="font-semibold">${Number(claimed.balance.creditsRemaining) || 0} credits</span> remaining.</div></div>`, 'success');
+          const destination = claimed && claimed.account
+            ? 'added to your 4ourMedia account'
+            : 'now saved in this browser';
+          setStatus(`<div><div class="font-semibold text-lg">Credits added</div><div class="text-sm mt-2">${escapeHtml(claimed.balance.planName)} is ${destination} with <span class="font-semibold">${Number(claimed.balance.creditsRemaining) || 0} credits</span> remaining.</div></div>`, 'success');
           await refreshBalances();
           window.history.replaceState({}, '', '/credits');
         } catch (err) {

@@ -102,6 +102,26 @@ export async function kvSet(key, value, options = {}) {
   }
 }
 
+// Atomic set-if-absent. Returns true when this call created the key,
+// false when the key already existed. Throws when the backend errors
+// so callers can distinguish "already claimed" from "backend down".
+export async function kvSetNx(key, value, options = {}) {
+  const redis = await getRedisClient();
+  if (redis) {
+    const result = await redis.set(
+      key,
+      value,
+      { nx: true, ...(options.ex ? { ex: options.ex } : {}) }
+    );
+    return result === "OK";
+  }
+  // File fallback for local development (not atomic; production uses Redis)
+  const filePath = path.join(LOCAL_STORAGE_DIR, `cache_${key.replace(/[^a-z0-9]/gi, '_')}.json`);
+  if (fs.existsSync(filePath)) return false;
+  fs.writeFileSync(filePath, JSON.stringify(value));
+  return true;
+}
+
 // ============================================
 // Input Validation
 // ============================================
