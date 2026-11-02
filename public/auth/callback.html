@@ -143,6 +143,24 @@
       }
     } catch (ignore) {}
 
+    // Implicit flow: the tokens arrive directly in the URL fragment
+    // (#access_token=...&refresh_token=...). Accept them as-is.
+    var fragAccessToken = hashParams.get('access_token') || '';
+    var fragRefreshToken = hashParams.get('refresh_token') || '';
+    if (fragAccessToken) {
+      var setResult = await client.auth.setSession({
+        access_token: fragAccessToken,
+        refresh_token: fragRefreshToken
+      });
+      if (setResult.error) throw setResult.error;
+      var fragSession = setResult.data && setResult.data.session;
+      if (!fragSession || !fragSession.user) {
+        throw new Error('Google sign-in did not return a session.');
+      }
+      await finishWithSession(client, fragSession);
+      return;
+    }
+
     if (!code) {
       fail('No sign-in code was returned. Please try signing in again.');
       return;
