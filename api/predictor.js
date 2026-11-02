@@ -30,7 +30,9 @@ import {
   claimCreditsSession,
   createCreditsCheckoutSession,
   getBalancesForTokens,
-  getCreditsCatalog
+  getCreditsCatalog,
+  requireToolAccess,
+  getCheckoutAccount
 } from "../lib/credits.js";
 
 const SMM_CURRENCY = (process.env.SMM_CURRENCY || "usd").toLowerCase();
@@ -192,6 +194,16 @@ async function handleCredits(req, res) {
   if (req.method === "POST") {
     if (action === "checkout") {
       const planId = String(req.body?.planId || req.query?.planId || "");
+      // Checkout requires a signed-in Google account so purchased credits
+      // always land in the shared account balance. David, Nov 2 2026.
+      const account = await getCheckoutAccount(req);
+      if (!account?.userId) {
+        return res.status(402).json({
+          error: "Sign in with Google before buying credits. Your credits land in your account balance.",
+          code: "AUTH_REQUIRED",
+          creditsUrl: "/credits"
+        });
+      }
       return res.json(await createCreditsCheckoutSession(planId, req));
     }
 
@@ -629,27 +641,35 @@ export default async function handler(req, res) {
     return handleSmmOrderResubmit(req, res);
   }
   if (pathname === "/api/tiktok") {
+    if (!(await requireToolAccess(req, res, "tiktok"))) return;
     return handleTikTokMeta(req, res);
   }
   if (pathname === "/api/tiktok-video") {
+    if (!(await requireToolAccess(req, res, "tiktok-video"))) return;
     return handleTikTokVideo(req, res);
   }
   if (pathname === "/api/tiktok-audio") {
+    if (!(await requireToolAccess(req, res, "tiktok-audio"))) return;
     return handleTikTokAudio(req, res);
   }
   if (pathname === "/api/youtube") {
+    if (!(await requireToolAccess(req, res, "youtube"))) return;
     return handleYouTubeMeta(req, res);
   }
   if (pathname === "/api/youtube-video") {
+    if (!(await requireToolAccess(req, res, "youtube-video"))) return;
     return handleYouTubeVideo(req, res);
   }
   if (pathname === "/api/youtube-audio") {
+    if (!(await requireToolAccess(req, res, "youtube-audio"))) return;
     return handleYouTubeAudio(req, res);
   }
   if (pathname === "/api/ad-libraries") {
+    if (!(await requireToolAccess(req, res, "ad-libraries"))) return;
     return handleAdLibrariesSearch(req, res);
   }
   if (pathname === "/api/bot-detector") {
+    if (!(await requireToolAccess(req, res, "bot-detector"))) return;
     return handleBotDetector(req, res);
   }
   if (pathname === "/api/credits") {
@@ -660,6 +680,9 @@ export default async function handler(req, res) {
     }
   }
   if (applyApiGuards(req, res, { rateKey: "predictor", maxRequests: 8, windowMs: 60_000 })) return;
+
+  // Sign-in wall: every tool requires a Google account. David, Nov 2 2026.
+  if (!(await requireToolAccess(req, res, "predictor"))) return;
 
   await initQuota();
 

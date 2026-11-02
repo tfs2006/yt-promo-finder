@@ -58,8 +58,8 @@ test('upstream HTTP errors expose neither URL nor response body', async () => {
 test('owner demo requires enablement, correct key, and permitted IP', async () => {
   const names = ['OWNER_DEMO_MODE', 'OWNER_DEMO_KEY', 'OWNER_DEMO_IP_ALLOWLIST', 'OWNER_DEMO_ALLOWLIST_IPS'];
   const previous = Object.fromEntries(names.map(name => [name, process.env[name]]));
-  const req = { headers: { 'x-owner-demo-key': 'synthetic-test-key', 'x-forwarded-for': '203.0.113.20', cookie: 'pf_free_search_used_v1=1' }, query: {} };
-  const reqCookieFallback = { headers: { 'x-forwarded-for': '::ffff:203.0.113.20:443', cookie: 'pf_owner_demo_key_v1=synthetic-test-key; pf_free_search_used_v1=1' }, query: {} };
+  const req = { headers: { 'x-owner-demo-key': 'synthetic-test-key', 'x-forwarded-for': '203.0.113.20' }, query: {} };
+  const reqCookieFallback = { headers: { 'x-forwarded-for': '::ffff:203.0.113.20:443', cookie: 'pf_owner_demo_key_v1=synthetic-test-key' }, query: {} };
   try {
     process.env.OWNER_DEMO_MODE = 'true';
     process.env.OWNER_DEMO_KEY = 'synthetic-test-key';

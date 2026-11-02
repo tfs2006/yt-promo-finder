@@ -17,6 +17,7 @@ import {
   validateChannelInput,
   initQuota
 } from "../utils.js";
+import { requireToolAccess } from "../lib/credits.js";
 
 function hasSponsorship(description) {
   if (!description) return false;
@@ -124,6 +125,9 @@ function analyzeTrend(monthlyData) {
 
 export default async function handler(req, res) {
   if (applyApiGuards(req, res, { rateKey: "saturation", maxRequests: 10, windowMs: 60_000 })) return;
+
+  // Sign-in wall: every tool requires a Google account. David, Nov 2 2026.
+  if (!(await requireToolAccess(req, res, "saturation"))) return;
 
   await initQuota();
 

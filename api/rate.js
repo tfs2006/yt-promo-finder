@@ -18,6 +18,7 @@ import {
   validateChannelInput,
   initQuota
 } from "../utils.js";
+import { requireToolAccess } from "../lib/credits.js";
 
 // CPM estimates by niche (USD per 1000 views)
 const NICHE_CPM = {
@@ -103,6 +104,9 @@ function formatCurrency(amount) {
 
 export default async function handler(req, res) {
   if (applyApiGuards(req, res, { rateKey: "rate", maxRequests: 10, windowMs: 60_000 })) return;
+
+  // Sign-in wall: every tool requires a Google account. David, Nov 2 2026.
+  if (!(await requireToolAccess(req, res, "rate"))) return;
 
   await initQuota();
 

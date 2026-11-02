@@ -139,8 +139,9 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: "YouTube API key not configured." });
     }
 
-    const accessState = mode === 'linkcheck' ? null : await getToolAccessState(req, 'analyze');
-    if (accessState && !accessState.allowed) {
+    // Sign-in wall applies to every mode, including linkcheck. David, Nov 2 2026.
+    const accessState = await getToolAccessState(req, 'analyze');
+    if (!accessState.allowed) {
       return res.status(402).json(buildPaymentRequiredResponse(accessState));
     }
 

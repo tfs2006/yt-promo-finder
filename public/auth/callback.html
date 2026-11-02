@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Signing you in... - PromoFinder</title>
+<meta name="description" content="Completing your Google sign-in for PromoFinder. You will be redirected back automatically." />
+<meta name="robots" content="noindex, nofollow" />
+<script src="/credits.js"></script>
+<style>
+  body { margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;
+         background: #020617; color: #e2e8f0; font-family: ui-sans-serif, system-ui, sans-serif; }
+  .card { text-align: center; padding: 2rem; }
+  .spinner { width: 40px; height: 40px; margin: 0 auto 1rem; border: 3px solid #1e293b;
+             border-top-color: #38bdf8; border-radius: 999px; animation: spin 0.9s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .error { color: #fca5a5; max-width: 420px; margin-top: 1rem; font-size: 0.9rem; }
+  a { color: #38bdf8; }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="spinner" id="spinner"></div>
+  <div id="status" style="font-size:1.05rem;font-weight:600;">Signing you in with Google...</div>
+  <div id="error" class="error" style="display:none;"></div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function () {
+  'use strict';
+
+  function fail(message) {
+    document.getElementById('spinner').style.display = 'none';
+    document.getElementById('status').textContent = 'Sign-in did not complete.';
+    var el = document.getElementById('error');
+    el.style.display = 'block';
+    el.innerHTML = message + '<br><br><a href="/">Back to PromoFinder</a>';
+  }
+
+  function done() {
+    var next = '/';
+    try {
+      next = window.sessionStorage.getItem('pf_post_login_next') || '/';
+      window.sessionStorage.removeItem('pf_post_login_next');
+    } catch (ignore) {}
+    if (next.charAt(0) !== '/') next = '/';
+    window.location.replace(next);
+  }
+
+  async function getAuthConfig() {
+    var res = await fetch('/api/credits?action=plans', { credentials: 'same-origin' });
+    if (!res.ok) throw new Error('Could not load sign-in configuration.');
+    var data = await res.json();
+    return (data && data.auth) || null;
+  }
+
+  // Mirrors the 4ourmedia.com signup: every new Google user starts with
+  // 3 free credits in the shared users table.
+  async function ensureUserRow(client, user) {
+    var existing = await client.from('users').select('id').eq('id', user.id).single();
+    if (existing.data && existing.data.id) return;
+    var now = new Date().toISOString();
+    var result = await client.from('users').insert({
+      id: user.id,
+      email: user.email || '',
+      credits: 3,
+      total_purchased: 0,
+      total_used: 0,
+      streak_days: 0,
+      last_daily_credit: null,
+      created_at: now
+    });
+    if (result.error && String(result.error.code) !== '23505') {
+      throw new Error('Could not create your account record. Please contact support.');
+    }
+  }
+
+  async function run() {
+    var params = new URLSearchParams(window.location.search);
+    var code = params.get('code') || '';
+    var oauthError = params.get('error_description') || params.get('error') || '';
+    if (oauthError) {
+      fail('Google sign-in was cancelled or failed: ' + oauthError);
+      return;
+    }
+    if (!code) {
+      fail('No sign-in code was returned. Please try signing in again.');
+      return;
+    }
+
+    var config = await getAuthConfig();
+    if (!config || !config.supabaseUrl || !config.anonKey) {
+      fail('Sign-in is not configured on this site yet.');
+      return;
+    }
+
+    var client = window.supabase.createClient(config.supabaseUrl, config.anonKey);
+    var exchanged = await client.auth.exchangeCodeForSession(code);
+    if (exchanged.error) throw exchanged.error;
+
+    var session = exchanged.data && exchanged.data.session;
+    if (!session || !session.access_token || !session.user) {
+      throw new Error('Google sign-in did not return a session.');
+    }
+
+    await ensureUserRow(client, session.user);
+
+    if (!window.PFCredits || !window.PFCredits.setAccountToken) {
+      throw new Error('Sign-in completed but the credit system did not load. Please reload the page.');
+    }
+    window.PFCredits.setAccountToken(session.access_token);
+    document.getElementById('status').textContent = 'Signed in. Taking you back...';
+    done();
+  }
+
+  run().catch(function (err) {
+    fail(err && err.message ? err.message : 'Something went wrong during sign-in.');
+  });
+})();
+</script>
+</body>
+</html>

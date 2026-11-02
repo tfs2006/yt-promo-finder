@@ -13,6 +13,7 @@ import {
   validateChannelInput,
   initQuota
 } from "../utils.js";
+import { requireToolAccess } from "../lib/credits.js";
 
 async function getChannelStats(channelId) {
   consumeQuota(1);
@@ -98,6 +99,9 @@ function analyzeUploadPattern(videos) {
 
 export default async function handler(req, res) {
   if (applyApiGuards(req, res, { rateKey: "growth", maxRequests: 12, windowMs: 60_000 })) return;
+
+  // Sign-in wall: every tool requires a Google account. David, Nov 2 2026.
+  if (!(await requireToolAccess(req, res, "growth"))) return;
 
   // Initialize quota from persistent storage
   await initQuota();

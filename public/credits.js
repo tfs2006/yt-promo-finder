@@ -246,6 +246,72 @@
     return true;
   }
 
+  var supabaseAuthConfigPromise = null;
+
+  function getSupabaseAuthConfig() {
+    if (!supabaseAuthConfigPromise) {
+      supabaseAuthConfigPromise = fetchCatalog().then(function (data) {
+        return (data && data.auth) || null;
+      }).catch(function () { return null; });
+    }
+    return supabaseAuthConfigPromise;
+  }
+
+  function loadSupabaseJs() {
+    if (window.supabase && window.supabase.createClient) {
+      return Promise.resolve(window.supabase);
+    }
+    return new Promise(function (resolve, reject) {
+      var script = document.createElement('script');
+      script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+      script.async = true;
+      script.onload = function () { resolve(window.supabase); };
+      script.onerror = function () { reject(new Error('Could not load the sign-in library.')); };
+      document.head.appendChild(script);
+    });
+  }
+
+  // Starts the Google OAuth sign-in. After Supabase redirects back to
+  // /auth/callback, the callback page stores the session token and sends
+  // the user back to `next` (defaults to the current page).
+  async function signInWithGoogle(next) {
+    var config = await getSupabaseAuthConfig();
+    if (!config || !config.supabaseUrl || !config.anonKey) {
+      throw new Error('Google sign-in is not configured yet. Please try again in a minute.');
+    }
+    var sb = await loadSupabaseJs();
+    var client = sb.createClient(config.supabaseUrl, config.anonKey);
+    var target = next || (window.location.pathname + window.location.search);
+    try {
+      window.sessionStorage.setItem('pf_post_login_next', target);
+    } catch (ignore) {}
+    var result = await client.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: window.location.origin + '/auth/callback' }
+    });
+    if (result && result.error) throw result.error;
+  }
+
+  function bindSignInButtons() {
+    document.addEventListener('click', function (event) {
+      var button = event.target && event.target.closest
+        ? event.target.closest('[data-pf-signin="google"]')
+        : null;
+      if (!button) return;
+      event.preventDefault();
+      button.disabled = true;
+      var originalText = button.textContent;
+      button.textContent = 'Opening Google sign-in...';
+      signInWithGoogle().catch(function (err) {
+        button.disabled = false;
+        button.textContent = originalText;
+        try {
+          window.alert(err && err.message ? err.message : 'Google sign-in failed. Please try again.');
+        } catch (ignore) {}
+      });
+    });
+  }
+
   function renderCreditsBadge(totalRemaining) {
     if (!document.body) return;
 
@@ -510,10 +576,18 @@
   function getPaymentRequiredMarkup(payload, options) {
     var opts = options || {};
     var toolLabel = opts.toolLabel || 'This search';
-    var toolCost = Number(payload && payload.toolCost) || 1;
+    var toolCost = Number(payload && payload.toolCost) || 0;
+    var isAuthRequired = payload && payload.code === 'AUTH_REQUIRED';
     var message = payload && payload.error ? payload.error : (toolLabel + ' now requires credits.');
+    var heading = isAuthRequired ? 'Sign in required' : 'Out of credits';
     var hint = formatBalanceHint(payload && payload.balances);
     var accountHint = formatAccountBalanceHint(payload && payload.accountBalance);
+    var costLine = (!isAuthRequired || toolCost > 0)
+      ? '    <div class="text-sm mt-2 text-sky-200">This request costs ' + toolCost + ' credit' + (toolCost === 1 ? '' : 's') + '.</div>'
+      : '';
+    var primaryButton = isAuthRequired
+      ? '      <button type="button" data-pf-signin="google" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-semibold transition-colors">Sign in with Google</button>'
+      : '      <a href="/credits" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-semibold transition-colors">Buy Credits</a>';
     trackAnalytics('research_paywall_shown', {
       tool_name: normalizeToolName(toolLabel),
       tool_label: toolLabel,
@@ -526,13 +600,14 @@
       '    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-3.866 0-7 1.79-7 4s3.134 4 7 4 7-1.79 7-4-3.134-4-7-4zm0 0V4m0 12v4m8-8h-4M8 12H4"></path>',
       '  </svg>',
       '  <div>',
-      '    <div class="font-semibold text-lg text-white">Free preview used</div>',
+      '    <div class="font-semibold text-lg text-white">' + escapeHtml(heading) + '</div>',
       '    <div class="text-sm mt-1 text-slate-200">' + escapeHtml(message) + '</div>',
-      '    <div class="text-sm mt-2 text-sky-200">This request costs ' + toolCost + ' credit' + (toolCost === 1 ? '' : 's') + '.</div>',
+           costLine,
            hint,
            accountHint,
+      '    <div class="mt-1 text-sm text-slate-400">Signing in is free. You get 3 free credits, plus 1 free credit every day.</div>',
       '    <div class="mt-4 flex flex-wrap gap-3">',
-      '      <a href="/credits" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-semibold transition-colors">Buy Credits</a>',
+           primaryButton,
       '      <a href="/credits" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-600 hover:border-sky-400 text-slate-200 hover:text-white transition-colors">View Plans</a>',
       '    </div>',
       '  </div>',
@@ -614,6 +689,7 @@
   function initCreditsUi() {
     captureAccountTokenFromHash();
     patchFetchForAccountToken();
+    bindSignInButtons();
     refreshIndicators();
     if (getTokens().length || getAccountToken()) {
       fetchBalances().catch(function () { return null; });
@@ -633,6 +709,8 @@
     fetchBalances: fetchBalances,
     fetchCatalog: fetchCatalog,
     getAccountToken: getAccountToken,
+    setAccountToken: setAccountToken,
+    signInWithGoogle: signInWithGoogle,
     getCachedTotalRemaining: getCachedTotalRemaining,
     getPaymentRequiredMarkup: getPaymentRequiredMarkup,
     getRateLimitedMarkup: getRateLimitedMarkup,

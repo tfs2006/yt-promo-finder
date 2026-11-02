@@ -11,7 +11,7 @@ function htmlFiles(dir) {
   return readdirSync(new URL(dir, root), { withFileTypes: true }).flatMap(entry =>
     entry.isDirectory() ? htmlFiles(`${dir}${entry.name}/`) : entry.name.endsWith('.html') ? [`${dir}${entry.name}`] : []);
 }
-const pages = htmlFiles('public/');
+const pages = htmlFiles('public/').filter(p => !p.startsWith('public/auth/')); // auth callback is a noindex utility page, not content
 const decode = text => text.replace(/&amp;/g, '&').replace(/&quot;/g, '"');
 const meta = (html, name) => decode(html.match(new RegExp(`<meta (?:name|property)="${name}" content="([^"]*)"`))?.[1] || '');
 const visible = html => html.replace(/<!--[\s\S]*?-->/g, '').replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '').replace(/<template\b[^>]*>[\s\S]*?<\/template>/gi, '');
