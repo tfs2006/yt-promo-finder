@@ -311,6 +311,12 @@
       } catch (err) {
         button.disabled = false;
         button.textContent = originalText;
+        // The stored session can expire: the server answers AUTH_REQUIRED
+        // even when the browser still holds a token. Always offer the button.
+        if (err && err.payload && err.payload.code === 'AUTH_REQUIRED') {
+          setStatus('<div><div class="font-semibold text-lg">Sign in first</div><div class="text-sm mt-2">Your session expired. Sign in with Google before buying credits. Your credits land in your account balance.</div><div class="mt-4"><button type="button" data-pf-signin="google" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-semibold transition-colors">Sign in with Google</button></div></div>', 'info');
+          return;
+        }
         setStatus(`<div><div class="font-semibold text-lg">Checkout unavailable</div><div class="text-sm mt-2">${escapeHtml(err.message || 'Unable to start Stripe checkout right now.')}</div></div>`, 'error');
       }
     });
