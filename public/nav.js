@@ -231,7 +231,6 @@
     var button = document.createElement('button');
     button.id = 'pfSignInButton';
     button.type = 'button';
-    button.setAttribute('data-pf-signin', 'google');
     button.textContent = 'Sign in with Google';
     button.style.cssText = [
       'margin-left:8px',
@@ -250,6 +249,38 @@
     ].join(';');
     button.addEventListener('mouseenter', function () { this.style.background = '#7dd3fc'; });
     button.addEventListener('mouseleave', function () { this.style.background = '#38bdf8'; });
+    // Self-sufficient: works even on pages that don't load credits.js.
+    // Loads it on demand, then starts the Google OAuth flow.
+    button.addEventListener('click', function () {
+      var originalText = button.textContent;
+      button.disabled = true;
+      button.textContent = 'Opening Google sign-in...';
+      function start() {
+        if (window.PFCredits && window.PFCredits.signInWithGoogle) {
+          window.PFCredits.signInWithGoogle().catch(function (err) {
+            button.disabled = false;
+            button.textContent = originalText;
+            try { window.alert(err && err.message ? err.message : 'Google sign-in failed. Please try again.'); } catch (ignore) {}
+          });
+        } else {
+          button.disabled = false;
+          button.textContent = originalText;
+        }
+      }
+      if (window.PFCredits && window.PFCredits.signInWithGoogle) {
+        start();
+        return;
+      }
+      var script = document.createElement('script');
+      script.src = '/credits.js';
+      script.async = true;
+      script.onload = function () { setTimeout(start, 300); };
+      script.onerror = function () {
+        button.disabled = false;
+        button.textContent = originalText;
+      };
+      document.head.appendChild(script);
+    });
     var moreTools = document.getElementById('pfMoreToolsLink');
     if (moreTools && moreTools.parentNode === navTop) navTop.insertBefore(button, moreTools.nextSibling);
     else navTop.appendChild(button);
@@ -261,7 +292,15 @@
     if (!button) return;
     var signedIn = false;
     try {
-      signedIn = !!(window.PFCredits && window.PFCredits.getAccountToken());
+      if (window.PFCredits && window.PFCredits.getAccountToken()) {
+        signedIn = true;
+      } else {
+        // Pages without credits.js: read the stored token directly.
+        var stored = JSON.parse(window.localStorage.getItem('pf_account_token_v1') || 'null');
+        if (stored && stored.token && (!stored.expiresAt || Date.now() < Number(stored.expiresAt))) {
+          signedIn = true;
+        }
+      }
     } catch (ignore) {}
     button.style.display = signedIn ? 'none' : '';
   }
