@@ -9,12 +9,20 @@
 <script src="/credits.js"></script>
 <style>
   body { margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;
-         background: #020617; color: #e2e8f0; font-family: ui-sans-serif, system-ui, sans-serif; }
-  .card { text-align: center; padding: 2rem; }
+         background: #020617; color: #e2e8f0; font-family: ui-sans-serif, system-ui, sans-serif; padding: 24px; box-sizing: border-box; }
+  .card { text-align: center; padding: 2rem; max-width: 560px; width: 100%; }
   .spinner { width: 40px; height: 40px; margin: 0 auto 1rem; border: 3px solid #1e293b;
              border-top-color: #38bdf8; border-radius: 999px; animation: spin 0.9s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
-  .error { color: #fca5a5; max-width: 420px; margin-top: 1rem; font-size: 0.9rem; }
+  .error { color: #fca5a5; max-width: 520px; margin: 1rem auto 0; font-size: 0.9rem; }
+  .error-detail { background: #020617; border: 1px solid #1e293b; border-radius: 8px; padding: 12px;
+                  font-family: monospace; font-size: 0.72rem; color: #94a3b8; word-break: break-all;
+                  margin-top: 12px; white-space: pre-wrap; text-align: left; }
+  .actions { display: flex; gap: 12px; justify-content: center; margin-top: 20px; flex-wrap: wrap; }
+  .btn { display: inline-block; padding: 10px 20px; border-radius: 12px; font-weight: 600;
+         text-decoration: none; cursor: pointer; border: none; font-size: 0.95rem; font-family: inherit; }
+  .btn-primary { background: #38bdf8; color: #0f172a; }
+  .btn-secondary { background: transparent; color: #38bdf8; border: 1px solid #38bdf8; }
   a { color: #38bdf8; }
 </style>
 </head>
@@ -29,12 +37,42 @@
 (function () {
   'use strict';
 
-  function fail(message) {
+  // What the OAuth redirect actually gave us, so a failed attempt shows
+  // exactly what came back instead of a generic message.
+  function describeReturn() {
+    var parts = [];
+    parts.push('query: ' + (window.location.search || '(none)'));
+    parts.push('fragment: ' + (window.location.hash ? '(present, ' + window.location.hash.length + ' chars)' : '(none)'));
+    var sp = new URLSearchParams(window.location.search);
+    var hp = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+    ['error', 'error_code', 'error_description'].forEach(function (name) {
+      var v = sp.get(name) || hp.get(name);
+      if (v) parts.push(name + ': ' + v);
+    });
+    return parts.join('\n');
+  }
+
+  function fail(message, showRetry) {
     document.getElementById('spinner').style.display = 'none';
     document.getElementById('status').textContent = 'Sign-in did not complete.';
     var el = document.getElementById('error');
     el.style.display = 'block';
-    el.innerHTML = message + '<br><br><a href="/">Back to PromoFinder</a>';
+    el.innerHTML = message +
+      '<div class="error-detail">' + describeReturn().replace(/</g, '&lt;') + '</div>' +
+      '<div class="actions">' +
+        (showRetry !== false ? '<button class="btn btn-primary" id="retrySignIn">Try signing in again</button>' : '') +
+        '<a class="btn btn-secondary" href="/">Back to PromoFinder</a>' +
+      '</div>';
+    var retry = document.getElementById('retrySignIn');
+    if (retry) {
+      retry.addEventListener('click', function () {
+        if (window.PFCredits && window.PFCredits.signInWithGoogle) {
+          window.PFCredits.signInWithGoogle();
+        } else {
+          window.location.href = '/';
+        }
+      });
+    }
   }
 
   function done() {
@@ -76,15 +114,15 @@
   }
 
   async function run() {
-    var params = new URLSearchParams(window.location.search);
-    var code = params.get('code') || '';
-    var oauthError = params.get('error_description') || params.get('error') || '';
+    var searchParams = new URLSearchParams(window.location.search);
+    var hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+    function firstParam(name) {
+      return searchParams.get(name) || hashParams.get(name) || '';
+    }
+    var code = firstParam('code');
+    var oauthError = firstParam('error_description') || firstParam('error') || '';
     if (oauthError) {
       fail('Google sign-in was cancelled or failed: ' + oauthError);
-      return;
-    }
-    if (!code) {
-      fail('No sign-in code was returned. Please try signing in again.');
       return;
     }
 
@@ -93,8 +131,23 @@
       fail('Sign-in is not configured on this site yet.');
       return;
     }
-
     var client = window.supabase.createClient(config.supabaseUrl, config.anonKey);
+
+    // The Supabase client may already have picked up the session from the
+    // redirect on its own; check before demanding a code.
+    try {
+      var existing = await client.auth.getSession();
+      if (existing.data && existing.data.session && existing.data.session.access_token) {
+        await finishWithSession(client, existing.data.session);
+        return;
+      }
+    } catch (ignore) {}
+
+    if (!code) {
+      fail('No sign-in code was returned. Please try signing in again.');
+      return;
+    }
+
     var exchanged = await client.auth.exchangeCodeForSession(code);
     if (exchanged.error) throw exchanged.error;
 
@@ -102,20 +155,26 @@
     if (!session || !session.access_token || !session.user) {
       throw new Error('Google sign-in did not return a session.');
     }
+    await finishWithSession(client, session);
+  }
 
+  async function finishWithSession(client, session) {
     await ensureUserRow(client, session.user);
-
     if (!window.PFCredits || !window.PFCredits.setAccountToken) {
       throw new Error('Sign-in completed but the credit system did not load. Please reload the page.');
     }
     window.PFCredits.setAccountToken(session.access_token);
+    document.getElementById('spinner').style.display = 'none';
     document.getElementById('status').textContent = 'Signed in. Taking you back...';
     done();
   }
 
-  run().catch(function (err) {
-    fail(err && err.message ? err.message : 'Something went wrong during sign-in.');
-  });
+  // Small delay so credits.js finishes its own session check first.
+  setTimeout(function () {
+    run().catch(function (err) {
+      fail(err && err.message ? err.message : 'Something went wrong during sign-in.');
+    });
+  }, 600);
 })();
 </script>
 </body>
