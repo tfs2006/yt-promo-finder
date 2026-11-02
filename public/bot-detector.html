@@ -877,7 +877,7 @@
         setLoading(false);
 
         if (!response.ok) {
-          if (payload && payload.code === 'PAYMENT_REQUIRED') {
+          if (payload && (payload.code === 'PAYMENT_REQUIRED' || payload.code === 'AUTH_REQUIRED')) {
             if (window.PFAnalytics && typeof window.PFAnalytics.track === 'function') {
               window.PFAnalytics.track('research_paywall_response', {
                 tool_name: 'bot_detector',

@@ -753,7 +753,7 @@
           setStatus(window.PFCredits ? window.PFCredits.getRateLimitedMarkup() : '<div><div class="font-semibold text-lg">Too many requests right now</div><div class="text-sm mt-1">Wait a minute and try again.</div></div>', "error");
           return;
         }
-        if (msg.code === 'PAYMENT_REQUIRED') {
+        if (msg.code === 'PAYMENT_REQUIRED' || msg.code === 'AUTH_REQUIRED') {
           trackEvent('research_paywall_response', {
             tool_name: 'unlisted_finder',
             tool_cost: Number(msg.toolCost || 0),

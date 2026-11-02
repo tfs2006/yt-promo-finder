@@ -223,6 +223,49 @@
   }
 
   // --- "More tools" link: one big app across 4ourmedia.com + promofinder ---
+  // --- "Sign in with Google" button: obvious site-wide sign-in. Hidden
+  // once the visitor is signed in (the credits badge takes over then).
+  // David, Nov 2 2026: every tool requires Google sign-in.
+  function injectSignInButton(navTop) {
+    if (!navTop || document.getElementById('pfSignInButton')) return;
+    var button = document.createElement('button');
+    button.id = 'pfSignInButton';
+    button.type = 'button';
+    button.setAttribute('data-pf-signin', 'google');
+    button.textContent = 'Sign in with Google';
+    button.style.cssText = [
+      'margin-left:8px',
+      'margin-right:4px',
+      'font-size:0.8rem',
+      'font-weight:600',
+      'color:#0f172a',
+      'background:#38bdf8',
+      'border:none',
+      'border-radius:10px',
+      'padding:7px 14px',
+      'cursor:pointer',
+      'white-space:nowrap',
+      'font-family:inherit',
+      'flex-shrink:0'
+    ].join(';');
+    button.addEventListener('mouseenter', function () { this.style.background = '#7dd3fc'; });
+    button.addEventListener('mouseleave', function () { this.style.background = '#38bdf8'; });
+    var moreTools = document.getElementById('pfMoreToolsLink');
+    if (moreTools && moreTools.parentNode === navTop) navTop.insertBefore(button, moreTools.nextSibling);
+    else navTop.appendChild(button);
+    refreshSignInButton();
+  }
+
+  function refreshSignInButton() {
+    var button = document.getElementById('pfSignInButton');
+    if (!button) return;
+    var signedIn = false;
+    try {
+      signedIn = !!(window.PFCredits && window.PFCredits.getAccountToken());
+    } catch (ignore) {}
+    button.style.display = signedIn ? 'none' : '';
+  }
+
   function injectMoreToolsLink(navTop) {
     if (!navTop || document.getElementById('pfMoreToolsLink')) return;
     var link = document.createElement('a');
@@ -315,6 +358,9 @@
     normalizeDesktopToolStrip(navInner);
     injectHamburger(navTop, navInner);
     injectMoreToolsLink(navTop);
+    injectSignInButton(navTop);
+    // Re-check after credits.js finishes loading (script order varies).
+    setTimeout(refreshSignInButton, 1500);
   }
 
   injectGlobalBottomBanner();

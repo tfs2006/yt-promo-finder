@@ -360,6 +360,10 @@
         const data = await response.json();
 
         if (!response.ok) {
+          if (data && data.code === 'AUTH_REQUIRED') {
+            setStatus(window.PFCredits ? window.PFCredits.getPaymentRequiredMarkup(data, { toolLabel: 'TikTok Downloader' }) : (data.error || 'Sign in with Google to continue.'), 'error');
+            return;
+          }
           throw new Error(data.error || 'Unable to fetch media data.');
         }
 

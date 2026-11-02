@@ -334,6 +334,11 @@
       const data = await response.json();
 
       if (!response.ok) {
+        if (data && data.code === 'AUTH_REQUIRED') {
+          setStatus(window.PFCredits ? window.PFCredits.getPaymentRequiredMarkup(data, { toolLabel: 'Ad Library Finder' }) : (data.error || 'Sign in with Google to continue.'), 'error');
+          resultsEl.classList.add('hidden');
+          return;
+        }
         throw new Error(data.error || 'Unable to build ad library links.');
       }
 

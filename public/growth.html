@@ -378,6 +378,10 @@
       
       if (!r.ok) {
         const msg = await r.json().catch(() => ({error: 'Unexpected error'}));
+        if (msg.code === 'AUTH_REQUIRED') {
+          setStatus(window.PFCredits ? window.PFCredits.getPaymentRequiredMarkup(msg, { toolLabel: 'Growth Tracker' }) : `<div class="text-rose-300">${msg.error || 'Sign in with Google to continue.'}</div>`, "error");
+          return;
+        }
         if (r.status === 429 || msg.code === 'QUOTA_EXCEEDED') {
           setStatus(`
             <div class="flex items-start gap-3">

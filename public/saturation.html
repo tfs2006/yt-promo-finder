@@ -276,6 +276,10 @@
         
         if (!r.ok) {
           const msg = await r.json().catch(() => ({error: 'Unexpected error'}));
+          if (msg.code === 'AUTH_REQUIRED') {
+            setStatus(window.PFCredits ? window.PFCredits.getPaymentRequiredMarkup(msg, { toolLabel: 'Saturation Score' }) : `<div class="text-rose-300">${msg.error || 'Sign in with Google to continue.'}</div>`, "error");
+            return;
+          }
           setStatus(`<div class="text-rose-300">${msg.error || 'Failed to analyze channel.'}</div>`, "error");
           return;
         }
