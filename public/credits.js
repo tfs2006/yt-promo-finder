@@ -385,6 +385,158 @@
     renderOwnerDemoBadge();
   }
 
+  // --- Visible signed-in state ---------------------------------------
+  // The site used to show no signed-in state at all: the "Sign in with
+  // Google" button is static HTML and always renders, and the Credits
+  // number reads the same signed in or not. So nobody could tell
+  // whether sign-in had worked. The indicator below is HONEST: it
+  // renders only from an accountBalance the server just confirmed in a
+  // fetchBalances() response, never just because a token sits in
+  // localStorage. A stored token the server rejects is treated as
+  // signed out and dropped (see fetchBalances).
+  var ACCOUNT_INDICATOR_ID = 'pfAccountIndicator';
+  var accountIndicatorElement = null;
+
+  function getAccountLabel(accountBalance) {
+    if (!accountBalance) return '';
+    return String(accountBalance.email || accountBalance.planName || '4ourMedia Account');
+  }
+
+  function clearAccountTokenRecord() {
+    try {
+      window.localStorage.removeItem(ACCOUNT_TOKEN_KEY);
+    } catch (ignore) {}
+  }
+
+  function clearSupabaseSessionKeys() {
+    try {
+      var storage = window.localStorage;
+      var doomed = [];
+      for (var i = 0; i < storage.length; i++) {
+        var key = storage.key(i);
+        if (key && key.indexOf('sb-') === 0) doomed.push(key);
+      }
+      doomed.forEach(function (key) { storage.removeItem(key); });
+    } catch (ignore) {}
+  }
+
+  function clearCachedAccountBalance() {
+    var cached = getBalanceCache();
+    if (!cached) return;
+    var balances = Array.isArray(cached.balances) ? cached.balances : [];
+    var totalRemaining = balances.reduce(function (sum, balance) {
+      return sum + Number(balance.creditsRemaining || 0);
+    }, 0);
+    setBalanceCache({ balances: balances, accountBalance: null, totalRemaining: totalRemaining });
+  }
+
+  // Sign out of the Google account only. Browser credit tokens
+  // (pf_credit_tokens_v1) are separate and are left alone.
+  function signOutAccount() {
+    clearAccountTokenRecord();
+    clearSupabaseSessionKeys();
+    clearCachedAccountBalance();
+    try {
+      window.location.reload();
+    } catch (ignore) {}
+  }
+
+  function bindSignOutButton() {
+    try {
+      document.addEventListener('click', function (event) {
+        var button = event.target && event.target.closest
+          ? event.target.closest('[data-pf-signout]')
+          : null;
+        if (!button) return;
+        event.preventDefault();
+        signOutAccount();
+      });
+    } catch (ignore) {}
+  }
+
+  function renderAccountIndicator(accountBalance) {
+    if (!accountBalance) {
+      if (accountIndicatorElement && accountIndicatorElement.parentNode) {
+        accountIndicatorElement.parentNode.removeChild(accountIndicatorElement);
+      }
+      accountIndicatorElement = null;
+      return;
+    }
+    var label = getAccountLabel(accountBalance);
+    var credits = Number(accountBalance.creditsRemaining || 0);
+    var text = 'Signed in as ' + label + ' · ' + credits + ' credit' + (credits === 1 ? '' : 's');
+    if (!accountIndicatorElement) {
+      accountIndicatorElement = document.createElement('span');
+      accountIndicatorElement.id = ACCOUNT_INDICATOR_ID;
+      accountIndicatorElement.style.cssText = [
+        'display:inline-flex', 'align-items:center', 'gap:10px',
+        'padding:6px 12px', 'border-radius:999px',
+        'border:1px solid rgba(56,189,248,0.35)',
+        'background:rgba(2,6,23,0.6)', 'color:#e2e8f0',
+        'font-size:13px', 'line-height:1.2', 'white-space:nowrap',
+        'margin-left:auto', 'flex-shrink:0', 'font-family:inherit'
+      ].join(';');
+      var container = null;
+      try {
+        container = document.querySelector('.site-nav-top') || document.querySelector('.site-nav');
+      } catch (ignore) {}
+      if (container && container.appendChild) {
+        container.appendChild(accountIndicatorElement);
+      } else if (document.body && document.body.appendChild) {
+        accountIndicatorElement.style.position = 'fixed';
+        accountIndicatorElement.style.top = '12px';
+        accountIndicatorElement.style.right = '12px';
+        accountIndicatorElement.style.zIndex = '70';
+        document.body.appendChild(accountIndicatorElement);
+      }
+    }
+    accountIndicatorElement.innerHTML =
+      '<span>' + escapeHtml(text) + '</span>' +
+      '<button type="button" data-pf-signout style="' +
+      'color:#7dd3fc;background:none;border:none;padding:0;cursor:pointer;' +
+      'font-size:13px;font-family:inherit;text-decoration:underline' +
+      '">Sign out</button>';
+  }
+
+  // Swaps every "Sign in with Google" button to a disabled signed-in
+  // state, and hides the nav bar sign-in button while the account
+  // indicator is showing. Restores both when signed out.
+  function syncSignInButtons(accountBalance) {
+    var signedIn = !!accountBalance;
+    var label = signedIn ? getAccountLabel(accountBalance) : '';
+    var buttons = [];
+    try {
+      buttons = document.querySelectorAll('[data-pf-signin="google"]');
+    } catch (ignore) {}
+    Array.prototype.forEach.call(buttons, function (button) {
+      if (!button.dataset) button.dataset = {};
+      if (signedIn) {
+        if (!button.dataset.pfOriginalLabel) {
+          button.dataset.pfOriginalLabel = button.textContent || '';
+        }
+        button.textContent = 'Signed in as ' + label;
+        button.disabled = true;
+      } else {
+        if (button.dataset.pfOriginalLabel) {
+          button.textContent = button.dataset.pfOriginalLabel;
+        }
+        button.disabled = false;
+      }
+    });
+    var navButton = null;
+    try {
+      navButton = document.getElementById('pfSignInButton');
+    } catch (ignore) {}
+    if (navButton) {
+      navButton.style.display = signedIn ? 'none' : '';
+    }
+  }
+
+  function renderAccountState(accountBalance) {
+    renderAccountIndicator(accountBalance || null);
+    syncSignInButtons(accountBalance || null);
+  }
+
   function shouldAttachAccountToken(input) {
     try {
       var requestUrl = input instanceof Request ? input.url : String(input || '');
@@ -489,6 +641,7 @@
     if (!tokens.length && !accountToken) {
       clearBalanceCache();
       refreshIndicators(0);
+      renderAccountState(null);
       return { balances: [], accountBalance: null, totalRemaining: 0, toolCosts: {}, plans: [] };
     }
 
@@ -503,6 +656,13 @@
     }
     setBalanceCache(data);
     refreshIndicators(Number(data.totalRemaining || 0));
+    var account = data.accountBalance || null;
+    if (accountToken && !account) {
+      // The server did not recognize the stored token. Drop it so the
+      // next sign-in starts clean instead of silently staying signed out.
+      clearAccountTokenRecord();
+    }
+    renderAccountState(account);
     return data;
   }
 
@@ -690,7 +850,9 @@
     captureAccountTokenFromHash();
     patchFetchForAccountToken();
     bindSignInButtons();
+    bindSignOutButton();
     refreshIndicators();
+    renderAccountState(null);
     if (getTokens().length || getAccountToken()) {
       fetchBalances().catch(function () { return null; });
     }
@@ -710,6 +872,7 @@
     fetchCatalog: fetchCatalog,
     getAccountToken: getAccountToken,
     setAccountToken: setAccountToken,
+    signOut: signOutAccount,
     signInWithGoogle: signInWithGoogle,
     getCachedTotalRemaining: getCachedTotalRemaining,
     getPaymentRequiredMarkup: getPaymentRequiredMarkup,
