@@ -193,6 +193,105 @@ test('returns trimmed real ads and runs finalize only on success', async () => {
   }
 });
 
+test('object and array snapshot bodies render as text, never "[object Object]"', async () => {
+  const originalFetch = globalThis.fetch;
+  setOwnerDemo();
+  mockSaSuccess({
+    ...SA_SUCCESS_BODY,
+    ads: [
+      {
+        ad_archive_id: '555',
+        page_id: '333',
+        is_active: true,
+        snapshot: {
+          page_name: 'Object Body Brand',
+          // Live shape (Nov 6 2026): the body field is an object, not a string.
+          ad_creative_body: { text: 'Real body text from an object.' },
+          ad_creative_link_title: 'Real headline',
+          ad_delivery_start_time: 1752044400,
+          publisher_platforms: ['facebook']
+        }
+      },
+      {
+        ad_archive_id: '556',
+        page_id: '334',
+        is_active: true,
+        snapshot: {
+          page_name: 'Array Body Brand',
+          ad_creative_bodies: ['First body line.', 'Second body line.'],
+          // A bare Meta dynamic-creative template must not render as a title.
+          ad_creative_link_title: '{{product.name}}',
+          title: 'Fallback headline',
+          ad_delivery_start_time: '1736469600',
+          publisher_platforms: ['instagram']
+        }
+      },
+      {
+        ad_archive_id: '557',
+        page_id: '335',
+        is_active: true,
+        snapshot: {
+          page_name: 'Placeholder Only Brand',
+          ad_creative_body: '{{product.name}}',
+          ad_creative_link_title: '{{product.name}}',
+          ad_delivery_start_time: '2026-10-01',
+          publisher_platforms: []
+        }
+      }
+    ],
+    searchResultsCount: 3
+  });
+  try {
+    const res = mockRes();
+    await handleAdLibrariesSearch(mockReq(), res);
+
+    assert.equal(res.statusCode, 200);
+    assert.doesNotMatch(JSON.stringify(res.body), /\[object Object\]/);
+    assert.doesNotMatch(JSON.stringify(res.body), /\{\{product\.name\}\}/);
+
+    const [objectBody, arrayBody, placeholderOnly] = res.body.ads;
+    assert.equal(objectBody.text, 'Real body text from an object.');
+    assert.equal(objectBody.headline, 'Real headline');
+    // Unix epoch seconds become an ISO date.
+    assert.equal(objectBody.startDate, '2025-07-09');
+
+    assert.equal(arrayBody.text, 'First body line. Second body line.');
+    // Placeholder title is skipped, the next field supplies the headline.
+    assert.equal(arrayBody.headline, 'Fallback headline');
+    assert.equal(arrayBody.startDate, '2025-01-10');
+
+    // Placeholder-only values become empty, never rendered text.
+    assert.equal(placeholderOnly.text, '');
+    assert.equal(placeholderOnly.headline, '');
+    // ISO date strings still pass through unchanged.
+    assert.equal(placeholderOnly.startDate, '2026-10-01');
+  } finally {
+    globalThis.fetch = originalFetch;
+    clearOwnerDemo();
+  }
+});
+
+test('surrounding quotes are stripped from the query before search and echo', async () => {
+  const originalFetch = globalThis.fetch;
+  setOwnerDemo();
+  const calls = mockSaSuccess(SA_SUCCESS_BODY);
+  try {
+    const res = mockRes();
+    await handleAdLibrariesSearch(mockReq({ query: '"nike"' }), res);
+
+    assert.equal(res.statusCode, 200);
+    // The echoed query carries no quotes, so the page header reads
+    // Found 2 ads for "nike", not ""nike"".
+    assert.equal(res.body.query, 'nike');
+    assert.equal(calls.length, 1);
+    assert.match(calls[0].url, /query=nike(&|$)/);
+    assert.doesNotMatch(calls[0].url, /%22/);
+  } finally {
+    globalThis.fetch = originalFetch;
+    clearOwnerDemo();
+  }
+});
+
 test('zero ads returns an empty list with a note, not an error', async () => {
   const originalFetch = globalThis.fetch;
   setOwnerDemo();

@@ -296,9 +296,28 @@
   }
 
   function formatDate(value) {
-    if (!value) return '';
-    const parsed = new Date(value);
-    if (Number.isNaN(parsed.getTime())) return String(value);
+    if (value === undefined || value === null || value === '') return '';
+    // Unix epoch, seconds or milliseconds, as a number or a digit string.
+    // new Date("1752044400") is invalid, so a raw epoch used to render
+    // unchanged as "Started 1752044400".
+    if (typeof value === 'number' || /^\d{10,13}$/.test(String(value).trim())) {
+      const num = Number(value);
+      const ms = Math.abs(num) >= 1e12 ? num : num * 1000;
+      const parsed = new Date(ms);
+      if (Number.isNaN(parsed.getTime())) return String(value);
+      return parsed.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+    }
+    const text = String(value).trim();
+    // Plain ISO date: build it in local time so Jul 9 stays Jul 9 instead
+    // of shifting a day when UTC midnight is the previous evening locally.
+    const dateOnly = text.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (dateOnly) {
+      const parsed = new Date(Number(dateOnly[1]), Number(dateOnly[2]) - 1, Number(dateOnly[3]));
+      if (Number.isNaN(parsed.getTime())) return text;
+      return parsed.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+    }
+    const parsed = new Date(text);
+    if (Number.isNaN(parsed.getTime())) return text;
     return parsed.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
   }
 
@@ -392,7 +411,8 @@
       renderResults(data);
       const count = Array.isArray(data.ads) ? data.ads.length : 0;
       const charged = data.access && data.access.chargedCredits ? ` Used ${data.access.chargedCredits} credits.` : '';
-      setStatus(`Found ${count} ad${count === 1 ? '' : 's'} for "${data.query}".${charged}`, 'success');
+      const displayQuery = String(data.query || '').replace(/^["'“”]+|["'“”]+$/g, '');
+      setStatus(`Found ${count} ad${count === 1 ? '' : 's'} for "${displayQuery}".${charged}`, 'success');
     } catch (error) {
       setStatus(error.message || 'Request failed. Please try again.', 'error');
       resultsEl.classList.add('hidden');
