@@ -133,15 +133,29 @@
     }
     var client = window.supabase.createClient(config.supabaseUrl, config.anonKey);
 
-    // The Supabase client may already have picked up the session from the
-    // redirect on its own; check before demanding a code.
-    try {
-      var existing = await client.auth.getSession();
-      if (existing.data && existing.data.session && existing.data.session.access_token) {
-        await finishWithSession(client, existing.data.session);
-        return;
-      }
-    } catch (ignore) {}
+    // A fresh sign-in code always wins over any stored session. The
+    // stored session can be stale or expired (for example after a
+    // previous attempt timed out), and trusting it here used to store
+    // an already-expired token and send the user back signed out.
+    // So the stored session is only consulted when there is no code.
+    if (!code) {
+      // No fresh code: fall back to the stored session, but only trust
+      // it while it still has usable life left. An expired stored
+      // session is cleared so the next attempt starts clean instead of
+      // short-circuiting on it again.
+      try {
+        var existing = await client.auth.getSession();
+        var stored = existing.data && existing.data.session;
+        if (stored && stored.access_token) {
+          var expiresMs = stored.expires_at ? Number(stored.expires_at) * 1000 : 0;
+          if (expiresMs > Date.now() + 60000) {
+            await finishWithSession(client, stored);
+            return;
+          }
+          try { await client.auth.signOut(); } catch (ignoreSignOut) {}
+        }
+      } catch (ignore) {}
+    }
 
     // Implicit flow: the tokens arrive directly in the URL fragment
     // (#access_token=...&refresh_token=...). Accept them as-is.
