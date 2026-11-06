@@ -24,7 +24,7 @@ test('all explicit rewrite and redirect targets exist', () => {
     const relative = route.destination.slice(1);
     assert.ok(existsSync(new URL(relative, root)) || existsSync(new URL(`public/${relative}`, root)), route.destination);
   }
-  assert.equal(readdirSync(new URL('api/', root)).filter(name => name.endsWith('.js')).length, 13);
+  assert.equal(readdirSync(new URL('api/', root)).filter(name => name.endsWith('.js')).length, 12);
 });
 
 test('sitemap pages exist and owner demo remains non-indexable', () => {

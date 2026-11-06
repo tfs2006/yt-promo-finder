@@ -24,7 +24,8 @@ import {
   handleStripeWebhook,
   handleSmmOrderStatus,
   handleSmmProfitDashboard,
-  handleSmmOrderResubmit
+  handleSmmOrderResubmit,
+  parseJsonBody
 } from "../lib/smmHandlers.js";
 import {
   claimCreditsSession,
@@ -34,6 +35,14 @@ import {
   requireToolAccess,
   getCheckoutAccount
 } from "../lib/credits.js";
+
+export const config = { api: { bodyParser: false } };
+// Body parsing is off for this whole function on purpose: the Stripe
+// webhook route needs the exact raw bytes Stripe signed (Vercel's JSON
+// parser re-serializes the body, which can break signature verification
+// and 500 every webhook delivery). All POST routes here read the body
+// through parseJsonBody, which handles the raw stream, so nothing else
+// changes behavior. (David, Nov 5 2026.)
 
 const SMM_CURRENCY = (process.env.SMM_CURRENCY || "usd").toLowerCase();
 const SMM_MEMORY_TTL_MS = 10 * 60 * 1000;
@@ -193,7 +202,11 @@ async function handleCredits(req, res) {
 
   if (req.method === "POST") {
     if (action === "checkout") {
-      const planId = String(req.body?.planId || req.query?.planId || "");
+      // planId arrives in the JSON body (public/credits.js). The body
+      // parser is off for this function (see the config export above),
+      // so read it from the stream instead of req.body.
+      const body = await parseJsonBody(req);
+      const planId = String(body?.planId || req.body?.planId || req.query?.planId || "");
       // Checkout requires a signed-in Google account so purchased credits
       // always land in the shared account balance. David, Nov 2 2026.
       const account = await getCheckoutAccount(req);
