@@ -122,6 +122,34 @@ export async function kvSetNx(key, value, options = {}) {
   return true;
 }
 
+// Atomic counter. Returns the new value, or null when the backend errors.
+// Used for the Scrape Atlas call ledger (best-effort; never blocks a request).
+export async function kvIncr(key, by = 1) {
+  const redis = await getRedisClient();
+  if (redis) {
+    try {
+      return await redis.incrby(key, by);
+    } catch (e) {
+      console.error("Redis incr error:", e.message);
+      return null;
+    }
+  }
+  // File fallback for local development (not atomic; production uses Redis)
+  const filePath = path.join(LOCAL_STORAGE_DIR, `cache_${key.replace(/[^a-z0-9]/gi, "_")}.json`);
+  try {
+    let current = 0;
+    if (fs.existsSync(filePath)) {
+      const parsed = JSON.parse(fs.readFileSync(filePath, "utf8"));
+      current = Number(parsed) || 0;
+    }
+    const next = current + by;
+    fs.writeFileSync(filePath, JSON.stringify(next));
+    return next;
+  } catch (e) {
+    return null;
+  }
+}
+
 // ============================================
 // Input Validation
 // ============================================
@@ -388,6 +416,10 @@ export function sanitizeErrorMessage(value) {
   // Upstream URLs and error bodies must never expose query/header credentials.
   message = message.replace(/([?&](?:key|api_key|apikey|token|access_token|secret)=)[^\s&#"']*/gi, '$1[REDACTED]');
   if (API_KEY) message = message.split(API_KEY).join('[REDACTED]');
+  // The Scrape Atlas key travels in a header, never a URL, but redact it
+  // anywhere it could appear (same lesson as the YouTube key above).
+  const saKey = String(process.env.SCRAPE_ATLAS_API_KEY || "").trim().replace(/(\\[rn])+$/, "");
+  if (saKey) message = message.split(saKey).join('[REDACTED]');
   return message;
 }
 
@@ -493,8 +525,31 @@ export async function resolveChannelId(spec) {
   }
   
   let channelId = null;
-  
-  if (spec.type === "username") {
+
+  // Scrape Atlas first (1 credit) instead of the 100-unit YouTube search.
+  // Any SA failure (not configured, not found, rate limited) falls through
+  // to the YouTube Data API path below, so resolution never breaks.
+  // Dynamic import avoids a static import cycle (lib/scrapeAtlas.js
+  // imports kvIncr from this file).
+  if (spec.type !== "channelId") {
+    try {
+      const { isScrapeAtlasConfigured, saGet } = await import("./lib/scrapeAtlas.js");
+      if (isScrapeAtlasConfigured()) {
+        const sa = await saGet("/v1/youtube/channel", {
+          tool: "resolve-channel",
+          timeoutMs: 8000,
+          params: { handle: spec.value }
+        });
+        if (sa && typeof sa.channelId === "string" && sa.channelId.startsWith("UC")) {
+          channelId = sa.channelId;
+        }
+      }
+    } catch {
+      // Fall through to the YouTube Data API path below.
+    }
+  }
+
+  if (!channelId && spec.type === "username") {
     consumeQuota(1);
     const url = `https://www.googleapis.com/youtube/v3/channels?part=id&forUsername=${encodeURIComponent(spec.value)}&key=${API_KEY}`;
     const data = await fetchJson(url);

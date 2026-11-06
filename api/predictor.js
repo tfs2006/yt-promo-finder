@@ -36,7 +36,10 @@ import {
   getCheckoutAccount
 } from "../lib/credits.js";
 
-export const config = { api: { bodyParser: false } };
+export const config = { api: { bodyParser: false }, maxDuration: 30 };
+// Vercel Hobby defaults a function to 10s; the Meta Ad Library search is
+// browser-backed and can take up to 20s, so this router gets a 30s ceiling.
+// It only raises the ceiling, nothing runs slower because of it.
 // Body parsing is off for this whole function on purpose: the Stripe
 // webhook route needs the exact raw bytes Stripe signed (Vercel's JSON
 // parser re-serializes the body, which can break signature verification

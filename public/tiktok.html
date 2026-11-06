@@ -371,6 +371,10 @@
           throw new Error('Video URL was not returned. Try another TikTok link.');
         }
 
+        if (window.PFCredits && data.access) {
+          window.PFCredits.syncAccess(data.access);
+        }
+
         clearStatus();
         setStatus('Media found. Choose what you want to download.', 'success');
         renderResult(data);

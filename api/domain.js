@@ -1,26 +1,38 @@
-import { 
-  consumeQuota, 
-  fetchJson, 
-  API_KEY,
+import {
   setCache,
   getCache,
   applyApiGuards,
   handleApiError,
-  checkQuota,
-  validateDomainInput,
-  initQuota
+  validateDomainInput
 } from "../utils.js";
 import {
   buildPaymentRequiredResponse,
   finalizeToolAccess,
   getToolAccessState
 } from "../lib/credits.js";
+import { isScrapeAtlasConfigured, saGet } from "../lib/scrapeAtlas.js";
+
+// Domain search on Scrape Atlas (replaces the YouTube Data API version,
+// which burned 500+ quota units per run). Cost: 1 SA credit per search
+// page fetched, max 3 pages per run. No YouTube quota is consumed.
+// The UI contract is unchanged: { domain, videoCount, totalFound,
+// videos: [{ videoId, title, channelTitle, channelId, publishedAt,
+// thumbnail, viewCount }] }. Extra fields (fetchedAt,
+// descriptionCoverage, coverageNote, coverageWarnings, saCreditsUsed)
+// are additive only.
+
+const MAX_PAGES = 3;
+const PER_CALL_TIMEOUT_MS = 8000;
+// Vercel Hobby functions time out at 10s; stop paging with time to spare
+// and return what was found so far instead of failing the request.
+const GLOBAL_DEADLINE_MS = 9000;
+const MAX_MATCHES = 100;
+const MAX_RESULTS = 50;
 
 export default async function handler(req, res) {
   if (applyApiGuards(req, res, { rateKey: "domain", maxRequests: 8, windowMs: 60_000 })) return;
 
-  // Initialize quota from persistent storage
-  await initQuota();
+  const startedAt = Date.now();
 
   try {
     const rawInput = (req.query.domain || "").toString();
@@ -30,23 +42,13 @@ export default async function handler(req, res) {
     }
     const domain = validation.sanitized;
 
-    if (!API_KEY) {
-      return res.status(500).json({ error: "YouTube API key not configured." });
+    if (!isScrapeAtlasConfigured()) {
+      return res.status(500).json({ error: "Scrape Atlas is not configured on this site yet." });
     }
 
     const accessState = await getToolAccessState(req, 'domain');
     if (!accessState.allowed) {
       return res.status(402).json(buildPaymentRequiredResponse(accessState));
-    }
-
-    // Check quota before starting (domain search uses 500+ units)
-    const quotaCheck = checkQuota(600);
-    if (!quotaCheck.allowed) {
-      return res.status(429).json({ 
-        error: quotaCheck.message,
-        code: 'QUOTA_EXCEEDED',
-        quotaStatus: quotaCheck.status
-      });
     }
 
     // Check cache
@@ -60,75 +62,121 @@ export default async function handler(req, res) {
       return res.json({ fromCache: true, ...cached, access: finalized.access });
     }
 
-    // Search YouTube for videos mentioning this domain
-    const videos = [];
-    let pageToken = "";
-    const maxPages = 5; // Limit to prevent excessive API usage
+    // Search Scrape Atlas for videos mentioning this domain.
+    // Query is the domain wrapped in double quotes, as before.
+    const needle = domain.toLowerCase();
+    const wwwNeedle = `www.${needle}`;
+    const matches = [];
+    const coverageWarnings = [];
+    let fetchedAt = "";
+    let withDescription = 0;
+    let totalChecked = 0;
+    let continuationToken = undefined;
     let pagesSearched = 0;
+    let deadlineHit = false;
 
-    while (pagesSearched < maxPages) {
-      consumeQuota(100); // Search costs 100 units
-      const searchUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=50&q="${encodeURIComponent(domain)}"&key=${API_KEY}${pageToken ? `&pageToken=${pageToken}` : ""}`;
-      
-      const searchData = await fetchJson(searchUrl);
-      const items = searchData.items || [];
-      
-      if (items.length === 0) break;
+    while (pagesSearched < MAX_PAGES) {
+      // Only start another page if the next call can finish inside the
+      // global deadline: shrink the per-call timeout to the remaining
+      // budget so a slow page can never push the function past Vercel's
+      // 10s limit mid-call.
+      const elapsed = Date.now() - startedAt;
+      const remainingMs = GLOBAL_DEADLINE_MS - elapsed;
+      if (pagesSearched > 0 && remainingMs < 1500) {
+        deadlineHit = true;
+        break;
+      }
 
-      // Get video IDs to fetch full descriptions
-      const videoIds = items.map(it => it.id?.videoId).filter(Boolean);
-      
-      if (videoIds.length > 0) {
-        consumeQuota(1);
-        const detailsUrl = `https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics&id=${videoIds.join(",")}&key=${API_KEY}`;
-        const detailsData = await fetchJson(detailsUrl);
-        
-        for (const video of detailsData.items || []) {
-          const description = (video.snippet?.description || "").toLowerCase();
-          // Check if the domain actually appears in the description
-          if (description.includes(domain) || description.includes(`www.${domain}`)) {
-            videos.push({
-              videoId: video.id,
-              title: video.snippet?.title || "",
-              channelTitle: video.snippet?.channelTitle || "",
-              channelId: video.snippet?.channelId || "",
-              publishedAt: video.snippet?.publishedAt || "",
-              thumbnail: video.snippet?.thumbnails?.medium?.url || video.snippet?.thumbnails?.default?.url || "",
-              viewCount: parseInt(video.statistics?.viewCount || "0", 10),
-              description: video.snippet?.description || ""
-            });
-          }
+      const data = await saGet("/v1/youtube/search", {
+        tool: "domain",
+        timeoutMs: Math.min(PER_CALL_TIMEOUT_MS, Math.max(remainingMs, 1000)),
+        params: {
+          query: `"${domain}"`,
+          type: "videos",
+          sortBy: "popular",
+          includeExtras: true,
+          ...(continuationToken ? { continuationToken } : {})
+        }
+      });
+      pagesSearched++;
+
+      if (data?.fetchedAt) fetchedAt = data.fetchedAt;
+      if (Array.isArray(data?.coverage?.warnings)) {
+        for (const warning of data.coverage.warnings) {
+          if (warning && !coverageWarnings.includes(warning)) coverageWarnings.push(warning);
         }
       }
 
-      pageToken = searchData.nextPageToken;
-      pagesSearched++;
-      
-      if (!pageToken) break;
-      
-      // Stop if we have enough results
-      if (videos.length >= 100) break;
+      const videos = Array.isArray(data?.videos) ? data.videos : [];
+      for (const video of videos) {
+        totalChecked++;
+        const description = video?.description;
+        const hasDescription = description !== null && description !== undefined;
+        if (hasDescription) withDescription++;
+
+        let isMatch = false;
+        if (hasDescription) {
+          // Same rule as the YouTube version: the domain must appear in
+          // the description. A title mention alone does not count when a
+          // real description was available to check.
+          const lowerDescription = String(description).toLowerCase();
+          isMatch = lowerDescription.includes(needle) || lowerDescription.includes(wwwNeedle);
+        } else {
+          // Extras were incomplete for this video (only the first 48 per
+          // page are enriched), so fall back to the title rather than
+          // silently dropping a video that may mention the domain.
+          const lowerTitle = String(video?.title || "").toLowerCase();
+          isMatch = lowerTitle.includes(needle) || lowerTitle.includes(wwwNeedle);
+        }
+
+        if (isMatch) {
+          matches.push({
+            videoId: video?.id || "",
+            title: video?.title || "",
+            channelTitle: video?.channel?.title || "",
+            channelId: video?.channel?.id || "",
+            publishedAt: video?.publishDate || video?.publishedTime || "",
+            thumbnail: video?.thumbnail || "",
+            viewCount: Number.isFinite(Number(video?.viewCountInt)) ? Number(video.viewCountInt) : 0
+          });
+        }
+      }
+
+      continuationToken = data?.continuationToken || undefined;
+      if (!continuationToken) break;
+      if (matches.length >= MAX_MATCHES) break;
     }
 
-    // Sort by view count (most popular first)
-    videos.sort((a, b) => b.viewCount - a.viewCount);
+    // Sort by view count (most popular first) and cap at the top 50.
+    matches.sort((a, b) => b.viewCount - a.viewCount);
+    const topVideos = matches.slice(0, MAX_RESULTS);
 
-    // Limit to top 50 results
-    const topVideos = videos.slice(0, 50);
+    const notes = [];
+    if (withDescription < totalChecked) {
+      notes.push(
+        `Descriptions were available for ${withDescription} of ${totalChecked} videos; ` +
+        `videos without a description were only included when their title mentioned the domain.`
+      );
+    }
+    if (deadlineHit) {
+      notes.push(
+        "Search stopped early to stay within the response time limit; showing the matches found so far."
+      );
+    }
+    if (coverageWarnings.length) {
+      notes.push(`Data source notes: ${coverageWarnings.join("; ")}`);
+    }
 
     const payload = {
       domain,
       videoCount: topVideos.length,
-      totalFound: videos.length,
-      videos: topVideos.map(v => ({
-        videoId: v.videoId,
-        title: v.title,
-        channelTitle: v.channelTitle,
-        channelId: v.channelId,
-        publishedAt: v.publishedAt,
-        thumbnail: v.thumbnail,
-        viewCount: v.viewCount
-      }))
+      totalFound: matches.length,
+      videos: topVideos,
+      fetchedAt,
+      descriptionCoverage: { withDescription, total: totalChecked },
+      coverageNote: notes.length ? notes.join(" ") : null,
+      coverageWarnings,
+      saCreditsUsed: pagesSearched
     };
 
     setCache(cacheKey, payload);
@@ -138,6 +186,9 @@ export default async function handler(req, res) {
     }
     return res.json({ ...payload, access: finalized.access });
   } catch (err) {
+    // Any Scrape Atlas failure lands here: the user is charged nothing
+    // (finalizeToolAccess is never reached) and no partial result is
+    // presented as complete.
     return handleApiError(res, err);
   }
 }
