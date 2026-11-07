@@ -91,6 +91,7 @@ app.get("/api/youtube", handleYouTubeMeta);
 app.get("/api/youtube-video", handleYouTubeVideo);
 app.get("/api/youtube-audio", handleYouTubeAudio);
 app.get("/api/ad-libraries", predictorHandler);
+app.get("/api/expired-domains", predictorHandler);
 app.get("/api/bot-detector", predictorHandler);
 
 app.use((err, req, res, next) => {

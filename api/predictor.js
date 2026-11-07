@@ -18,6 +18,7 @@ import smmServicesSnapshot from "../lib/smmServicesSnapshot.js";
 import { handleTikTokMeta, handleTikTokVideo, handleTikTokAudio } from "../lib/tiktokHandlers.js";
 import { handleYouTubeMeta, handleYouTubeVideo, handleYouTubeAudio } from "../lib/youtubeHandlers.js";
 import { handleAdLibrariesSearch } from "../lib/adLibraryHandlers.js";
+import { handleExpiredDomainsSearch } from "../lib/expiredDomainHandlers.js";
 import { handleBotDetector } from "../lib/botDetector.js";
 import {
   handleSmmCreateCheckout,
@@ -683,6 +684,10 @@ export default async function handler(req, res) {
   if (pathname === "/api/ad-libraries") {
     if (!(await requireToolAccess(req, res, "ad-libraries"))) return;
     return handleAdLibrariesSearch(req, res);
+  }
+  if (pathname === "/api/expired-domains") {
+    if (!(await requireToolAccess(req, res, "expired-domains"))) return;
+    return handleExpiredDomainsSearch(req, res);
   }
   if (pathname === "/api/bot-detector") {
     if (!(await requireToolAccess(req, res, "bot-detector"))) return;
