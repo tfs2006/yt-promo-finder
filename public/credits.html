@@ -273,18 +273,29 @@
       const canceled = params.get('canceled');
 
       if (sessionId) {
-        setStatus('<div><div class="font-semibold text-lg">Activating your purchase</div><div class="text-sm mt-2">We detected a completed Stripe checkout and are saving those credits.</div></div>');
-        try {
-          const claimed = await window.PFCredits.claimSession(sessionId);
-          const destination = claimed && claimed.account
-            ? 'added to your 4ourMedia account'
-            : 'now saved in this browser';
-          setStatus(`<div><div class="font-semibold text-lg">Credits added</div><div class="text-sm mt-2">${escapeHtml(claimed.balance.planName)} is ${destination} with <span class="font-semibold">${Number(claimed.balance.creditsRemaining) || 0} credits</span> remaining.</div></div>`, 'success');
-          await refreshBalances();
-          window.history.replaceState({}, '', '/credits');
-        } catch (err) {
-          setStatus(`<div><div class="font-semibold text-lg">Purchase detected but not claimed</div><div class="text-sm mt-2">${escapeHtml(err.message || 'We could not verify the completed Stripe session yet.')}</div></div>`, 'error');
-        }
+        // The claim is retryable by design: the server-side guard makes a
+        // second claim idempotent, so a buyer who sees a failure can safely
+        // try again instead of assuming the payment failed.
+        const attemptClaim = async () => {
+          setStatus('<div><div class="font-semibold text-lg">Activating your purchase</div><div class="text-sm mt-2">We detected a completed Stripe checkout and are saving those credits.</div></div>');
+          try {
+            const claimed = await window.PFCredits.claimSession(sessionId);
+            const destination = claimed && claimed.account
+              ? 'added to your 4ourMedia account'
+              : 'now saved in this browser';
+            setStatus(`<div><div class="font-semibold text-lg">Credits added</div><div class="text-sm mt-2">${escapeHtml(claimed.balance.planName)} is ${destination} with <span class="font-semibold">${Number(claimed.balance.creditsRemaining) || 0} credits</span> remaining.</div></div>`, 'success');
+            await refreshBalances();
+            window.history.replaceState({}, '', '/credits');
+          } catch (err) {
+            // The payment went through; only the credit-saving step failed.
+            // Say so plainly and offer a retry, instead of showing a
+            // message that reads as a failed purchase.
+            setStatus(`<div><div class="font-semibold text-lg">Payment received, credits not added yet</div><div class="text-sm mt-2">Your payment went through successfully. The credits are safe, only the step that saves them to your account failed. Try again, or contact support if it keeps failing.</div><div class="text-xs mt-2 opacity-70">Detail: ${escapeHtml(err.message || 'We could not verify the completed Stripe session yet.')}</div><div class="mt-4"><button type="button" id="claimRetryBtn" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-semibold transition-colors">Retry adding credits</button></div></div>`, 'error');
+            const retryBtn = document.getElementById('claimRetryBtn');
+            if (retryBtn) retryBtn.addEventListener('click', attemptClaim);
+          }
+        };
+        await attemptClaim();
       } else if (canceled) {
         setStatus('<div><div class="font-semibold text-lg">Checkout canceled</div><div class="text-sm mt-2">No charges were made. You can choose a different pack any time.</div></div>', 'info');
         window.history.replaceState({}, '', '/credits');
