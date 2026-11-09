@@ -41,12 +41,17 @@ export const config = { api: { bodyParser: false }, maxDuration: 30 };
 // Vercel Hobby defaults a function to 10s; the Meta Ad Library search is
 // browser-backed and can take up to 20s, so this router gets a 30s ceiling.
 // It only raises the ceiling, nothing runs slower because of it.
-// Body parsing is off for this whole function on purpose: the Stripe
-// webhook route needs the exact raw bytes Stripe signed (Vercel's JSON
-// parser re-serializes the body, which can break signature verification
-// and 500 every webhook delivery). All POST routes here read the body
-// through parseJsonBody, which handles the raw stream, so nothing else
-// changes behavior. (David, Nov 5 2026.)
+// NOTE (Nov 9 2026): the `api.bodyParser` key above is a Next.js-only
+// setting and is IGNORED here: this is a plain @vercel/node function, not a
+// Next.js API route. The Vercel runtime always buffers the request body and
+// exposes req.body as a lazily-parsed object, so the Stripe webhook route
+// must read the exact raw bytes off the request stream itself. That is what
+// getRawBody in lib/smmHandlers.js does (direct read() drain of the
+// runtime's replayed stream, before req.body is ever touched). Do not "fix"
+// this by parsing req.body and re-serializing it: JSON.stringify output is
+// not byte-identical to what Stripe signed, and every delivery 500s.
+// All other POST routes here read the body through parseJsonBody, which
+// handles the raw stream, so nothing else changes behavior.
 
 const SMM_CURRENCY = (process.env.SMM_CURRENCY || "usd").toLowerCase();
 const SMM_MEMORY_TTL_MS = 10 * 60 * 1000;

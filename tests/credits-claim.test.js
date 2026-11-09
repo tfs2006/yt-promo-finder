@@ -99,10 +99,15 @@ test('without the metadata marker the claim still tries to dispense (and fails o
   // Control for the test above: the same session without pf_account_credited
   // proceeds past the guard and fails only because no Supabase client exists
   // in the test env. This proves the marker is what short-circuits.
+  // The session id is unique per run: the claim guard writes its marker to
+  // the file-backed KV fallback before dispensing, so a fixed id would make
+  // this test pass only once per checkout and then resolve as alreadyClaimed
+  // on every later run (stale marker from Nov 9 04:49 UTC did exactly that).
+  const sessionId = `cs_test_notcredited_${Date.now().toString(36)}`;
   await assert.rejects(
     () => claimCreditsToAccount(
       {
-        id: 'cs_test_notcredited000',
+        id: sessionId,
         metadata: { plan_id: 'starter', credits_total: 25 }
       },
       { userId: 'user-123' }
