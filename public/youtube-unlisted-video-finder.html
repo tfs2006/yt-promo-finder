@@ -10,11 +10,11 @@
   </script>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>YouTube Unlisted Video Finder Guide | PromoFinder</title>
-  <meta name="description" content="Learn how a YouTube unlisted video finder scans public playlists, which channel inputs to use, and why some videos cannot be discovered." />
+  <title>YouTube Unlisted Video Finder: Find Hidden Videos in Public Playlists | PromoFinder</title>
+  <meta name="description" content="Find unlisted YouTube videos hidden in a channel's public playlists. Paste a channel URL, handle, or ID. Fresh scans use 5 credits. Sign in with Google for 3 free credits, plus 1 free credit a day." />
   <meta property="og:type" content="website" />
-  <meta property="og:title" content="YouTube Unlisted Video Finder Guide | PromoFinder" />
-  <meta property="og:description" content="Learn how a YouTube unlisted video finder scans public playlists, which channel inputs to use, and why some videos cannot be discovered." />
+  <meta property="og:title" content="YouTube Unlisted Video Finder: Find Hidden Videos in Public Playlists | PromoFinder" />
+  <meta property="og:description" content="Find unlisted YouTube videos hidden in a channel's public playlists. Paste a channel URL, handle, or ID. Fresh scans use 5 credits. Sign in with Google for 3 free credits, plus 1 free credit a day." />
   <meta property="og:url" content="https://promofinder.4ourmedia.com/youtube-unlisted-video-finder.html" />
   <meta property="og:site_name" content="PromoFinder" />
   <meta property="og:image" content="https://promofinder.4ourmedia.com/social-preview.png" />
@@ -22,8 +22,8 @@
   <meta property="og:image:height" content="630" />
   <meta property="og:image:alt" content="PromoFinder - YouTube research tools" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="YouTube Unlisted Video Finder Guide | PromoFinder" />
-  <meta name="twitter:description" content="Learn how a YouTube unlisted video finder scans public playlists, which channel inputs to use, and why some videos cannot be discovered." />
+  <meta name="twitter:title" content="YouTube Unlisted Video Finder: Find Hidden Videos in Public Playlists | PromoFinder" />
+  <meta name="twitter:description" content="Find unlisted YouTube videos hidden in a channel's public playlists. Paste a channel URL, handle, or ID. Fresh scans use 5 credits. Sign in with Google for 3 free credits, plus 1 free credit a day." />
   <meta name="twitter:image" content="https://promofinder.4ourmedia.com/social-preview.png" />
   <meta name="twitter:image:alt" content="PromoFinder - YouTube research tools" />
   <link rel="canonical" href="https://promofinder.4ourmedia.com/youtube-unlisted-video-finder.html" />
@@ -46,8 +46,8 @@
         "@type": "WebPage",
         "@id": "https://promofinder.4ourmedia.com/youtube-unlisted-video-finder#webpage",
         "url": "https://promofinder.4ourmedia.com/youtube-unlisted-video-finder",
-        "name": "YouTube Unlisted Video Finder - Find Hidden Playlist Videos",
-        "description": "Guide for finding hidden unlisted YouTube videos through public playlist scanning.",
+        "name": "YouTube Unlisted Video Finder: Find Hidden Videos in Public Playlists",
+        "description": "Find unlisted YouTube videos hidden in a channel's public playlists. Paste a channel URL, handle, or ID.",
         "isPartOf": { "@id": "https://promofinder.4ourmedia.com/#website" }
       },
       {
@@ -83,6 +83,22 @@
             "acceptedAnswer": {
               "@type": "Answer",
               "text": "You sign in with Google, which takes seconds. New accounts start with 3 free credits, plus 1 free credit every day."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How much does a scan cost?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Each fresh channel scan uses 5 credits. If the same channel was scanned recently, the saved result is returned and no credits are charged."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can it find private videos?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. It only finds unlisted videos exposed through public playlists. Private videos and members-only content are never returned."
             }
           }
         ]
@@ -138,6 +154,24 @@
     </article>
   </section>
 
+  <section class="rounded-2xl border border-slate-700/50 bg-slate-900/50 p-6 mb-8">
+    <h2 class="text-2xl font-bold">How It Works</h2>
+    <ol class="mt-4 space-y-3 text-slate-300 list-decimal list-inside">
+      <li>Paste a channel URL, an @handle, or a channel ID, then sign in with Google.</li>
+      <li>The tool resolves the channel and lists its public playlists, up to 200 playlists per scan.</li>
+      <li>It checks every video in each playlist for unlisted status, up to 500 unlisted videos per scan.</li>
+      <li>Matches are deduped and sorted newest first.</li>
+      <li>Results show each video title, publish date, thumbnail, and the playlist it was found in, with a link to watch it.</li>
+    </ol>
+    <p class="mt-4 text-sm text-slate-400">Each fresh channel scan uses 5 credits. If the same channel was scanned recently, the saved result is returned and no credits are charged. New accounts start with 3 free credits, plus 1 free credit every day.</p>
+  </section>
+
+  <section class="rounded-2xl border border-slate-700/50 bg-slate-900/50 p-6 mb-8">
+    <h2 class="text-2xl font-bold">What You Will See</h2>
+    <p class="mt-4 text-slate-300">A scan returns a summary of how many public playlists were checked, and a list of the unlisted videos found, newest first. Each entry shows the video title, publish date, thumbnail, and the name of the playlist it appeared in, with a link to watch the video on YouTube.</p>
+    <p class="mt-4 text-slate-300">An empty result means the channel has no unlisted videos in its public playlists. It does not mean the channel has no unlisted videos at all. Videos that were never added to a public playlist cannot be discovered this way, and private videos and members-only content are never returned.</p>
+  </section>
+
   <section class="mb-8">
     <a href="https://nobad.link/facelessforge" target="_blank" rel="noopener sponsored"
        class="block rounded-2xl border border-slate-700/50 bg-slate-900/40 p-3 hover:border-indigo-400/45 transition"
@@ -161,6 +195,28 @@
     </ul>
     <div class="mt-6">
       <a href="/unlisted" class="inline-flex items-center rounded-lg border border-indigo-500/40 bg-indigo-500/10 px-4 py-2.5 text-indigo-200 hover:bg-indigo-500/20 transition">Open the unlisted finder tool</a>
+    </div>
+  </section>
+
+  <section class="mt-8 rounded-2xl border border-slate-700/50 bg-slate-900/50 p-6">
+    <h2 class="text-2xl font-bold">YouTube Unlisted Video Finder FAQ</h2>
+    <div class="mt-4 space-y-3">
+      <details class="rounded-xl border border-slate-700/60 bg-slate-900/40 p-4">
+        <summary class="cursor-pointer font-semibold text-slate-100">What does a YouTube unlisted video finder scan?</summary>
+        <p class="mt-2 text-slate-300 text-sm">It scans public playlists on a channel and checks the visibility state of included videos. Unlisted videos in public playlists are surfaced.</p>
+      </details>
+      <details class="rounded-xl border border-slate-700/60 bg-slate-900/40 p-4">
+        <summary class="cursor-pointer font-semibold text-slate-100">Why are some channels returning no results?</summary>
+        <p class="mt-2 text-slate-300 text-sm">Many channels keep unlisted videos out of public playlists. If no unlisted items are listed publicly, there is nothing discoverable to return.</p>
+      </details>
+      <details class="rounded-xl border border-slate-700/60 bg-slate-900/40 p-4">
+        <summary class="cursor-pointer font-semibold text-slate-100">How much does a scan cost?</summary>
+        <p class="mt-2 text-slate-300 text-sm">Each fresh channel scan uses 5 credits. If the same channel was scanned recently, the saved result is returned and no credits are charged. Sign in with Google for 3 free credits on signup, plus 1 free credit every day. Credit packs start at $9 for 25 credits.</p>
+      </details>
+      <details class="rounded-xl border border-slate-700/60 bg-slate-900/40 p-4">
+        <summary class="cursor-pointer font-semibold text-slate-100">Can it find private videos?</summary>
+        <p class="mt-2 text-slate-300 text-sm">No. It only finds unlisted videos exposed through public playlists. Private videos and members-only content are never returned.</p>
+      </details>
     </div>
   </section>
 

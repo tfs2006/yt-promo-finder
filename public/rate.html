@@ -11,11 +11,11 @@
   </script>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>YouTube Sponsorship Rate Calculator | PromoFinder</title>
-  <meta name="description" content="Estimate YouTube brand deal ranges using channel views, engagement, and niche benchmarks. Research sponsorship pricing; estimates are not quotes." />
+  <title>YouTube Sponsorship Rate Calculator: Estimate Brand Deal Prices | PromoFinder</title>
+  <meta name="description" content="Estimate what a YouTube sponsorship is worth using a channel’s views, engagement, and niche CPM benchmarks. Sign in with Google, 1 credit per run. Estimates are not quotes." />
   <meta property="og:type" content="website" />
-  <meta property="og:title" content="YouTube Sponsorship Rate Calculator | PromoFinder" />
-  <meta property="og:description" content="Estimate YouTube brand deal ranges using channel views, engagement, and niche benchmarks. Research sponsorship pricing; estimates are not quotes." />
+  <meta property="og:title" content="YouTube Sponsorship Rate Calculator: Estimate Brand Deal Prices | PromoFinder" />
+  <meta property="og:description" content="Estimate what a YouTube sponsorship is worth using a channel’s views, engagement, and niche CPM benchmarks. Sign in with Google, 1 credit per run. Estimates are not quotes." />
   <meta property="og:url" content="https://promofinder.4ourmedia.com/rate" />
   <meta property="og:site_name" content="PromoFinder" />
   <meta property="og:image" content="https://promofinder.4ourmedia.com/social-preview.png" />
@@ -23,8 +23,8 @@
   <meta property="og:image:height" content="630" />
   <meta property="og:image:alt" content="PromoFinder - YouTube research tools" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="YouTube Sponsorship Rate Calculator | PromoFinder" />
-  <meta name="twitter:description" content="Estimate YouTube brand deal ranges using channel views, engagement, and niche benchmarks. Research sponsorship pricing; estimates are not quotes." />
+  <meta name="twitter:title" content="YouTube Sponsorship Rate Calculator: Estimate Brand Deal Prices | PromoFinder" />
+  <meta name="twitter:description" content="Estimate what a YouTube sponsorship is worth using a channel’s views, engagement, and niche CPM benchmarks. Sign in with Google, 1 credit per run. Estimates are not quotes." />
   <meta name="twitter:image" content="https://promofinder.4ourmedia.com/social-preview.png" />
   <meta name="twitter:image:alt" content="PromoFinder - YouTube research tools" />
   <link rel="canonical" href="https://promofinder.4ourmedia.com/rate" />
@@ -43,10 +43,9 @@
     "@type": "WebApplication",
     "name": "YouTube Sponsorship Rate Calculator",
     "url": "https://promofinder.4ourmedia.com/rate",
-    "description": "Estimate likely sponsorship pricing ranges for a YouTube creator from public channel performance signals.",
+    "description": "Estimate likely sponsorship pricing ranges for a YouTube creator from public channel performance signals. Sign in with Google, 1 credit per run.",
     "applicationCategory": "UtilityApplication",
-    "operatingSystem": "Web",
-    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+    "operatingSystem": "Web"
   }
   </script>
   <link rel="stylesheet" href="/tailwind.css">
@@ -105,7 +104,7 @@
         YouTube Sponsorship <span class="gradient-text">Rate Estimator</span>
       </h1>
       <p class="text-slate-300 mt-4 text-lg md:text-xl max-w-3xl">
-        Estimate likely sponsorship price ranges for a YouTube creator using views, engagement, and niche benchmarks.
+        Paste any public YouTube channel URL or @handle and get a realistic sponsorship price range for that creator. The Rate Estimator reads the channel's recent videos, measures average views and engagement, detects the niche from video titles and descriptions, and applies niche CPM benchmarks to estimate what a sponsored video is worth. It is built for brands planning outreach budgets and creators pricing their own brand deals. Each run costs 1 credit. Sign in with Google to get 3 free credits, plus 1 free credit every day. Every figure is an estimate for planning, never a quote.
       </p>
       <div class="mt-4 rounded-xl border border-emerald-500/25 bg-emerald-500/10 p-4 text-sm text-emerald-100 max-w-3xl">
         Estimates are directional and based on public channel data plus benchmark assumptions. Actual deal terms can vary by format, deliverables, exclusivity, and negotiation.
@@ -171,6 +170,26 @@
     </section>
 
     <section class="mt-14 pt-12 border-t border-slate-800/30">
+      <h2 class="text-2xl md:text-3xl font-bold mb-6 text-center">How the Sponsorship Estimate Is Calculated</h2>
+      <div class="max-w-3xl mx-auto space-y-4 text-slate-300">
+        <p>The estimate starts with the channel's average views per video, measured across up to 100 videos from the past 12 months. That average is divided by 1,000, multiplied by the niche's average CPM, and multiplied by 10, because sponsors typically pay about 10 times the ad CPM for an integration. The result is the midpoint estimate. The low estimate is half the midpoint and the high estimate is 1.5 times the midpoint.</p>
+        <p><strong class="text-white">Niche CPM ranges used by the tool.</strong> Finance runs $20 to $50 per 1,000 views (average $35), tech $15 to $30 (average $22), beauty, fitness, and travel $10 to $28 (averages $17 to $20), gaming and education $8 to $20 (average $14), lifestyle $5 to $18 (average $12), food $6 to $16 (average $11), and entertainment $5 to $15 (average $10). Channels that match no niche use a default range of $8 to $20 (average $14).</p>
+        <p><strong class="text-white">Creator tiers.</strong> The channel is also placed in a size tier by average views per video: Micro Influencer at 1K to 10K, Small Creator at 10K to 100K, Medium Creator at 100K to 500K, Large Creator at 500K to 1M, and Mega Influencer at 1M and above. Engagement rate, meaning likes plus comments divided by views, is shown alongside the estimate for context.</p>
+        <p class="text-sm text-slate-400">Actual deal terms can vary by format, deliverables, exclusivity, audience demographics, and negotiation. Use the range to plan and compare, not as a price to quote.</p>
+      </div>
+    </section>
+
+    <section class="mt-14 pt-12 border-t border-slate-800/30">
+      <h2 class="text-2xl md:text-3xl font-bold mb-6 text-center">What You'll See in a Rate Estimate</h2>
+      <div class="max-w-3xl mx-auto space-y-4 text-slate-300">
+        <p><strong class="text-white">Estimated rate per video.</strong> A headline figure with a low, average, and high range, plus the detected niche and the creator tier, for example Medium Creator at 100K to 500K average views.</p>
+        <p><strong class="text-white">Performance metrics.</strong> Average views per video, total views over the last 12 months, engagement rate, and the number of videos analyzed.</p>
+        <p><strong class="text-white">Sponsored vs non-sponsored comparison.</strong> The tool flags videos whose descriptions link to outside sites as sponsored, then compares their average views with the channel's non-sponsored videos, so you can see whether sponsored content underperforms or holds up.</p>
+        <p><strong class="text-white">Niche CPM rates and top sponsored videos.</strong> The low, average, and high CPM for the detected niche, and the 5 best performing sponsored videos with their view counts.</p>
+      </div>
+    </section>
+
+    <section class="mt-14 pt-12 border-t border-slate-800/30">
       <h2 class="text-2xl md:text-3xl font-bold mb-6 text-center">Related Analytics Tools</h2>
       <div class="grid md:grid-cols-3 gap-4 max-w-5xl mx-auto">
         <a href="/growth" class="glass-effect border border-blue-500/25 rounded-2xl p-5 hover:border-blue-400/45 transition">
@@ -212,6 +231,20 @@
             <svg class="w-5 h-5 text-slate-400 flex-shrink-0 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
           </summary>
           <p class="mt-3 text-slate-400 text-sm leading-relaxed">Rates are calculated by multiplying a creator's average views per video by an estimated CPM for their niche, then adjusting for engagement rate, audience quality, and placement type. A dedicated sponsor video commands a premium over an integrated mid-roll mention. This tool estimates that range using live channel data.</p>
+        </details>
+        <details class="glass-effect border border-slate-700/50 rounded-2xl p-5 group">
+          <summary class="font-semibold cursor-pointer list-none flex justify-between items-center gap-3">
+            How much does the Rate Estimator cost?
+            <svg class="w-5 h-5 text-slate-400 flex-shrink-0 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </summary>
+          <p class="mt-3 text-slate-400 text-sm leading-relaxed">Each Rate Estimator run costs 1 credit. Sign in with Google to get 3 free credits, plus 1 free credit every day (claim your daily credit on 4ourmedia.com). Need more? Credit packs are Starter, 25 credits for $9, Pro, 100 credits for $29, and Agency, 500 credits for $99.</p>
+        </details>
+        <details class="glass-effect border border-slate-700/50 rounded-2xl p-5 group">
+          <summary class="font-semibold cursor-pointer list-none flex justify-between items-center gap-3">
+            How does the tool tell sponsored videos apart from regular videos?
+            <svg class="w-5 h-5 text-slate-400 flex-shrink-0 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </summary>
+          <p class="mt-3 text-slate-400 text-sm leading-relaxed">A video is treated as sponsored when its description links to a website outside the usual social media domains. The tool then compares the average views of those sponsored videos with the channel's non-sponsored videos. It is a heuristic based on public descriptions, not a confirmed deal record, so some sponsored videos may be missed and some linked videos may not be paid placements.</p>
         </details>
       </div>
     </section>

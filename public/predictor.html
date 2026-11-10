@@ -11,11 +11,11 @@
   </script>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>YouTube Video Performance Predictor | PromoFinder</title>
-  <meta name="description" content="Explore a YouTube channel?s historical performance to estimate video views and identify title, duration, and posting-time patterns. Results are estimates." />
+  <title>YouTube Video Performance Predictor: Best Time, Length, and Titles | PromoFinder</title>
+  <meta name="description" content="Analyze a YouTube channel’s past videos to find its best video length, title length, posting day, and posting time. Sign in with Google, 3 credits per run. Results are estimates." />
   <meta property="og:type" content="website" />
-  <meta property="og:title" content="YouTube Video Performance Predictor | PromoFinder" />
-  <meta property="og:description" content="Explore a YouTube channel?s historical performance to estimate video views and identify title, duration, and posting-time patterns. Results are estimates." />
+  <meta property="og:title" content="YouTube Video Performance Predictor: Best Time, Length, and Titles | PromoFinder" />
+  <meta property="og:description" content="Analyze a YouTube channel’s past videos to find its best video length, title length, posting day, and posting time. Sign in with Google, 3 credits per run. Results are estimates." />
   <meta property="og:url" content="https://promofinder.4ourmedia.com/predictor" />
   <meta property="og:site_name" content="PromoFinder" />
   <meta property="og:image" content="https://promofinder.4ourmedia.com/social-preview.png" />
@@ -23,8 +23,8 @@
   <meta property="og:image:height" content="630" />
   <meta property="og:image:alt" content="PromoFinder - YouTube research tools" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="YouTube Video Performance Predictor | PromoFinder" />
-  <meta name="twitter:description" content="Explore a YouTube channel?s historical performance to estimate video views and identify title, duration, and posting-time patterns. Results are estimates." />
+  <meta name="twitter:title" content="YouTube Video Performance Predictor: Best Time, Length, and Titles | PromoFinder" />
+  <meta name="twitter:description" content="Analyze a YouTube channel’s past videos to find its best video length, title length, posting day, and posting time. Sign in with Google, 3 credits per run. Results are estimates." />
   <meta name="twitter:image" content="https://promofinder.4ourmedia.com/social-preview.png" />
   <meta name="twitter:image:alt" content="PromoFinder - YouTube research tools" />
   <link rel="canonical" href="https://promofinder.4ourmedia.com/predictor" />
@@ -43,10 +43,9 @@
     "@type": "WebApplication",
     "name": "YouTube Video Performance Predictor",
     "url": "https://promofinder.4ourmedia.com/predictor",
-    "description": "Predict YouTube video performance using a channel's historical data to find optimal patterns for views.",
+    "description": "Predict YouTube video performance using a channel's historical data to find optimal patterns for views. Sign in with Google, 3 credits per run.",
     "applicationCategory": "UtilityApplication",
-    "operatingSystem": "Web",
-    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+    "operatingSystem": "Web"
   }
   </script>
   <link rel="stylesheet" href="/tailwind.css">
@@ -111,7 +110,7 @@
         Video <span class="gradient-text">Performance Predictor</span>
       </h1>
       <p class="text-slate-300 mt-3 md:mt-4 text-base sm:text-lg md:text-xl max-w-3xl">
-        Discover what makes videos succeed on any channel. Get data-driven insights on optimal title length, video duration, posting times, and title patterns that drive views.
+        Paste any public YouTube channel URL or @handle and learn what actually worked on that channel. The Performance Predictor studies up to 200 videos from the past 12 months and correlates views with video length, title length, posting day, posting hour, and title patterns such as numbers, questions, and brackets. You get the channel's optimal duration, title length, posting day, and posting time, plus plain-language recommendations for your next upload. It is built for creators planning content and sponsors judging whether a channel's best work is repeatable. Each run costs 3 credits. Sign in with Google to get 3 free credits, plus 1 free credit every day.
       </p>
     </header>
 
@@ -155,23 +154,47 @@
     <section id="status" class="mt-6 hidden"></section>
     <section id="results" class="mt-6 space-y-6"></section>
 
+    <section class="mt-16 pt-12 border-t border-slate-800/30">
+      <h2 class="text-2xl md:text-3xl font-bold mb-6 text-center">How the Performance Predictor Works</h2>
+      <div class="max-w-3xl mx-auto">
+        <ol class="space-y-3 text-slate-300">
+          <li class="glass-effect border border-slate-700/50 rounded-2xl p-5"><strong class="text-white">1. Paste a channel URL or @handle</strong> into the box above and click Analyze Patterns.</li>
+          <li class="glass-effect border border-slate-700/50 rounded-2xl p-5"><strong class="text-white">2. The tool pulls up to 200 videos</strong> published in the past 12 months. A channel needs at least 10 videos in that window for a meaningful analysis.</li>
+          <li class="glass-effect border border-slate-700/50 rounded-2xl p-5"><strong class="text-white">3. It scores every video against the channel average</strong> (100 equals average) and groups the results by video duration, title length, day of week, hour of day in UTC, and title patterns such as numbers, emoji, questions, brackets, colons, and all caps.</li>
+          <li class="glass-effect border border-slate-700/50 rounded-2xl p-5"><strong class="text-white">4. You get the optimal setup for that channel:</strong> best duration, best title length, best posting day, and best posting time, plus recommendations ranked by impact and lists of the top 5 and bottom 5 videos.</li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="mt-16 pt-12 border-t border-slate-800/30">
+      <h2 class="text-2xl md:text-3xl font-bold mb-6 text-center">What You'll See in a Prediction Report</h2>
+      <div class="max-w-3xl mx-auto space-y-4 text-slate-300">
+        <p><strong class="text-white">Optimal factors.</strong> Four cards show the best video duration (for example 8-15 minutes), the best title length (for example 30-50 characters), the best posting day, and the best posting time in UTC, each with its performance score relative to the channel average.</p>
+        <p><strong class="text-white">Duration and day charts.</strong> A duration performance chart compares bands from under 1 minute (Shorts) to over 60 minutes, and a day-of-week chart scores each day from Sunday to Saturday. Scores above 100 mean above the channel average.</p>
+        <p><strong class="text-white">Posting time heatmap.</strong> A 24-hour heatmap in UTC shows which upload hours performed best, with brighter cells for stronger performance.</p>
+        <p><strong class="text-white">Top and bottom performers.</strong> The 5 best and 5 weakest videos, with views, duration, and title length, so you can see exactly what the patterns are based on.</p>
+        <p><strong class="text-white">Recommendations.</strong> Plain-language insights such as an optimal video length or a best posting day, flagged High Impact when the pattern is strong, plus channel averages for views, duration, and title length.</p>
+        <p class="text-sm text-slate-400">Predictions are based on historical patterns from the channel's own videos. Many factors affect performance, including content quality, trends, algorithm changes, and audience behavior. Use these insights as guidelines, not guarantees.</p>
+      </div>
+    </section>
+
     <!-- FAQ Section -->
     <section class="mt-16 pt-12 border-t border-slate-800/30">
-      <h2 class="text-2xl md:text-3xl font-bold mb-8 text-center">YouTube Video Performance Predictor � FAQ</h2>
+      <h2 class="text-2xl md:text-3xl font-bold mb-8 text-center">YouTube Video Performance Predictor FAQ</h2>
       <div class="max-w-3xl mx-auto space-y-4">
         <details class="glass-effect border border-slate-700/50 rounded-2xl p-5 group">
           <summary class="font-semibold cursor-pointer list-none flex justify-between items-center gap-3">
             What is the best time to post a YouTube video?
             <svg class="w-5 h-5 text-slate-400 flex-shrink-0 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
           </summary>
-          <p class="mt-3 text-slate-400 text-sm leading-relaxed">The best posting time is channel-specific. This tool analyzes a channel's historical upload times and correlates them with view performance to find which days and times produced the highest view counts. General industry data suggests Thursday�Saturday afternoons (in the audience's local time) perform best, but analyzing your own channel's data yields far more accurate results.</p>
+          <p class="mt-3 text-slate-400 text-sm leading-relaxed">There is no universal best time to post. This tool analyzes a channel's own historical upload times and correlates them with view performance to find which days and hours produced the highest view counts for that specific channel and audience.</p>
         </details>
         <details class="glass-effect border border-slate-700/50 rounded-2xl p-5 group">
           <summary class="font-semibold cursor-pointer list-none flex justify-between items-center gap-3">
             What is the optimal YouTube video length?
             <svg class="w-5 h-5 text-slate-400 flex-shrink-0 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
           </summary>
-          <p class="mt-3 text-slate-400 text-sm leading-relaxed">There is no universal optimal length � it depends on the niche and audience. This tool analyzes a channel's past videos and determines which video duration range historically generated the most views. For most educational and commentary channels, 10�20 minute videos tend to perform best. For entertainment, 5�10 minutes often wins. Short-form (under 60 seconds) via YouTube Shorts is an entirely separate distribution channel.</p>
+          <p class="mt-3 text-slate-400 text-sm leading-relaxed">There is no universal optimal length. It depends on the niche and audience. This tool compares the channel's own videos across duration bands, from under 1 minute (Shorts) to over 60 minutes, and reports which band scored highest relative to the channel average.</p>
         </details>
         <details class="glass-effect border border-slate-700/50 rounded-2xl p-5 group">
           <summary class="font-semibold cursor-pointer list-none flex justify-between items-center gap-3">
@@ -179,6 +202,20 @@
             <svg class="w-5 h-5 text-slate-400 flex-shrink-0 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
           </summary>
           <p class="mt-3 text-slate-400 text-sm leading-relaxed">This tool uses a channel's historical view data to calculate an expected view range for a future video. By analyzing patterns in title length, video duration, posting day and time, and topic themes across past videos, it surfaces the conditions most correlated with high performance on that specific channel.</p>
+        </details>
+        <details class="glass-effect border border-slate-700/50 rounded-2xl p-5 group">
+          <summary class="font-semibold cursor-pointer list-none flex justify-between items-center gap-3">
+            How much does the Performance Predictor cost?
+            <svg class="w-5 h-5 text-slate-400 flex-shrink-0 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </summary>
+          <p class="mt-3 text-slate-400 text-sm leading-relaxed">Each Performance Predictor run costs 3 credits. Sign in with Google to get 3 free credits, plus 1 free credit every day (claim your daily credit on 4ourmedia.com). Need more? Credit packs are Starter, 25 credits for $9, Pro, 100 credits for $29, and Agency, 500 credits for $99.</p>
+        </details>
+        <details class="glass-effect border border-slate-700/50 rounded-2xl p-5 group">
+          <summary class="font-semibold cursor-pointer list-none flex justify-between items-center gap-3">
+            How many videos does a channel need for a prediction?
+            <svg class="w-5 h-5 text-slate-400 flex-shrink-0 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </summary>
+          <p class="mt-3 text-slate-400 text-sm leading-relaxed">A channel needs at least 10 videos published in the past 12 months. The tool analyzes up to 200 videos from that window. Channels with fewer videos cannot be analyzed, because there is not enough history to find reliable patterns.</p>
         </details>
       </div>
     </section>

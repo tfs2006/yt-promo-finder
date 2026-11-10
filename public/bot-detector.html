@@ -365,6 +365,27 @@
     </section>
 
     <section class="mt-14 pt-12 border-t border-slate-800/30">
+      <h2 class="text-2xl md:text-3xl font-bold mb-6">How the Bot Detector Works</h2>
+      <ol class="max-w-3xl space-y-3 text-slate-300 list-decimal list-inside">
+        <li>Paste a channel URL, an @handle, or a channel ID into the search box.</li>
+        <li>Sign in with Google. Each audit uses 1 credit. New accounts start with 3 free credits, plus 1 free credit every day.</li>
+        <li>The tool pulls the channel's public data through the YouTube Data API and scans up to 20 recent uploads.</li>
+        <li>It samples comments from the highest-viewed recent videos, up to 5 videos and 25 comments each.</li>
+        <li>Eight weighted heuristic signals roll up into a risk score from 0 to 100 and a verdict band.</li>
+      </ol>
+    </section>
+
+    <section class="mt-14 pt-12 border-t border-slate-800/30">
+      <h2 class="text-2xl md:text-3xl font-bold mb-6">What You Will See</h2>
+      <div class="max-w-3xl space-y-4 text-slate-300 leading-relaxed">
+        <p>Every audit returns a verdict pill and a risk score from 0 to 100. Scores under 20 read as Likely organic, 20 to 39 as Some concerns, 40 to 64 as Likely bot-aided, and 65 and above as High bot risk.</p>
+        <p>The report breaks the score into eight signals, each marked Pass, Warn, or Red flag: like-to-view ratio, comment-to-view ratio, view count uniformity, subscriber growth velocity, comment authenticity, cross-video duplicate commenters, upload cadence regularity, and views per subscriber.</p>
+        <p>You also get the channel stats behind the score: subscribers, total views, videos scanned, comments sampled, and average and median views. Up to 6 of the recent uploads sampled are shown with their views, likes, comments, duration, and publish date.</p>
+        <p>For example, the like-to-view check treats 2 to 6 percent as the typical organic range. A channel averaging under 0.5 percent across its recent uploads flags that signal as a red flag, while a channel inside the typical range passes it. The score is a screening signal for due diligence, not proof that a channel bought engagement.</p>
+      </div>
+    </section>
+
+    <section class="mt-14 pt-12 border-t border-slate-800/30">
       <h2 class="text-2xl md:text-3xl font-bold mb-6 text-center">Related Analytics Tools</h2>
       <div class="grid md:grid-cols-3 gap-4 max-w-5xl mx-auto">
         <a href="/growth" class="glass-effect border border-blue-500/25 rounded-2xl p-5 hover:border-blue-400/45 transition">
@@ -422,6 +443,20 @@
             <svg class="w-5 h-5 text-slate-400 flex-shrink-0 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
           </summary>
           <p class="mt-3 text-slate-400 text-sm leading-relaxed">No. It only uses public channel, video, and comment metadata available through the official YouTube Data API. There is no login, no private analytics access, and no scraping around privacy restrictions.</p>
+        </details>
+        <details class="glass-effect border border-slate-700/50 rounded-2xl p-5 group">
+          <summary class="font-semibold cursor-pointer list-none flex justify-between items-center gap-3">
+            How much does an audit cost?
+            <svg class="w-5 h-5 text-slate-400 flex-shrink-0 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </summary>
+          <p class="mt-3 text-slate-400 text-sm leading-relaxed">Each audit uses 1 credit. Sign in with Google to run it. New accounts start with 3 free credits, plus 1 free credit every day. Credit packs start at $9 for 25 credits.</p>
+        </details>
+        <details class="glass-effect border border-slate-700/50 rounded-2xl p-5 group">
+          <summary class="font-semibold cursor-pointer list-none flex justify-between items-center gap-3">
+            What should I paste in?
+            <svg class="w-5 h-5 text-slate-400 flex-shrink-0 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </summary>
+          <p class="mt-3 text-slate-400 text-sm leading-relaxed">A channel URL, an @handle, or a channel ID that starts with UC. Any of the three resolves to the same channel.</p>
         </details>
       </div>
     </section>
