@@ -200,7 +200,8 @@ test('mapSaChannelVideo normalizes null extras to empty/zero', () => {
   assert.deepEqual(mapped, {
     videoId: 'vid1', title: 'T', description: '',
     publishedAt: '2026-11-01T00:00:00Z',
-    viewCount: 5, likeCount: 0, commentCount: 0
+    viewCount: 5, likeCount: 0, commentCount: 0,
+    durationSeconds: 0
   });
 });
 

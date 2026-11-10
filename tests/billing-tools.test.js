@@ -288,17 +288,18 @@ function assertNotFinalized(res) {
 }
 
 const YT_TOOLS = [
-  { name: 'viral', cost: 2, handler: viralHandler },
-  { name: 'saturation', cost: 2, handler: saturationHandler },
-  { name: 'predictor', cost: 3, handler: predictorHandler }
+  { name: 'saturation', cost: 2, handler: saturationHandler }
 ];
 
-// Growth, rate and revenue run on Scrape Atlas now (Phase A), so their
-// billing tests mock the SA endpoints instead of the YouTube API.
+// Growth, rate, revenue, viral and predictor run on Scrape Atlas now
+// (Phase A + Phase B), so their billing tests mock the SA endpoints
+// instead of the YouTube API.
 const SA_TOOLS = [
   { name: 'growth', cost: 2, handler: growthHandler },
+  { name: 'viral', cost: 2, handler: viralHandler },
   { name: 'rate', cost: 1, handler: rateHandler },
-  { name: 'revenue', cost: 1, handler: revenueHandler }
+  { name: 'revenue', cost: 1, handler: revenueHandler },
+  { name: 'predictor', cost: 3, handler: predictorHandler }
 ];
 
 for (const tool of YT_TOOLS) {

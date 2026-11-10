@@ -1,24 +1,35 @@
 import { 
-  consumeQuota, 
-  API_KEY, 
   setCache, 
   getCache,
   parseChannelIdFromUrl,
-  resolveChannelId,
-  getUploadsPlaylistId,
   applyApiGuards,
   handleApiError,
-  checkQuota,
-  iterateUploads,
-  getVideoDetails,
-  validateChannelInput,
-  initQuota
+  validateChannelInput
 } from "../utils.js";
 import {
   buildPaymentRequiredResponse,
   finalizeToolAccess,
   getToolAccessState
 } from "../lib/credits.js";
+import {
+  isScrapeAtlasConfigured,
+  fetchSaLatestVideosForChannel
+} from "../lib/scrapeAtlas.js";
+
+// Viral on Scrape Atlas (replaces the YouTube Data API version, which
+// burned shared daily quota on every run). Cost: 1 SA credit for the
+// channel record + 1 per channel-videos page, max 4 pages per run.
+// The video pages need includeExtras=true: the viral score divides each
+// video's exact view count by the channel average, and the docs say
+// extras replace the list-page counts with the exact count. An extras
+// page takes about 15s upstream, so this function runs with maxDuration
+// 60 and a 55s deadline guard (same pattern as api/rate.js): paging
+// stops early with a coverage note rather than failing the run. No
+// YouTube quota is consumed. The scoring math, response shape and price
+// (2 credits) are unchanged. Extra fields (fetchedAt, videoCoverage,
+// coverageNote, coverageWarnings, saCreditsUsed) are additive only.
+
+export const config = { maxDuration: 60 };
 
 function analyzeViralPatterns(videos, avgViews) {
   const patterns = {
@@ -103,14 +114,7 @@ function findCommonPatterns(viralVideos) {
 export default async function handler(req, res) {
   if (applyApiGuards(req, res, { rateKey: "viral", maxRequests: 10, windowMs: 60_000 })) return;
 
-  // Sign-in wall: every tool requires a Google account. David, Nov 2 2026.
-  // Access state is kept so a successful run can deduct credits below.
-  const accessState = await getToolAccessState(req, "viral");
-  if (!accessState.allowed) {
-    return res.status(402).json(buildPaymentRequiredResponse(accessState));
-  }
-
-  await initQuota();
+  const startedAt = Date.now();
 
   try {
     const rawInput = (req.query.url || "").toString();
@@ -120,21 +124,22 @@ export default async function handler(req, res) {
     }
     const input = validation.sanitized;
 
-    if (!API_KEY) {
-      return res.status(500).json({ error: "YouTube API key not configured." });
+    if (!isScrapeAtlasConfigured()) {
+      return res.status(500).json({ error: "Scrape Atlas is not configured on this site yet." });
     }
 
-    const quotaCheck = checkQuota(250);
-    if (!quotaCheck.allowed) {
-      return res.status(429).json({ 
-        error: quotaCheck.message,
-        code: 'QUOTA_EXCEEDED',
-        quotaStatus: quotaCheck.status
-      });
+    // Sign-in wall: every tool requires a Google account. David, Nov 2 2026.
+    // Access state is kept so a successful run can deduct credits below.
+    const accessState = await getToolAccessState(req, "viral");
+    if (!accessState.allowed) {
+      return res.status(402).json(buildPaymentRequiredResponse(accessState));
     }
 
+    // Day-granular window so the cache key is stable within a day (the
+    // old code keyed on a millisecond timestamp, so the cache never hit).
     const sinceDate = new Date();
     sinceDate.setFullYear(sinceDate.getFullYear() - 1);
+    sinceDate.setUTCHours(0, 0, 0, 0);
     const sinceISO = sinceDate.toISOString();
 
     const cacheKey = `viral::${input}::${sinceISO}`;
@@ -149,35 +154,31 @@ export default async function handler(req, res) {
     }
 
     const spec = parseChannelIdFromUrl(input);
-    const channelId = await resolveChannelId(spec);
-    const uploadsId = await getUploadsPlaylistId(channelId);
+    // One SA call resolves the handle AND returns the channel record;
+    // the latest videos with extras arrive in parallel (see
+    // fetchSaLatestVideosForChannel in lib/scrapeAtlas.js).
+    const collected = await fetchSaLatestVideosForChannel({
+      tool: "viral",
+      spec,
+      input,
+      sinceISO,
+      startedAt
+    });
+    const channelId = collected.channelId;
 
-    // Fetch recent videos
-    const recent = [];
-    for await (const item of iterateUploads(uploadsId, sinceISO)) {
-      recent.push(item);
-      if (recent.length >= 200) break;
-    }
-    
-    if (!recent.length) {
+    const videos = collected.videos.map((v) => ({
+      videoId: v.videoId,
+      title: v.title,
+      description: v.description,
+      publishedAt: v.publishedAt,
+      viewCount: v.viewCount,
+      likeCount: v.likeCount,
+      commentCount: v.commentCount
+    }));
+
+    if (!videos.length) {
       return res.status(400).json({ error: "No videos found in the last year." });
     }
-
-    // Get video details including view counts
-    const details = await getVideoDetails(recent.map(v => v.videoId), { includeStatistics: true });
-    const videos = recent.map(v => {
-      const d = details.find(x => x.videoId === v.videoId);
-      return { 
-        videoId: v.videoId, 
-        title: d?.title || v.title, 
-        description: d?.description || "", 
-        publishedAt: d?.publishedAt || v.publishedAt,
-        viewCount: parseInt(d?.viewCount || 0, 10),
-        likeCount: parseInt(d?.likeCount || 0, 10),
-        commentCount: parseInt(d?.commentCount || 0, 10),
-        duration: d?.duration || ''
-      };
-    });
 
     // Calculate metrics
     const totalViews = videos.reduce((sum, v) => sum + v.viewCount, 0);
@@ -229,6 +230,27 @@ export default async function handler(req, res) {
       if (hourEntries.length > 0) {
         bestHour = parseInt(hourEntries.sort((a, b) => b[1] - a[1])[0][0]);
       }
+    }
+
+    const notes = [];
+    if (collected.withViews < videos.length) {
+      notes.push(
+        `View counts were available for ${collected.withViews} of ${videos.length} videos; ` +
+        `videos without one add nothing to the average, so viral scores may read high.`
+      );
+    }
+    if (collected.deadlineHit) {
+      notes.push(
+        "Video collection stopped early to stay within the response time limit; " +
+        `the analysis is based on the ${videos.length} most recent videos found.`
+      );
+    } else if (collected.hasMore) {
+      notes.push(
+        `The analysis is based on the ${videos.length} most recent videos from the last 12 months.`
+      );
+    }
+    if (collected.coverageWarnings.length) {
+      notes.push(`Data source notes: ${collected.coverageWarnings.join("; ")}`);
     }
 
     const payload = {
@@ -288,7 +310,18 @@ export default async function handler(req, res) {
         flopVideoCount: flopVideos.length,
         highestViralScore: scoredVideos.length > 0 ? Math.round(scoredVideos[0].viralScore * 10) / 10 : 0,
         lowestViralScore: scoredVideos.length > 0 ? Math.round(scoredVideos[scoredVideos.length - 1].viralScore * 100) / 100 : 0
-      }
+      },
+
+      fetchedAt: collected.fetchedAt,
+      videoCoverage: {
+        withViews: collected.withViews,
+        withDuration: collected.withDuration,
+        withStats: collected.withStats,
+        total: videos.length
+      },
+      coverageNote: notes.length ? notes.join(" ") : null,
+      coverageWarnings: collected.coverageWarnings,
+      saCreditsUsed: collected.saCreditsUsed
     };
 
     setCache(cacheKey, payload);
@@ -299,6 +332,9 @@ export default async function handler(req, res) {
     }
     return res.json({ ...payload, access: finalized.access });
   } catch (err) {
+    // Any Scrape Atlas failure lands here: the user is charged nothing
+    // (finalizeToolAccess is never reached) and no partial result is
+    // presented as complete.
     return handleApiError(res, err);
   }
 }

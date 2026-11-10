@@ -264,12 +264,12 @@ function assertRequestedExtras() {
 }
 
 test('viral: requests video statistics and scores vary with real views', async () => {
-  mockYouTubeFaithful();
+  mockSaFaithful();
   try {
     const res = mockRes();
     await viralHandler(mockReq(channelUrl('viral-stats')), res);
     assert.equal(res.statusCode, 200);
-    assertRequestedStatistics();
+    assertRequestedExtras();
     assert.ok(res.body.metrics.averageViews > 0, `averageViews must be real, got ${res.body.metrics.averageViews}`);
     assert.ok(Array.isArray(res.body.topViral) && res.body.topViral.length > 0, 'topViral must list videos');
     const scores = res.body.topViral.map((v) => v.viralScore);

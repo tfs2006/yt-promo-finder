@@ -1,18 +1,10 @@
 import { 
-  consumeQuota, 
-  fetchJson, 
-  API_KEY, 
   setCache, 
   getCache,
   parseChannelIdFromUrl,
-  resolveChannelId,
-  getUploadsPlaylistId,
   applyApiGuards,
   handleApiError,
-  checkQuota,
-  iterateUploads,
-  validateChannelInput,
-  initQuota
+  validateChannelInput
 } from "../utils.js";
 import smmServicesSnapshot from "../lib/smmServicesSnapshot.js";
 import { handleTikTokMeta, handleTikTokVideo, handleTikTokAudio } from "../lib/tiktokHandlers.js";
@@ -39,10 +31,16 @@ import {
   requireToolAccess,
   getCheckoutAccount
 } from "../lib/credits.js";
+import {
+  isScrapeAtlasConfigured,
+  fetchSaLatestVideosForChannel,
+  saChannelAvatarUrl
+} from "../lib/scrapeAtlas.js";
 
-export const config = { api: { bodyParser: false }, maxDuration: 30 };
+export const config = { api: { bodyParser: false }, maxDuration: 60 };
 // Vercel Hobby defaults a function to 10s; the Meta Ad Library search is
-// browser-backed and can take up to 20s, so this router gets a 30s ceiling.
+// browser-backed and can take up to 20s, and the predictor's extras pages
+// take about 15s each, so this router gets a 60s ceiling.
 // It only raises the ceiling, nothing runs slower because of it.
 // NOTE (Nov 9 2026): the `api.bodyParser` key above is a Next.js-only
 // setting and is IGNORED here: this is a plain @vercel/node function, not a
@@ -236,17 +234,6 @@ async function handleCredits(req, res) {
   }
 
   return res.status(405).json({ error: "Method not allowed." });
-}
-
-// Parse ISO 8601 duration to seconds
-function parseDuration(duration) {
-  if (!duration) return 0;
-  const match = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
-  if (!match) return 0;
-  const hours = parseInt(match[1] || 0);
-  const minutes = parseInt(match[2] || 0);
-  const seconds = parseInt(match[3] || 0);
-  return hours * 3600 + minutes * 60 + seconds;
 }
 
 function formatDuration(seconds) {
@@ -710,14 +697,14 @@ export default async function handler(req, res) {
   }
   if (applyApiGuards(req, res, { rateKey: "predictor", maxRequests: 8, windowMs: 60_000 })) return;
 
+  const startedAt = Date.now();
+
   // Sign-in wall: every tool requires a Google account. David, Nov 2 2026.
   // Access state is kept so a successful run can deduct credits below.
   const accessState = await getToolAccessState(req, "predictor");
   if (!accessState.allowed) {
     return res.status(402).json(buildPaymentRequiredResponse(accessState));
   }
-
-  await initQuota();
 
   try {
     const rawInput = (req.query.url || "").toString();
@@ -727,22 +714,16 @@ export default async function handler(req, res) {
     }
     const input = validation.sanitized;
 
-    if (!API_KEY) {
-      return res.status(500).json({ error: "YouTube API key not configured." });
+    if (!isScrapeAtlasConfigured()) {
+      return res.status(500).json({ error: "Scrape Atlas is not configured on this site yet." });
     }
 
-    const quotaCheck = checkQuota(300);
-    if (!quotaCheck.allowed) {
-      return res.status(429).json({ 
-        error: quotaCheck.message,
-        code: 'QUOTA_EXCEEDED',
-        quotaStatus: quotaCheck.status
-      });
-    }
-
-    // Use 12 months of data
+    // Use 12 months of data (day-granular so the cache key is stable
+    // within a day; the old code keyed on a millisecond timestamp, so
+    // the cache never hit).
     const sinceDate = new Date();
     sinceDate.setFullYear(sinceDate.getFullYear() - 1);
+    sinceDate.setUTCHours(0, 0, 0, 0);
     const sinceISO = sinceDate.toISOString();
 
     const cacheKey = `predictor::${input}::${sinceISO}`;
@@ -756,52 +737,42 @@ export default async function handler(req, res) {
       return res.json({ fromCache: true, ...cached, access: finalized.access });
     }
 
+    // Predictor on Scrape Atlas (replaces the YouTube Data API version,
+    // which burned shared daily quota on every run). Cost: 1 SA credit
+    // for the channel record + 1 per channel-videos page, max 4 pages
+    // per run. The video pages need includeExtras=true: the duration
+    // bands need exact durations, the day/hour analysis needs exact
+    // publish dates, and the correlations need exact view counts. An
+    // extras page takes about 15s upstream, so this router runs with
+    // maxDuration 60 and a 55s deadline guard (same pattern as
+    // api/rate.js): paging stops early with a coverage note rather than
+    // failing the run. No YouTube quota is consumed. The scoring bands,
+    // the 10-video minimum, the response shape and the price (3 credits)
+    // are unchanged. Extra fields (fetchedAt, videoCoverage,
+    // coverageNote, coverageWarnings, saCreditsUsed) are additive only.
     const spec = parseChannelIdFromUrl(input);
-    const channelId = await resolveChannelId(spec);
-    const uploadsId = await getUploadsPlaylistId(channelId);
+    const collected = await fetchSaLatestVideosForChannel({
+      tool: "predictor",
+      spec,
+      input,
+      sinceISO,
+      startedAt
+    });
+    const channelId = collected.channelId;
+    const channel = collected.channel;
 
-    // Get channel info
-    consumeQuota(1);
-    const channelUrl = `https://www.googleapis.com/youtube/v3/channels?part=snippet,statistics&id=${channelId}&key=${API_KEY}`;
-    const channelData = await fetchJson(channelUrl);
-    const channelInfo = channelData.items?.[0];
-    
-    if (!channelInfo) {
-      return res.status(404).json({ error: "Channel not found." });
-    }
+    const videos = collected.videos.map((v) => ({
+      videoId: v.videoId,
+      title: v.title,
+      publishedAt: v.publishedAt,
+      viewCount: v.viewCount,
+      likeCount: v.likeCount,
+      commentCount: v.commentCount,
+      durationSeconds: v.durationSeconds
+    }));
 
-    // Fetch videos
-    const recent = [];
-    for await (const item of iterateUploads(uploadsId, sinceISO)) {
-      recent.push(item);
-      if (recent.length >= 200) break;
-    }
-    
-    if (recent.length < 10) {
+    if (videos.length < 10) {
       return res.status(400).json({ error: "Need at least 10 videos for meaningful predictions. This channel has fewer videos in the past 12 months." });
-    }
-
-    // Get video details with duration and stats
-    const videoIds = recent.map(v => v.videoId);
-    const videos = [];
-    
-    for (let i = 0; i < videoIds.length; i += 50) {
-      const chunk = videoIds.slice(i, i + 50);
-      consumeQuota(1);
-      const url = `https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics,contentDetails&id=${chunk.join(",")}&key=${API_KEY}`;
-      const data = await fetchJson(url);
-      for (const it of data.items || []) {
-        videos.push({
-          videoId: it.id,
-          title: it.snippet?.title || "",
-          publishedAt: it.snippet?.publishedAt,
-          viewCount: parseInt(it.statistics?.viewCount || 0, 10),
-          likeCount: parseInt(it.statistics?.likeCount || 0, 10),
-          commentCount: parseInt(it.statistics?.commentCount || 0, 10),
-          duration: it.contentDetails?.duration,
-          durationSeconds: parseDuration(it.contentDetails?.duration)
-        });
-      }
     }
 
     // Analyze correlations
@@ -870,10 +841,37 @@ export default async function handler(req, res) {
         .sort((a, b) => a.hour - b.hour)
     };
 
+    const notes = [];
+    if (collected.withViews < videos.length) {
+      notes.push(
+        `View counts were available for ${collected.withViews} of ${videos.length} videos; ` +
+        `videos without one add nothing to the averages, so the correlations may read high.`
+      );
+    }
+    if (collected.withDuration < videos.length) {
+      notes.push(
+        `Durations were available for ${collected.withDuration} of ${videos.length} videos; ` +
+        `videos without one fall back to the listed length, so the duration bands may be approximate.`
+      );
+    }
+    if (collected.deadlineHit) {
+      notes.push(
+        "Video collection stopped early to stay within the response time limit; " +
+        `the analysis is based on the ${videos.length} most recent videos found.`
+      );
+    } else if (collected.hasMore) {
+      notes.push(
+        `The analysis is based on the ${videos.length} most recent videos from the last 12 months.`
+      );
+    }
+    if (collected.coverageWarnings.length) {
+      notes.push(`Data source notes: ${collected.coverageWarnings.join("; ")}`);
+    }
+
     const payload = {
       channelId,
-      channelName: channelInfo.snippet?.title,
-      channelThumbnail: channelInfo.snippet?.thumbnails?.medium?.url,
+      channelName: channel.name,
+      channelThumbnail: saChannelAvatarUrl(channel),
       
       videosAnalyzed: videos.length,
       analysisTimeframe: '12 months',
@@ -891,6 +889,17 @@ export default async function handler(req, res) {
       
       topPerformers,
       bottomPerformers,
+
+      fetchedAt: collected.fetchedAt,
+      videoCoverage: {
+        withViews: collected.withViews,
+        withDuration: collected.withDuration,
+        withStats: collected.withStats,
+        total: videos.length
+      },
+      coverageNote: notes.length ? notes.join(" ") : null,
+      coverageWarnings: collected.coverageWarnings,
+      saCreditsUsed: collected.saCreditsUsed,
       
       disclaimer: "Predictions are based on historical patterns from this channel's videos. Many factors affect video performance including content quality, trends, algorithm changes, and audience behavior. Use these insights as guidelines, not guarantees."
     };
@@ -903,6 +912,9 @@ export default async function handler(req, res) {
     }
     return res.json({ ...payload, access: finalized.access });
   } catch (err) {
+    // Any Scrape Atlas failure lands here: the user is charged nothing
+    // (finalizeToolAccess is never reached) and no partial result is
+    // presented as complete.
     return handleApiError(res, err);
   }
 }
