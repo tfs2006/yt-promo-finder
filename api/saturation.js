@@ -191,7 +191,7 @@ export default async function handler(req, res) {
     }
 
     // Get video details
-    const details = await getVideoDetails(recent.map(v => v.videoId));
+    const details = await getVideoDetails(recent.map(v => v.videoId), { includeStatistics: true });
     const videos = recent.map(v => {
       const d = details.find(x => x.videoId === v.videoId);
       return { 
