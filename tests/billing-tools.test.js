@@ -240,9 +240,33 @@ function saChannelVideosBody() {
   };
 }
 
+function saCommentsBody() {
+  return {
+    success: true,
+    status: 'success',
+    comments: Array.from({ length: 5 }, (_, i) => ({
+      id: `comment-${i}`,
+      content: `Great video, really helpful tips number ${i}.`,
+      publishedTime: daysAgo(2),
+      author: {
+        name: `@Viewer${i}`,
+        channelId: `UCcommenter${i}`,
+        avatarUrl: 'https://example.com/avatar.jpg'
+      },
+      engagement: { likes: 3, replies: 0 }
+    })),
+    continuationToken: null,
+    fetchedAt: '2026-11-06T07:00:00Z',
+    coverage: { complete: true, warnings: [] }
+  };
+}
+
 function mockSaSuccess() {
   global.fetch = async (url) => {
     const u = String(url);
+    if (u.includes('/v1/youtube/video/comments')) {
+      return { ok: true, status: 200, json: async () => saCommentsBody() };
+    }
     if (u.includes('/v1/youtube/channel-videos')) {
       return { ok: true, status: 200, json: async () => saChannelVideosBody() };
     }
@@ -355,7 +379,7 @@ for (const tool of SA_TOOLS) {
 }
 
 test('bot-detector: successful run carries access from finalize', async () => {
-  mockYouTubeSuccess();
+  mockSaSuccess();
   try {
     const res = mockRes();
     await handleBotDetector(mockReq(channelUrl('botdetector')), res);
@@ -368,7 +392,7 @@ test('bot-detector: successful run carries access from finalize', async () => {
 });
 
 test('bot-detector: upstream failure returns no access (no charge)', async () => {
-  mockYouTubeFailure();
+  mockSaFailure();
   try {
     const res = mockRes();
     await handleBotDetector(mockReq(channelUrl('botdetector-fail')), res);
