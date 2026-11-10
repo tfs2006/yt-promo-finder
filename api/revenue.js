@@ -13,34 +13,32 @@ import {
 } from "../lib/credits.js";
 import {
   isScrapeAtlasConfigured,
-  fetchSaChannel,
-  parseSaJoinedDate,
+  fetchSaLatestVideosForChannel,
   saChannelAvatarUrl,
   collectSaWarnings,
   saNumber
 } from "../lib/scrapeAtlas.js";
 
 // Revenue on Scrape Atlas (replaces the YouTube Data API version, which
-// burned shared daily quota on every run). Cost: 1 SA credit per run,
-// the channel record only. No YouTube quota is consumed.
+// burned shared daily quota on every run). Cost: 1-4 SA credits per run
+// (1 channel call + 1-3 channel-videos pages with extras). No YouTube
+// quota is consumed.
 //
-// What changed with the data source, and what it means for the numbers:
-// the old version summed the last 12 months of per-video views (up to
-// 200 videos) for the yearly total, monthly breakdown, view trends and
-// top-earning videos. A channel-only lookup has no per-video history,
-// so the yearly estimate is now built from channel totals instead:
-// lifetime views divided by channel age in years. Monthly breakdown,
-// view trends and top-earning videos have no data behind them and are
-// returned empty (same fields, no invented months or videos); the
-// coverage note says so in plain language. Niche detection now reads
-// the channel description, tags and keywords instead of video
-// descriptions. CPM table, monetization rate and revenue formulas are
-// unchanged.
+// The yearly estimate, monthly breakdown, view trends and top-earning
+// videos are all built from the last 12 months of per-video views
+// (up to 200 videos), same as the pre-migration YouTube version: the
+// yearly figure is the sum the monthly breakdown is built from, and
+// the top videos are the 10 highest-viewed in the window. Niche
+// detection reads the fetched video titles and descriptions. CPM table,
+// monetization rate and revenue formulas are unchanged.
 // The UI contract keeps every field the frontend expects. Extra fields
 // (fetchedAt, coverageNote, coverageWarnings, saCreditsUsed) are
 // additive only.
 
-const YEAR_MS = 365.25 * 24 * 60 * 60 * 1000;
+// An extras page takes about 15s upstream, so this function runs with
+// maxDuration 60 and the helper's 55s deadline guard (same pattern as
+// api/viral.js and api/rate.js).
+export const config = { maxDuration: 60 };
 
 // Ad revenue CPM estimates by niche (USD per 1000 views)
 // These are estimated YouTube ad revenue rates (after YT's 45% cut)
@@ -128,8 +126,81 @@ function getRevenueGrade(monthlyRevenue) {
   return { grade: 'D', label: 'Starting Out', color: 'slate', description: 'Building audience and revenue' };
 }
 
+function analyzeViewTrends(videos) {
+  // Sort by date, newest first
+  const sorted = [...videos].sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt));
+
+  // Split into recent (last 3 months) vs older
+  const threeMonthsAgo = new Date();
+  threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+
+  const recent = sorted.filter(v => new Date(v.publishedAt) >= threeMonthsAgo);
+  const older = sorted.filter(v => new Date(v.publishedAt) < threeMonthsAgo);
+
+  const recentAvg = recent.length > 0
+    ? recent.reduce((sum, v) => sum + v.viewCount, 0) / recent.length
+    : 0;
+  const olderAvg = older.length > 0
+    ? older.reduce((sum, v) => sum + v.viewCount, 0) / older.length
+    : 0;
+
+  let trend = 'stable';
+  let trendPercent = 0;
+
+  if (olderAvg > 0 && recentAvg > 0) {
+    trendPercent = ((recentAvg - olderAvg) / olderAvg) * 100;
+    if (trendPercent > 25) trend = 'growing';
+    else if (trendPercent > 10) trend = 'slightly-growing';
+    else if (trendPercent < -25) trend = 'declining';
+    else if (trendPercent < -10) trend = 'slightly-declining';
+  }
+
+  return {
+    trend,
+    trendPercent: Math.round(trendPercent),
+    recentAvgViews: Math.round(recentAvg),
+    olderAvgViews: Math.round(olderAvg),
+    recentVideoCount: recent.length,
+    olderVideoCount: older.length
+  };
+}
+
+function getMonthlyBreakdown(videos) {
+  const months = {};
+  let undated = 0;
+
+  for (const v of videos) {
+    const date = new Date(v.publishedAt);
+    if (!Number.isFinite(date.getTime())) {
+      // No usable publish date: the video still counts toward the
+      // yearly total, but it cannot be placed in a month. The caller
+      // discloses the gap in the coverage note.
+      undated++;
+      continue;
+    }
+    const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+
+    if (!months[key]) {
+      months[key] = { views: 0, videoCount: 0 };
+    }
+    months[key].views += v.viewCount;
+    months[key].videoCount++;
+  }
+
+  const breakdown = Object.entries(months)
+    .map(([month, data]) => ({
+      month,
+      ...data
+    }))
+    .sort((a, b) => b.month.localeCompare(a.month));
+
+  return { breakdown, undated };
+}
+
 export default async function handler(req, res) {
   if (applyApiGuards(req, res, { rateKey: "revenue", maxRequests: 10, windowMs: 60_000 })) return;
+
+  const startedAt = Date.now();
 
   try {
     const rawInput = (req.query.url || "").toString();
@@ -168,47 +239,47 @@ export default async function handler(req, res) {
     }
 
     const spec = parseChannelIdFromUrl(input);
-    // One SA call resolves the handle AND returns the channel record.
-    const channel = await fetchSaChannel(spec, input, "revenue");
-    const channelId = channel.channelId;
+    // One SA call resolves the handle AND returns the channel record;
+    // the last 12 months of videos with extras arrive alongside it
+    // (see fetchSaLatestVideosForChannel in lib/scrapeAtlas.js).
+    // Capped at 200 videos and 3 video pages so the run stays fast.
+    const collected = await fetchSaLatestVideosForChannel({
+      tool: "revenue",
+      spec,
+      input,
+      sinceISO,
+      maxVideos: 200,
+      maxPages: 3,
+      startedAt
+    });
+    const channel = collected.channel;
+    const channelId = collected.channelId;
+    const details = collected.videos;
+
+    if (!details.length) {
+      return res.status(400).json({ error: "No videos found in the last 12 months." });
+    }
 
     const subscriberCount = saNumber(channel.subscriberCount);
     const totalChannelViews = saNumber(channel.viewCount);
     const videoCount = saNumber(channel.videoCount);
 
-    // Channel age from the join date: the yearly estimate is lifetime
-    // views spread over the channel's life. A channel under a month old
-    // is floored at one month so the run-rate does not explode.
-    const joinedISO = parseSaJoinedDate(channel.joinedDateText);
-    const ageYears = joinedISO ? (Date.now() - Date.parse(joinedISO)) / YEAR_MS : null;
-    const divisorYears = ageYears === null ? null : Math.max(ageYears, 1 / 12);
-    const yearlyViews = divisorYears === null
-      ? totalChannelViews
-      : Math.round(totalChannelViews / divisorYears);
-    const videosPerYear = divisorYears === null
-      ? videoCount
-      : videoCount / divisorYears;
-    const avgViewsPerVideo = videoCount > 0
-      ? Math.round(totalChannelViews / videoCount)
-      : 0;
-
-    // Niche from the channel's own words: description, tags, keywords.
-    // (The old version read up to 200 video descriptions instead.)
-    const nicheText = [
-      channel.description || "",
-      channel.tags || "",
-      Array.isArray(channel.keywords) ? channel.keywords.join(", ") : ""
-    ].filter(Boolean).join(" ");
-    const nicheAnalysis = detectNiche([
-      { title: channel.name || "", description: nicheText }
-    ]);
+    // Niche from the fetched video titles and descriptions (same as
+    // the pre-migration version).
+    const nicheAnalysis = detectNiche(details);
     const cpmRates = AD_CPM_BY_NICHE[nicheAnalysis.primary] || AD_CPM_BY_NICHE.default;
 
-    // Calculate revenue estimates from the yearly-views proxy.
+    // Totals from the last 12 months of per-video views, same as the
+    // pre-migration version: the yearly figure is the sum the monthly
+    // breakdown is built from.
+    const totalViews = details.reduce((sum, v) => sum + v.viewCount, 0);
+    const avgViews = details.length > 0 ? totalViews / details.length : 0;
+
+    // Calculate revenue estimates
     const yearlyRevenue = {
-      low: calculateRevenue(yearlyViews, cpmRates.low),
-      avg: calculateRevenue(yearlyViews, cpmRates.avg),
-      high: calculateRevenue(yearlyViews, cpmRates.high)
+      low: calculateRevenue(totalViews, cpmRates.low),
+      avg: calculateRevenue(totalViews, cpmRates.avg),
+      high: calculateRevenue(totalViews, cpmRates.high)
     };
 
     const monthlyRevenue = {
@@ -217,35 +288,78 @@ export default async function handler(req, res) {
       high: yearlyRevenue.high / 12
     };
 
-    // Per video average revenue: yearly revenue spread over the videos
-    // published in a typical year.
+    // Per video average revenue
     const perVideoRevenue = {
-      low: videosPerYear > 0 ? yearlyRevenue.low / videosPerYear : 0,
-      avg: videosPerYear > 0 ? yearlyRevenue.avg / videosPerYear : 0,
-      high: videosPerYear > 0 ? yearlyRevenue.high / videosPerYear : 0
+      low: details.length > 0 ? yearlyRevenue.low / details.length : 0,
+      avg: details.length > 0 ? yearlyRevenue.avg / details.length : 0,
+      high: details.length > 0 ? yearlyRevenue.high / details.length : 0
     };
+
+    // Analyze trends
+    const viewTrends = analyzeViewTrends(details);
+
+    // Monthly breakdown
+    const { breakdown: monthlyBreakdown, undated } = getMonthlyBreakdown(details);
+
+    // Add revenue estimates to monthly breakdown
+    const monthlyBreakdownWithRevenue = monthlyBreakdown.map(m => ({
+      ...m,
+      estimatedRevenue: {
+        low: formatCurrency(calculateRevenue(m.views, cpmRates.low)),
+        avg: formatCurrency(calculateRevenue(m.views, cpmRates.avg)),
+        high: formatCurrency(calculateRevenue(m.views, cpmRates.high))
+      }
+    }));
+
+    // Get top earning videos
+    const topVideos = [...details]
+      .sort((a, b) => b.viewCount - a.viewCount)
+      .slice(0, 10)
+      .map(v => ({
+        videoId: v.videoId,
+        title: v.title,
+        publishedAt: v.publishedAt,
+        viewCount: v.viewCount,
+        estimatedRevenue: {
+          low: formatCurrency(calculateRevenue(v.viewCount, cpmRates.low)),
+          avg: formatCurrency(calculateRevenue(v.viewCount, cpmRates.avg)),
+          high: formatCurrency(calculateRevenue(v.viewCount, cpmRates.high))
+        }
+      }));
 
     // Revenue grade
     const revenueGrade = getRevenueGrade(monthlyRevenue.avg);
 
     const coverageWarnings = [];
     collectSaWarnings(channel, coverageWarnings);
+    for (const w of collected.coverageWarnings || []) {
+      if (w && !coverageWarnings.includes(w)) coverageWarnings.push(w);
+    }
 
     const notes = [];
-    if (ageYears === null) {
+    notes.push(
+      `Yearly views are the sum of the last 12 months of videos (${details.length} videos analyzed).`
+    );
+    if (collected.hasMore) {
       notes.push(
-        "The channel creation date was not available, so the yearly estimate uses " +
-        "lifetime views as-is instead of spreading them over the channel age."
-      );
-    } else {
-      notes.push(
-        `Yearly views are estimated from channel totals (${totalChannelViews.toLocaleString("en-US")} ` +
-        `lifetime views over about ${ageYears.toFixed(1)} years), not from a sum of the last 12 months of videos.`
+        `More videos exist in the last 12 months past the ${details.length} analyzed; the figures cover the newest ${details.length}.`
       );
     }
-    notes.push(
-      "Monthly breakdown, view trends and top-earning videos need per-video history and are not shown for a channel-only lookup."
-    );
+    if (collected.deadlineHit) {
+      notes.push(
+        "The data fetch hit its time limit; the figures cover the newest videos fetched."
+      );
+    }
+    if (undated > 0) {
+      notes.push(
+        `${undated} video${undated === 1 ? "" : "s"} had no usable publish date and ${undated === 1 ? "is" : "are"} counted in the yearly total but not in the monthly breakdown.`
+      );
+    }
+    if (collected.withViews < details.length) {
+      notes.push(
+        `View counts were available for ${collected.withViews} of ${details.length} videos; the rest count as 0 views.`
+      );
+    }
     if (coverageWarnings.length) {
       notes.push(`Data source notes: ${coverageWarnings.join("; ")}`);
     }
@@ -257,8 +371,8 @@ export default async function handler(req, res) {
       subscriberCount,
       totalChannelViews,
 
-      videosAnalyzed: videoCount,
-      analysisTimeframe: '12 months (estimated from channel totals)',
+      videosAnalyzed: details.length,
+      analysisTimeframe: '12 months',
 
       niche: {
         primary: nicheAnalysis.primary,
@@ -275,10 +389,10 @@ export default async function handler(req, res) {
       },
 
       viewMetrics: {
-        totalViews: yearlyViews,
-        averageViews: avgViewsPerVideo,
-        totalViewsFormatted: formatCurrency(yearlyViews).replace('$', ''),
-        averageViewsFormatted: formatCurrency(avgViewsPerVideo).replace('$', '')
+        totalViews,
+        averageViews: Math.round(avgViews),
+        totalViewsFormatted: formatCurrency(totalViews).replace('$', ''),
+        averageViewsFormatted: formatCurrency(avgViews).replace('$', '')
       },
 
       estimatedRevenue: {
@@ -316,26 +430,16 @@ export default async function handler(req, res) {
 
       revenueGrade,
 
-      // No per-video history in a channel-only lookup: neutral trend,
-      // empty monthly breakdown and no top videos. Same fields, no
-      // invented data.
-      viewTrends: {
-        trend: 'stable',
-        trendPercent: 0,
-        recentAvgViews: avgViewsPerVideo,
-        olderAvgViews: avgViewsPerVideo,
-        recentVideoCount: 0,
-        olderVideoCount: 0
-      },
+      viewTrends,
 
-      monthlyBreakdown: [],
+      monthlyBreakdown: monthlyBreakdownWithRevenue,
 
-      topEarningVideos: [],
+      topEarningVideos: topVideos,
 
-      fetchedAt: channel.fetchedAt || "",
+      fetchedAt: collected.fetchedAt || "",
       coverageNote: notes.join(" "),
       coverageWarnings,
-      saCreditsUsed: 1,
+      saCreditsUsed: collected.saCreditsUsed,
 
       assumptions: {
         monetizationRate: `${(MONETIZATION_RATE * 100).toFixed(0)}%`,

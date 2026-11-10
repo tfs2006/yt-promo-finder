@@ -384,73 +384,187 @@ test('rate: SA failure returns an error and charges nothing', async () => {
 
 // ---------- revenue ----------
 
-test('revenue: one channel call, estimate from totals over channel age', async () => {
-  mockSa({ channel: saChannel(), pages: [saVideosPage([])] });
+function revenueVideos() {
+  // 12 videos spread over the last year, distinct months, known views.
+  // Titles carry tech keywords so niche detection lands on tech (avg CPM $4.00).
+  const specs = [
+    { days: 10, views: 200000 },
+    { days: 40, views: 50000 },
+    { days: 45, views: 30000 },
+    { days: 75, views: 80000 },
+    { days: 100, views: 15000 },
+    { days: 130, views: 60000 },
+    { days: 160, views: 25000 },
+    { days: 200, views: 90000 },
+    { days: 240, views: 12000 },
+    { days: 280, views: 40000 },
+    { days: 320, views: 18000 },
+    { days: 350, views: 70000 }
+  ];
+  return specs.map((s, i) => saVideo({
+    id: `rev-vid-${String(i + 1).padStart(2, '0')}`,
+    title: `Tech Review ${i + 1}: Phone Setup Tutorial`,
+    description: `Tech phone review and tutorial, part ${i + 1}.`,
+    publishDate: daysAgo(s.days),
+    publishedTime: daysAgo(s.days),
+    viewCountInt: s.views,
+    likeCountInt: 1000 + i * 100,
+    commentCountInt: 100 + i * 10
+  }));
+}
+
+function monthKey(iso) {
+  const d = new Date(iso);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+}
+
+test('revenue: monthly breakdown and top earning videos come from SA channel-videos', async () => {
+  const videos = revenueVideos();
+  mockSa({ pages: [saVideosPage(videos)] });
   const res = mockRes();
   await revenueHandler(mockReq(channelUrl('revenue-shape')), res);
   assert.equal(res.statusCode, 200);
   const body = res.body;
 
-  // Only the channel endpoint is called: 1 SA credit, no video pages.
-  assert.equal(fetchCalls.length, 1);
-  assert.ok(fetchCalls[0].includes('/v1/youtube/channel'));
-  assert.ok(!fetchCalls[0].includes('channel-videos'));
-  assert.equal(body.saCreditsUsed, 1);
+  // 1 channel call + 1 video page = 2 SA credits.
+  assert.equal(body.saCreditsUsed, 2);
+  assert.equal(fetchCalls.length, 2);
+  const videosUrl = new URL(fetchCalls.find((u) => u.includes('channel-videos')));
+  assert.equal(videosUrl.searchParams.get('includeExtras'), 'true');
+  assert.ok(videosUrl.searchParams.get('since'), 'videos must be windowed to the last year');
 
   assert.equal(body.channelId, 'UCtestchannel');
   assert.equal(body.channelName, 'Test Channel');
   assert.equal(body.channelThumbnail, 'https://example.com/avatar-160.jpg');
   assert.equal(body.subscriberCount, 7380);
   assert.equal(body.totalChannelViews, 1687166);
-  assert.equal(body.videosAnalyzed, 404);
+  assert.equal(body.videosAnalyzed, 12);
+  assert.equal(body.analysisTimeframe, '12 months');
   assert.equal(body.niche.primary, 'tech');
   assert.deepEqual(body.cpmRates, {
     low: 2.5, avg: 4, high: 7,
     formatted: { low: '$2.50', avg: '$4.00', high: '$7.00' }
   });
 
-  // Yearly views = lifetime views / ~2.46y age (900 days). Loose bounds
-  // so the test does not depend on the exact day it runs.
-  assert.ok(body.viewMetrics.totalViews > 600000 && body.viewMetrics.totalViews < 750000,
-    `yearly views must be lifetime/age, got ${body.viewMetrics.totalViews}`);
-  assert.equal(body.viewMetrics.averageViews, Math.round(1687166 / 404));
-  assert.ok(body.estimatedRevenue.yearly.avg > 0, 'yearly revenue must be non-zero');
-  assert.ok(body.estimatedRevenue.monthly.avg > 0, 'monthly revenue must be non-zero');
-  assert.ok(body.estimatedRevenue.perVideo.avg > 0, 'per-video revenue must be non-zero');
+  // Yearly views are the 12-month per-video sum, not lifetime/age.
+  const totalViews = videos.reduce((s, v) => s + v.viewCountInt, 0);
+  assert.equal(body.viewMetrics.totalViews, totalViews);
+  assert.equal(body.viewMetrics.averageViews, Math.round(totalViews / 12));
+  // Tech avg CPM $4.00, 65% monetized: revenue = views * 0.65 / 1000 * 4.
+  const expectedYearlyAvg = totalViews * 0.65 / 1000 * 4;
+  assert.equal(body.estimatedRevenue.yearly.avg, expectedYearlyAvg);
+  assert.equal(body.estimatedRevenue.monthly.avg, expectedYearlyAvg / 12);
+  assert.equal(body.estimatedRevenue.perVideo.avg, expectedYearlyAvg / 12);
   assert.equal(body.revenueGrade.grade, 'D');
 
-  // No per-video history in a channel-only lookup: same fields, empty.
-  assert.deepEqual(body.monthlyBreakdown, []);
-  assert.deepEqual(body.topEarningVideos, []);
-  assert.equal(body.viewTrends.trend, 'stable');
-  assert.match(body.coverageNote, /Yearly views are estimated from channel totals/);
-  assert.match(body.coverageNote, /Monthly breakdown, view trends and top-earning videos need per-video history/);
+  // Monthly breakdown: one row per distinct month, newest first, and
+  // the monthly views sum back to the yearly total.
+  const expectedMonths = {};
+  for (const v of videos) {
+    const key = monthKey(v.publishDate);
+    expectedMonths[key] = expectedMonths[key] || { views: 0, videoCount: 0 };
+    expectedMonths[key].views += v.viewCountInt;
+    expectedMonths[key].videoCount++;
+  }
+  const expectedKeys = Object.keys(expectedMonths).sort().reverse();
+  assert.deepEqual(body.monthlyBreakdown.map((m) => m.month), expectedKeys);
+  assert.equal(
+    body.monthlyBreakdown.reduce((s, m) => s + m.views, 0),
+    totalViews,
+    'monthly views must sum to the yearly total'
+  );
+  for (const m of body.monthlyBreakdown) {
+    assert.equal(m.views, expectedMonths[m.month].views);
+    assert.equal(m.videoCount, expectedMonths[m.month].videoCount);
+    assert.match(m.estimatedRevenue.avg, /^\$/, 'monthly revenue must be a formatted dollar string');
+  }
+
+  // Top earning videos: top 10 by views, highest first. The 200k-view
+  // video earns 200000 * 0.65 / 1000 * 4 = $520 at the avg CPM.
+  assert.equal(body.topEarningVideos.length, 10);
+  assert.deepEqual(
+    body.topEarningVideos.map((v) => v.viewCount),
+    [200000, 90000, 80000, 70000, 60000, 50000, 40000, 30000, 25000, 18000]
+  );
+  assert.equal(body.topEarningVideos[0].videoId, 'rev-vid-01');
+  assert.equal(body.topEarningVideos[0].estimatedRevenue.avg, '$520');
+  assert.equal(body.topEarningVideos[0].estimatedRevenue.low, '$325');
+  assert.equal(body.topEarningVideos[0].estimatedRevenue.high, '$910');
+
+  // View trends: recent 4 videos (10-75 days ago) average 90000, older
+  // 8 average 41250, so the trend is growing at +118%.
+  assert.equal(body.viewTrends.trend, 'growing');
+  assert.equal(body.viewTrends.trendPercent, 118);
+  assert.equal(body.viewTrends.recentAvgViews, 90000);
+  assert.equal(body.viewTrends.olderAvgViews, 41250);
+  assert.equal(body.viewTrends.recentVideoCount, 4);
+  assert.equal(body.viewTrends.olderVideoCount, 8);
+
+  assert.match(body.coverageNote, /Yearly views are the sum of the last 12 months/);
   assert.ok(body.access);
   assertNoKeyLeak(body);
 });
 
-test('revenue: missing join date falls back to lifetime views as-is', async () => {
-  mockSa({ channel: saChannel({ joinedDateText: undefined }), pages: [saVideosPage([])] });
+test('revenue: second page is fetched when the first has a continuation', async () => {
+  const videos = revenueVideos();
+  mockSa({ pages: [
+    saVideosPage(videos.slice(0, 6), 'tok2'),
+    saVideosPage(videos.slice(6))
+  ] });
   const res = mockRes();
-  await revenueHandler(mockReq(channelUrl('revenue-nodate')), res);
+  await revenueHandler(mockReq(channelUrl('revenue-pages')), res);
   assert.equal(res.statusCode, 200);
-  assert.equal(res.body.viewMetrics.totalViews, 1687166);
-  assert.match(res.body.coverageNote, /lifetime views as-is/);
+  assert.equal(res.body.videosAnalyzed, 12);
+  assert.equal(res.body.saCreditsUsed, 3);
+  assert.equal(fetchCalls.length, 3);
+  assert.equal(res.body.topEarningVideos[0].videoId, 'rev-vid-01');
+  assert.equal(res.body.monthlyBreakdown.reduce((s, m) => s + m.views, 0), 690000);
+});
+
+test('revenue: a video with no usable publish date is counted in the yearly total but not the monthly breakdown', async () => {
+  const videos = revenueVideos();
+  // Strip the date from the 60000-view video: it still has views, so it
+  // counts toward the yearly total, but it cannot be placed in a month.
+  videos[5] = { ...videos[5], publishDate: null, publishedTime: '' };
+  mockSa({ pages: [saVideosPage(videos)] });
+  const res = mockRes();
+  await revenueHandler(mockReq(channelUrl('revenue-undated')), res);
+  assert.equal(res.statusCode, 200);
+  const body = res.body;
+  const totalViews = videos.reduce((s, v) => s + v.viewCountInt, 0);
+  assert.equal(body.viewMetrics.totalViews, totalViews);
+  assert.equal(
+    body.monthlyBreakdown.reduce((s, m) => s + m.views, 0),
+    totalViews - 60000,
+    'the undated video must not appear in any month'
+  );
+  assert.match(body.coverageNote, /1 video had no usable publish date/);
+  assert.equal(body.topEarningVideos.length, 10);
+});
+
+test('revenue: no videos in the last 12 months returns 400 and charges nothing', async () => {
+  mockSa({ pages: [saVideosPage([])] });
+  const res = mockRes();
+  await revenueHandler(mockReq(channelUrl('revenue-novideos')), res);
+  assert.equal(res.statusCode, 400);
+  assert.equal(res.body.error, 'No videos found in the last 12 months.');
+  assert.equal(res.body.access, undefined);
+  assertNoKeyLeak(res.body);
 });
 
 test('revenue: cached repeat is free and makes no SA call', async () => {
-  mockSa({ channel: saChannel(), pages: [saVideosPage([])] });
+  mockSa({ pages: [saVideosPage(revenueVideos())] });
   const url = channelUrl('revenue-cache2');
   const first = mockRes();
   await revenueHandler(mockReq(url), first);
   assert.equal(first.statusCode, 200);
-  assert.equal(fetchCalls.length, 1);
+  assert.equal(fetchCalls.length, 2);
 
   const second = mockRes();
   await revenueHandler(mockReq(url), second);
   assert.equal(second.statusCode, 200);
   assert.equal(second.body.fromCache, true);
-  assert.equal(fetchCalls.length, 1);
+  assert.equal(fetchCalls.length, 2);
 });
 
 test('revenue: SA failure returns an error and charges nothing', async () => {
@@ -463,7 +577,8 @@ test('revenue: SA failure returns an error and charges nothing', async () => {
   assert.equal(res.statusCode, 500);
   assert.equal(typeof res.body.error, 'string');
   assert.equal(res.body.access, undefined);
-  assert.equal(fetchCalls.length, 1);
+  // Channel + first video page fire in parallel before the 404 rejects.
+  assert.equal(fetchCalls.length, 2);
   assertNoKeyLeak(res.body);
 });
 
