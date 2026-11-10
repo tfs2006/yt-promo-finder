@@ -1,10 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
 
 // Env vars must be set BEFORE the handlers load: utils.js reads
 // YOUTUBE_API_KEY at import time, and static imports are hoisted above
 // this file's body, so the handlers are imported dynamically below.
 process.env.YOUTUBE_API_KEY = 'x'.repeat(32);
+process.env.SCRAPE_ATLAS_API_KEY = 'test-dummy-not-a-real-key';
 process.env.OWNER_DEMO_MODE = '1';
 process.env.OWNER_DEMO_KEY = 'test-owner-demo-key';
 
@@ -173,12 +175,91 @@ function restoreFetch() {
   global.fetch = originalFetch;
 }
 
+// The SA ledger (logSaCall) writes cache_sa_ledger_*.json files in the
+// test env; clean them so the repo stays tidy.
+test.afterEach(() => {
+  for (const file of fs.readdirSync(process.cwd())) {
+    if (file.startsWith('cache_sa_ledger_')) {
+      try { fs.unlinkSync(file); } catch {}
+    }
+  }
+});
+
 function assertRequestedStatistics() {
   const videosUrls = fetchedUrls.filter((u) => u.includes('/youtube/v3/videos'));
   assert.ok(videosUrls.length > 0, 'handler must call the videos endpoint');
   assert.ok(
     videosUrls.some((u) => (u.match(/[?&]part=([^&]*)/)?.[1] || '').split(',').includes('statistics')),
     `videos request must ask for the statistics part, got: ${videosUrls.join(' | ')}`
+  );
+}
+
+// Rate runs on Scrape Atlas now (Phase A): same 12 videos, in SA shape.
+// The mock mirrors the real SA contract the same way mockYouTubeFaithful
+// mirrors the YouTube API: extras carry description, like and comment
+// counts, so a handler that forgets includeExtras gets no stats, exactly
+// like production.
+function mockSaFaithful() {
+  fetchedUrls = [];
+  global.fetch = async (url) => {
+    const u = String(url);
+    fetchedUrls.push(u);
+    if (u.includes('/v1/youtube/channel-videos')) {
+      const withExtras = u.includes('includeExtras=true');
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          success: true,
+          status: 'success',
+          videos: VIDEOS.map((v) => ({
+            type: 'video',
+            id: v.videoId,
+            title: v.title,
+            // Without extras the description and counts are null.
+            description: withExtras ? v.description : null,
+            publishDate: v.publishedAt,
+            publishedTime: v.publishedAt,
+            viewCountInt: v.viewCount,
+            likeCountInt: withExtras ? v.likeCount : null,
+            commentCountInt: withExtras ? v.commentCount : null,
+            durationMs: 390000
+          })),
+          continuationToken: null,
+          fetchedAt: '2026-11-06T07:00:00Z',
+          coverage: { complete: true, warnings: [] }
+        })
+      };
+    }
+    if (u.includes('/v1/youtube/channel')) {
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          success: true,
+          status: 'success',
+          channelId: 'UCtestchannel',
+          name: 'Test Channel',
+          description: 'A test channel.',
+          subscriberCount: 42000,
+          videoCount: 120,
+          viewCount: 1500000,
+          joinedDateText: 'Joined Jul 30, 2019',
+          fetchedAt: '2026-11-06T07:00:00Z',
+          coverage: { complete: true, warnings: [] }
+        })
+      };
+    }
+    throw new Error(`unexpected fetch in test: ${u}`);
+  };
+}
+
+function assertRequestedExtras() {
+  const videosUrls = fetchedUrls.filter((u) => u.includes('/v1/youtube/channel-videos'));
+  assert.ok(videosUrls.length > 0, 'handler must call channel-videos');
+  assert.ok(
+    videosUrls.some((u) => u.includes('includeExtras=true')),
+    `channel-videos request must ask for extras, got: ${videosUrls.join(' | ')}`
   );
 }
 
@@ -201,12 +282,12 @@ test('viral: requests video statistics and scores vary with real views', async (
 });
 
 test('rate: requests video statistics and the estimate is non-zero', async () => {
-  mockYouTubeFaithful();
+  mockSaFaithful();
   try {
     const res = mockRes();
     await rateHandler(mockReq(channelUrl('rate-stats')), res);
     assert.equal(res.statusCode, 200);
-    assertRequestedStatistics();
+    assertRequestedExtras();
     assert.ok(res.body.metrics.averageViews > 0, `averageViews must be real, got ${res.body.metrics.averageViews}`);
     assert.ok(res.body.estimatedRates.perVideo.average > 0, `estimated rate must be non-zero, got ${res.body.estimatedRates.perVideo.average}`);
     assert.ok(res.body.estimatedRates.perVideo.low > 0, 'estimated rate low must be non-zero');

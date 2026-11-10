@@ -1,23 +1,46 @@
-import { 
-  consumeQuota, 
-  fetchJson, 
-  API_KEY, 
-  setCache, 
+import {
+  setCache,
   getCache,
   parseChannelIdFromUrl,
-  resolveChannelId,
-  getChannelSnapshot,
   applyApiGuards,
   handleApiError,
-  checkQuota,
-  validateChannelInput,
-  initQuota
+  validateChannelInput
 } from "../utils.js";
 import {
   buildPaymentRequiredResponse,
   finalizeToolAccess,
   getToolAccessState
 } from "../lib/credits.js";
+import {
+  isScrapeAtlasConfigured,
+  fetchSaChannel,
+  parseSaJoinedDate,
+  saChannelAvatarUrl,
+  collectSaWarnings,
+  saNumber
+} from "../lib/scrapeAtlas.js";
+
+// Revenue on Scrape Atlas (replaces the YouTube Data API version, which
+// burned shared daily quota on every run). Cost: 1 SA credit per run,
+// the channel record only. No YouTube quota is consumed.
+//
+// What changed with the data source, and what it means for the numbers:
+// the old version summed the last 12 months of per-video views (up to
+// 200 videos) for the yearly total, monthly breakdown, view trends and
+// top-earning videos. A channel-only lookup has no per-video history,
+// so the yearly estimate is now built from channel totals instead:
+// lifetime views divided by channel age in years. Monthly breakdown,
+// view trends and top-earning videos have no data behind them and are
+// returned empty (same fields, no invented months or videos); the
+// coverage note says so in plain language. Niche detection now reads
+// the channel description, tags and keywords instead of video
+// descriptions. CPM table, monetization rate and revenue formulas are
+// unchanged.
+// The UI contract keeps every field the frontend expects. Extra fields
+// (fetchedAt, coverageNote, coverageWarnings, saCreditsUsed) are
+// additive only.
+
+const YEAR_MS = 365.25 * 24 * 60 * 60 * 1000;
 
 // Ad revenue CPM estimates by niche (USD per 1000 views)
 // These are estimated YouTube ad revenue rates (after YT's 45% cut)
@@ -70,11 +93,11 @@ function detectNiche(videos) {
   }
 
   const sorted = Object.entries(scores).sort((a, b) => b[1] - a[1]);
-  
+
   // Return top 3 niches for mixed content channels
   const topNiches = sorted.filter(([_, score]) => score > 0).slice(0, 3);
   const primaryNiche = topNiches.length > 0 ? topNiches[0][0] : 'default';
-  
+
   return {
     primary: primaryNiche,
     all: topNiches.map(([niche, score]) => ({ niche, score })),
@@ -105,78 +128,8 @@ function getRevenueGrade(monthlyRevenue) {
   return { grade: 'D', label: 'Starting Out', color: 'slate', description: 'Building audience and revenue' };
 }
 
-function analyzeViewTrends(videos) {
-  // Sort by date, newest first
-  const sorted = [...videos].sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt));
-  
-  // Split into recent (last 3 months) vs older
-  const threeMonthsAgo = new Date();
-  threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
-  
-  const recent = sorted.filter(v => new Date(v.publishedAt) >= threeMonthsAgo);
-  const older = sorted.filter(v => new Date(v.publishedAt) < threeMonthsAgo);
-  
-  const recentAvg = recent.length > 0 
-    ? recent.reduce((sum, v) => sum + v.viewCount, 0) / recent.length 
-    : 0;
-  const olderAvg = older.length > 0 
-    ? older.reduce((sum, v) => sum + v.viewCount, 0) / older.length 
-    : 0;
-  
-  let trend = 'stable';
-  let trendPercent = 0;
-  
-  if (olderAvg > 0 && recentAvg > 0) {
-    trendPercent = ((recentAvg - olderAvg) / olderAvg) * 100;
-    if (trendPercent > 25) trend = 'growing';
-    else if (trendPercent > 10) trend = 'slightly-growing';
-    else if (trendPercent < -25) trend = 'declining';
-    else if (trendPercent < -10) trend = 'slightly-declining';
-  }
-  
-  return {
-    trend,
-    trendPercent: Math.round(trendPercent),
-    recentAvgViews: Math.round(recentAvg),
-    olderAvgViews: Math.round(olderAvg),
-    recentVideoCount: recent.length,
-    olderVideoCount: older.length
-  };
-}
-
-function getMonthlyBreakdown(videos) {
-  const months = {};
-  
-  for (const v of videos) {
-    const date = new Date(v.publishedAt);
-    const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-    
-    if (!months[key]) {
-      months[key] = { views: 0, videoCount: 0 };
-    }
-    months[key].views += v.viewCount;
-    months[key].videoCount++;
-  }
-  
-  return Object.entries(months)
-    .map(([month, data]) => ({
-      month,
-      ...data
-    }))
-    .sort((a, b) => b.month.localeCompare(a.month));
-}
-
 export default async function handler(req, res) {
   if (applyApiGuards(req, res, { rateKey: "revenue", maxRequests: 10, windowMs: 60_000 })) return;
-
-  // Sign-in wall: every tool requires a Google account. David, Nov 2 2026.
-  // Access state is kept so a successful run can deduct credits below.
-  const accessState = await getToolAccessState(req, "revenue");
-  if (!accessState.allowed) {
-    return res.status(402).json(buildPaymentRequiredResponse(accessState));
-  }
-
-  await initQuota();
 
   try {
     const rawInput = (req.query.url || "").toString();
@@ -186,21 +139,18 @@ export default async function handler(req, res) {
     }
     const input = validation.sanitized;
 
-    if (!API_KEY) {
-      return res.status(500).json({ error: "YouTube API key not configured." });
+    if (!isScrapeAtlasConfigured()) {
+      return res.status(500).json({ error: "Scrape Atlas is not configured on this site yet." });
     }
 
-    // Check quota before starting
-    const quotaCheck = checkQuota(250);
-    if (!quotaCheck.allowed) {
-      return res.status(429).json({ 
-        error: quotaCheck.message,
-        code: 'QUOTA_EXCEEDED',
-        quotaStatus: quotaCheck.status
-      });
+    // Sign-in wall: every tool requires a Google account. David, Nov 2 2026.
+    // Access state is kept so a successful run can deduct credits below.
+    const accessState = await getToolAccessState(req, "revenue");
+    if (!accessState.allowed) {
+      return res.status(402).json(buildPaymentRequiredResponse(accessState));
     }
 
-    // Use 12 months of data
+    // Day-granular window, kept so the cache key format is unchanged.
     const sinceDate = new Date();
     sinceDate.setFullYear(sinceDate.getFullYear() - 1);
     sinceDate.setUTCHours(0, 0, 0, 0);
@@ -218,43 +168,47 @@ export default async function handler(req, res) {
     }
 
     const spec = parseChannelIdFromUrl(input);
-    const channelId = await resolveChannelId(spec);
+    // One SA call resolves the handle AND returns the channel record.
+    const channel = await fetchSaChannel(spec, input, "revenue");
+    const channelId = channel.channelId;
 
-    // Get channel info
-    consumeQuota(1);
-    const channelUrl = `https://www.googleapis.com/youtube/v3/channels?part=snippet,statistics&id=${channelId}&key=${API_KEY}`;
-    const channelData = await fetchJson(channelUrl);
-    const channelInfo = channelData.items?.[0];
-    
-    if (!channelInfo) {
-      return res.status(404).json({ error: "Channel not found." });
-    }
+    const subscriberCount = saNumber(channel.subscriberCount);
+    const totalChannelViews = saNumber(channel.viewCount);
+    const videoCount = saNumber(channel.videoCount);
 
-    const snapshot = await getChannelSnapshot(input, sinceISO, {
-      maxVideos: 200,
-      includeStatistics: true,
-      cacheTtlSeconds: 3600
-    });
+    // Channel age from the join date: the yearly estimate is lifetime
+    // views spread over the channel's life. A channel under a month old
+    // is floored at one month so the run-rate does not explode.
+    const joinedISO = parseSaJoinedDate(channel.joinedDateText);
+    const ageYears = joinedISO ? (Date.now() - Date.parse(joinedISO)) / YEAR_MS : null;
+    const divisorYears = ageYears === null ? null : Math.max(ageYears, 1 / 12);
+    const yearlyViews = divisorYears === null
+      ? totalChannelViews
+      : Math.round(totalChannelViews / divisorYears);
+    const videosPerYear = divisorYears === null
+      ? videoCount
+      : videoCount / divisorYears;
+    const avgViewsPerVideo = videoCount > 0
+      ? Math.round(totalChannelViews / videoCount)
+      : 0;
 
-    if (!snapshot.videoCount) {
-      return res.status(400).json({ error: "No videos found in the last 12 months." });
-    }
-
-    const details = snapshot.videos;
-
-    // Detect niche
-    const nicheAnalysis = detectNiche(details);
+    // Niche from the channel's own words: description, tags, keywords.
+    // (The old version read up to 200 video descriptions instead.)
+    const nicheText = [
+      channel.description || "",
+      channel.tags || "",
+      Array.isArray(channel.keywords) ? channel.keywords.join(", ") : ""
+    ].filter(Boolean).join(" ");
+    const nicheAnalysis = detectNiche([
+      { title: channel.name || "", description: nicheText }
+    ]);
     const cpmRates = AD_CPM_BY_NICHE[nicheAnalysis.primary] || AD_CPM_BY_NICHE.default;
 
-    // Calculate totals
-    const totalViews = details.reduce((sum, v) => sum + v.viewCount, 0);
-    const avgViews = details.length > 0 ? totalViews / details.length : 0;
-
-    // Calculate revenue estimates
+    // Calculate revenue estimates from the yearly-views proxy.
     const yearlyRevenue = {
-      low: calculateRevenue(totalViews, cpmRates.low),
-      avg: calculateRevenue(totalViews, cpmRates.avg),
-      high: calculateRevenue(totalViews, cpmRates.high)
+      low: calculateRevenue(yearlyViews, cpmRates.low),
+      avg: calculateRevenue(yearlyViews, cpmRates.avg),
+      high: calculateRevenue(yearlyViews, cpmRates.high)
     };
 
     const monthlyRevenue = {
@@ -263,63 +217,54 @@ export default async function handler(req, res) {
       high: yearlyRevenue.high / 12
     };
 
-    // Per video average revenue
+    // Per video average revenue: yearly revenue spread over the videos
+    // published in a typical year.
     const perVideoRevenue = {
-      low: details.length > 0 ? yearlyRevenue.low / details.length : 0,
-      avg: details.length > 0 ? yearlyRevenue.avg / details.length : 0,
-      high: details.length > 0 ? yearlyRevenue.high / details.length : 0
+      low: videosPerYear > 0 ? yearlyRevenue.low / videosPerYear : 0,
+      avg: videosPerYear > 0 ? yearlyRevenue.avg / videosPerYear : 0,
+      high: videosPerYear > 0 ? yearlyRevenue.high / videosPerYear : 0
     };
-
-    // Analyze trends
-    const viewTrends = analyzeViewTrends(details);
-
-    // Monthly breakdown
-    const monthlyBreakdown = getMonthlyBreakdown(details);
-
-    // Add revenue estimates to monthly breakdown
-    const monthlyBreakdownWithRevenue = monthlyBreakdown.map(m => ({
-      ...m,
-      estimatedRevenue: {
-        low: formatCurrency(calculateRevenue(m.views, cpmRates.low)),
-        avg: formatCurrency(calculateRevenue(m.views, cpmRates.avg)),
-        high: formatCurrency(calculateRevenue(m.views, cpmRates.high))
-      }
-    }));
-
-    // Get top earning videos
-    const topVideos = [...details]
-      .sort((a, b) => b.viewCount - a.viewCount)
-      .slice(0, 10)
-      .map(v => ({
-        videoId: v.videoId,
-        title: v.title,
-        publishedAt: v.publishedAt,
-        viewCount: v.viewCount,
-        estimatedRevenue: {
-          low: formatCurrency(calculateRevenue(v.viewCount, cpmRates.low)),
-          avg: formatCurrency(calculateRevenue(v.viewCount, cpmRates.avg)),
-          high: formatCurrency(calculateRevenue(v.viewCount, cpmRates.high))
-        }
-      }));
 
     // Revenue grade
     const revenueGrade = getRevenueGrade(monthlyRevenue.avg);
 
+    const coverageWarnings = [];
+    collectSaWarnings(channel, coverageWarnings);
+
+    const notes = [];
+    if (ageYears === null) {
+      notes.push(
+        "The channel creation date was not available, so the yearly estimate uses " +
+        "lifetime views as-is instead of spreading them over the channel age."
+      );
+    } else {
+      notes.push(
+        `Yearly views are estimated from channel totals (${totalChannelViews.toLocaleString("en-US")} ` +
+        `lifetime views over about ${ageYears.toFixed(1)} years), not from a sum of the last 12 months of videos.`
+      );
+    }
+    notes.push(
+      "Monthly breakdown, view trends and top-earning videos need per-video history and are not shown for a channel-only lookup."
+    );
+    if (coverageWarnings.length) {
+      notes.push(`Data source notes: ${coverageWarnings.join("; ")}`);
+    }
+
     const payload = {
       channelId,
-      channelName: channelInfo.snippet?.title,
-      channelThumbnail: channelInfo.snippet?.thumbnails?.medium?.url,
-      subscriberCount: parseInt(channelInfo.statistics?.subscriberCount || 0),
-      totalChannelViews: parseInt(channelInfo.statistics?.viewCount || 0),
-      
-      videosAnalyzed: details.length,
-      analysisTimeframe: '12 months',
-      
+      channelName: channel.name || "",
+      channelThumbnail: saChannelAvatarUrl(channel),
+      subscriberCount,
+      totalChannelViews,
+
+      videosAnalyzed: videoCount,
+      analysisTimeframe: '12 months (estimated from channel totals)',
+
       niche: {
         primary: nicheAnalysis.primary,
         all: nicheAnalysis.all
       },
-      
+
       cpmRates: {
         ...cpmRates,
         formatted: {
@@ -328,14 +273,14 @@ export default async function handler(req, res) {
           high: `$${cpmRates.high.toFixed(2)}`
         }
       },
-      
+
       viewMetrics: {
-        totalViews,
-        averageViews: Math.round(avgViews),
-        totalViewsFormatted: formatCurrency(totalViews).replace('$', ''),
-        averageViewsFormatted: formatCurrency(avgViews).replace('$', '')
+        totalViews: yearlyViews,
+        averageViews: avgViewsPerVideo,
+        totalViewsFormatted: formatCurrency(yearlyViews).replace('$', ''),
+        averageViewsFormatted: formatCurrency(avgViewsPerVideo).replace('$', '')
       },
-      
+
       estimatedRevenue: {
         yearly: {
           low: yearlyRevenue.low,
@@ -368,24 +313,39 @@ export default async function handler(req, res) {
           }
         }
       },
-      
+
       revenueGrade,
-      
-      viewTrends,
-      
-      monthlyBreakdown: monthlyBreakdownWithRevenue,
-      
-      topEarningVideos: topVideos,
-      
+
+      // No per-video history in a channel-only lookup: neutral trend,
+      // empty monthly breakdown and no top videos. Same fields, no
+      // invented data.
+      viewTrends: {
+        trend: 'stable',
+        trendPercent: 0,
+        recentAvgViews: avgViewsPerVideo,
+        olderAvgViews: avgViewsPerVideo,
+        recentVideoCount: 0,
+        olderVideoCount: 0
+      },
+
+      monthlyBreakdown: [],
+
+      topEarningVideos: [],
+
+      fetchedAt: channel.fetchedAt || "",
+      coverageNote: notes.join(" "),
+      coverageWarnings,
+      saCreditsUsed: 1,
+
       assumptions: {
         monetizationRate: `${(MONETIZATION_RATE * 100).toFixed(0)}%`,
         description: 'Not all views are monetized (ad blockers, non-monetizable content, viewer location)',
         note: 'CPM varies significantly based on viewer demographics, content type, and advertiser demand'
       },
-      
+
       disclaimer: "These are rough estimates based on industry averages. Actual revenue depends on many factors including viewer demographics, ad blockers, content type, and YouTube's revenue share (creators receive ~55% of ad revenue). This does not include revenue from sponsorships, merchandise, memberships, or other income sources."
     };
-    
+
     setCache(cacheKey, payload);
     // Charge only after a successful run (mirrors api/unlisted.js).
     const finalized = await finalizeToolAccess(req, res, accessState, { chargeCredits: true });
@@ -394,6 +354,9 @@ export default async function handler(req, res) {
     }
     return res.json({ ...payload, access: finalized.access });
   } catch (err) {
+    // Any Scrape Atlas failure lands here: the user is charged nothing
+    // (finalizeToolAccess is never reached) and no partial result is
+    // presented as complete.
     return handleApiError(res, err);
   }
 }

@@ -1,10 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
 
 // Env vars must be set BEFORE the handlers load: utils.js reads
 // YOUTUBE_API_KEY at import time, and static imports are hoisted above
 // this file's body, so the handlers are imported dynamically below.
 process.env.YOUTUBE_API_KEY = 'test-youtube-key-DO-NOT-USE';
+process.env.SCRAPE_ATLAS_API_KEY = 'test-dummy-not-a-real-key';
 process.env.OWNER_DEMO_MODE = '1';
 process.env.OWNER_DEMO_KEY = 'test-owner-demo-key';
 
@@ -193,6 +195,84 @@ function mockYouTubeFailure() {
   });
 }
 
+// Scrape Atlas mock for the migrated tools (growth, rate, revenue).
+// Same 12 videos as the YouTube fixture, in SA response shape.
+function saChannelBody() {
+  const joined = new Date(Date.now() - 900 * 86400000)
+    .toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  return {
+    success: true,
+    status: 'success',
+    channelId: 'UCtestchannel',
+    name: 'Test Channel',
+    description: 'A test channel about tech reviews and tutorials.',
+    subscriberCount: 42000,
+    videoCount: 120,
+    viewCount: 1500000,
+    joinedDateText: `Joined ${joined}`,
+    tags: 'tech, review, tutorial',
+    keywords: ['tech', 'review', 'tutorial'],
+    avatar: { image: { sources: [{ url: 'https://example.com/thumb.jpg', width: 160, height: 160 }] } },
+    fetchedAt: '2026-11-06T07:00:00Z',
+    coverage: { complete: true, warnings: [] }
+  };
+}
+
+function saChannelVideosBody() {
+  return {
+    success: true,
+    status: 'success',
+    videos: VIDEOS.map((v) => ({
+      type: 'video',
+      id: v.videoId,
+      title: v.title,
+      description: v.description,
+      publishDate: v.publishedAt,
+      publishedTime: v.publishedAt,
+      viewCountInt: v.viewCount,
+      likeCountInt: v.likeCount,
+      commentCountInt: v.commentCount,
+      durationMs: 390000
+    })),
+    continuationToken: null,
+    fetchedAt: '2026-11-06T07:00:00Z',
+    coverage: { complete: true, warnings: [] }
+  };
+}
+
+function mockSaSuccess() {
+  global.fetch = async (url) => {
+    const u = String(url);
+    if (u.includes('/v1/youtube/channel-videos')) {
+      return { ok: true, status: 200, json: async () => saChannelVideosBody() };
+    }
+    if (u.includes('/v1/youtube/channel')) {
+      return { ok: true, status: 200, json: async () => saChannelBody() };
+    }
+    throw new Error(`unexpected fetch in test: ${u}`);
+  };
+}
+
+function mockSaFailure() {
+  global.fetch = async () => ({
+    ok: false,
+    status: 500,
+    json: async () => ({ success: false, failure: { code: 'busy', message: 'overloaded' } })
+  });
+}
+
+function cleanLedgerFiles() {
+  for (const file of fs.readdirSync(process.cwd())) {
+    if (file.startsWith('cache_sa_ledger_')) {
+      try { fs.unlinkSync(file); } catch {}
+    }
+  }
+}
+
+test.afterEach(() => {
+  cleanLedgerFiles();
+});
+
 function restoreFetch() {
   global.fetch = originalFetch;
 }
@@ -207,16 +287,21 @@ function assertNotFinalized(res) {
   assert.equal(res.body.access, undefined, 'failure must not run finalize');
 }
 
-const TOOLS = [
-  { name: 'growth', cost: 2, handler: growthHandler },
+const YT_TOOLS = [
   { name: 'viral', cost: 2, handler: viralHandler },
   { name: 'saturation', cost: 2, handler: saturationHandler },
-  { name: 'rate', cost: 1, handler: rateHandler },
-  { name: 'revenue', cost: 1, handler: revenueHandler },
   { name: 'predictor', cost: 3, handler: predictorHandler }
 ];
 
-for (const tool of TOOLS) {
+// Growth, rate and revenue run on Scrape Atlas now (Phase A), so their
+// billing tests mock the SA endpoints instead of the YouTube API.
+const SA_TOOLS = [
+  { name: 'growth', cost: 2, handler: growthHandler },
+  { name: 'rate', cost: 1, handler: rateHandler },
+  { name: 'revenue', cost: 1, handler: revenueHandler }
+];
+
+for (const tool of YT_TOOLS) {
   test(`${tool.name}: successful run carries access from finalize`, async () => {
     mockYouTubeSuccess();
     try {
@@ -231,6 +316,32 @@ for (const tool of TOOLS) {
 
   test(`${tool.name}: upstream failure returns no access (no charge)`, async () => {
     mockYouTubeFailure();
+    try {
+      const res = mockRes();
+      await tool.handler(mockReq(channelUrl(`${tool.name}-fail`)), res);
+      assert.ok(res.statusCode >= 400, `expected an error status, got ${res.statusCode}`);
+      assertNotFinalized(res);
+    } finally {
+      restoreFetch();
+    }
+  });
+}
+
+for (const tool of SA_TOOLS) {
+  test(`${tool.name}: successful run carries access from finalize`, async () => {
+    mockSaSuccess();
+    try {
+      const res = mockRes();
+      await tool.handler(mockReq(channelUrl(tool.name)), res);
+      assert.equal(res.statusCode, 200);
+      assertFinalized(res);
+    } finally {
+      restoreFetch();
+    }
+  });
+
+  test(`${tool.name}: upstream failure returns no access (no charge)`, async () => {
+    mockSaFailure();
     try {
       const res = mockRes();
       await tool.handler(mockReq(channelUrl(`${tool.name}-fail`)), res);
@@ -268,7 +379,7 @@ test('bot-detector: upstream failure returns no access (no charge)', async () =>
 });
 
 test('growth: cached repeat returns fromCache with access and no charge', async () => {
-  mockYouTubeSuccess();
+  mockSaSuccess();
   try {
     const url = channelUrl('growth-cache');
     const first = mockRes();
