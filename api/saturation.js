@@ -17,7 +17,11 @@ import {
   validateChannelInput,
   initQuota
 } from "../utils.js";
-import { requireToolAccess } from "../lib/credits.js";
+import {
+  buildPaymentRequiredResponse,
+  finalizeToolAccess,
+  getToolAccessState
+} from "../lib/credits.js";
 
 function hasSponsorship(description) {
   if (!description) return false;
@@ -127,7 +131,11 @@ export default async function handler(req, res) {
   if (applyApiGuards(req, res, { rateKey: "saturation", maxRequests: 10, windowMs: 60_000 })) return;
 
   // Sign-in wall: every tool requires a Google account. David, Nov 2 2026.
-  if (!(await requireToolAccess(req, res, "saturation"))) return;
+  // Access state is kept so a successful run can deduct credits below.
+  const accessState = await getToolAccessState(req, "saturation");
+  if (!accessState.allowed) {
+    return res.status(402).json(buildPaymentRequiredResponse(accessState));
+  }
 
   await initQuota();
 
@@ -158,7 +166,14 @@ export default async function handler(req, res) {
 
     const cacheKey = `saturation::${input}::${sinceISO}`;
     const cached = getCache(cacheKey);
-    if (cached) return res.json({ fromCache: true, ...cached });
+    if (cached) {
+      // Cached repeat: same result, no charge (mirrors api/unlisted.js).
+      const finalized = await finalizeToolAccess(req, res, accessState, { chargeCredits: false });
+      if (!finalized.ok) {
+        return res.status(402).json(finalized.payload);
+      }
+      return res.json({ fromCache: true, ...cached, access: finalized.access });
+    }
 
     const spec = parseChannelIdFromUrl(input);
     const channelId = await resolveChannelId(spec);
@@ -323,7 +338,12 @@ export default async function handler(req, res) {
     };
 
     setCache(cacheKey, payload);
-    res.json(payload);
+    // Charge only after a successful run (mirrors api/unlisted.js).
+    const finalized = await finalizeToolAccess(req, res, accessState, { chargeCredits: true });
+    if (!finalized.ok) {
+      return res.status(402).json(finalized.payload);
+    }
+    return res.json({ ...payload, access: finalized.access });
   } catch (err) {
     return handleApiError(res, err);
   }
