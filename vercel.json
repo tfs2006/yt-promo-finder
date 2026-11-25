@@ -119,6 +119,8 @@
     { "source": "/youtube-private-vs-unlisted", "destination": "/public/youtube-private-vs-unlisted.html" },
     { "source": "/unlisted-playlist-finder", "destination": "/public/unlisted-playlist-finder.html" },
     { "source": "/credits", "destination": "/public/credits.html" },
+    { "source": "/sponsor-finder-playbook", "destination": "/public/sponsor-finder-playbook.html" },
+    { "source": "/sponsor-finder-playbook-thanks", "destination": "/public/sponsor-finder-playbook-thanks.html" },
     { "source": "/privacy", "destination": "/public/privacy.html" },
     { "source": "/terms", "destination": "/public/terms.html" },
     { "source": "/disclaimer", "destination": "/public/disclaimer.html" },
